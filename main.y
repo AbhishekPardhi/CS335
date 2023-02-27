@@ -15,8 +15,8 @@ void yyerror(const char *s) {
     char *str;
 }
 
-%token <>  COMMA EXPRESSION AT LPAREN RPAREN IDENTIFIER EQUALS DOT SEMICOLON
-%type <str>  type primitive_type array_initializer array_init variable_initializer type_name
+%token <>  COMMA EXPRESSION AT LPAREN RPAREN IDENTIFIER EQUALS DOT SEMICOLON CLASS PUBLIC PRIVATE LANGULAR RANGULAR X Y Z
+%type <str>  type primitive_type array_initializer array_init variable_initializer type_name local_class_or_interface_declaration local_variable_declaration_statement local_variable_declaration variable_modifiers local_variable_type statement block_statements block_statement variable_initializer_list variable_init element_value_array_initializer element_value_list element_values marker_annotation type_identifier package_identifier annotations annotation normal_annotation member_value_pairs_list member_value_pairs element_value 
 
 %%
 /* Grammer */
@@ -68,15 +68,180 @@ statement:
 
 
 
-type: primitive_type;
-
-primitive_type: 
-    annotation_wrap numeric_type
-|   annotation_wrap boolean
+// Class Declaration
+class_declaration :
+    normal_declaration
+|   enum_declaration
+|   record_declaration
 ;
 
-annotation_wrap: 
-    annotation_wrap annotation
+normal_annotation:
+    class_modifier CLASS type_identifier type_parameters class_extends class_implements class_permits class_body;
+;
+
+class_modifier:
+    PUBLIC 
+|   PRIVATE
+;
+
+type_parameters:
+    LANGULAR type_parameter_list RANGULAR
+|   empty
+;
+
+type_parameter_list:
+    type_parameter_list COMMA type_parameter
+|   type_parameter
+;
+
+class_extends:
+    EXTENDS class_type
+|   empty
+;   
+
+class_implements:
+    IMPLEMENTS interface_type_list
+|   empty
+;
+
+interface_type_list:
+    interface_type_list COMMA interface_type
+;
+
+class_permits:
+    PERMITS type_name_list
+|   empty
+;
+
+type_name_list:
+    type_name_list COMMA type_name
+|   type_name
+;
+
+class_body:
+    LMPARA class_body class_body_declaration RMPARA
+|   class_body_declaration
+;
+class_body_declaration:
+    class_member_declaration
+|   instance_initializer
+|   static_initializer
+|   constructor_declaration
+;
+
+class_member_declaration:
+    field_declaration
+|   method_declaration
+/* |   class_declaration */
+|   interface_declaration
+|   SEMICOLON
+;
+
+field_declaration:
+    field_modifier unanntype variable_declarators_list SEMICOLON
+;
+
+field_modifier:
+    PUBLIC
+|   PRIVATE
+|   annotation
+|   STATIC
+|   FINAL
+|   TRANSIENT
+|   VOLATILE
+|   PROTECTED
+;
+
+variable_declarators_list:
+    variable_declarators_list COMMA variable_declarator
+|   variable_declarator
+;
+
+variable_declarator:
+    variable_declarator_id variable_declarator_id_follow
+|   variable_declarator_id
+;
+
+variable_declarator_id_follow:
+    EQUAL variable_initializer
+|   empty
+;
+
+dims_empty:
+    dims
+|   empty
+;
+
+variable_declarator_id:
+    IDENTIFIER dims_empty
+|   IDENTIFIER
+;
+
+method_declaration:
+    method_modifier method_header method_body
+;
+
+method_modifier:
+    PUBLIC
+|   PRIVATE
+|   annotation
+|   STATIC
+|   FINAL
+|   SYNCHRONIZED
+|   NATIVE
+|   ABSTRACT
+|   STRICTFP
+|   PROTECTED
+;
+
+method_header:
+    result method_declarator throws_empty
+|   type_parameters annotations result method_declarator throws_empty
+;
+
+result:
+    unanntype
+|   VOID
+;
+
+throws_empty:
+    throws
+|   empty
+;
+
+method_declarator:
+    IDENTIFIER LPAREN reciever_parameter formal_parameter_list RPAREN dims_empty
+;
+
+reciever_parameter:
+    annotations unanntype IDENTIFIER DOT THIS 
+|   annotations unanntype THIS
+|   empty
+;
+
+formal_parameter_list:
+    formal_parameter_list COMMA formal_parameter
+|   formal_parameter
+|   empty
+;
+
+formal_parameter:
+    variable_modifiers unanntype variable_declarator_id
+|   variablearity_parameter
+;
+
+
+type: 
+primitive_type
+;
+
+primitive_type: 
+    annotations numeric_type
+|   annotations boolean
+;
+
+annotations: 
+    annotations annotation
 |
 ;
 
