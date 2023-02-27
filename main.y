@@ -15,8 +15,8 @@ void yyerror(const char *s) {
     char *str;
 }
 
-%token <>  COMMA AT LPAREN RPAREN IDENTIFIER EQUALS DOT SEMICOLON COLON OR RETURN TRY SYNCHRONIZED THROW ASSERT BREAK CONTINUE YIELD CATCH ARROW FINAL IF ELSE WHILE FOR VAR LSPAR RSPAR ELLIPSIS TIMES_EQUALS DIVIDE_EQUALS MOD_EQUALS PLUS_EQUALS MINUS_EQUALS LEFT_SHIFT_EQUALS RIGHT_SHIFT_EQUALS UNSIGNED_RIGHT_SHIFT_EQUALS AND_EQUALS XOR_EQUALS OR_EQUALS QUES NOT_EQUALS LT GT LE GE INSTANCEOF AND XOR AND_AND OR_OR PLUS MINUS TIMES DIVIDE MOD PLUS_PLUS MINUS_MINUS LSHIFT RSHIFT UNSIGNED_RSHIFT TILDE EXCLAMATION POINT_TO NEW THIS SUPER NULL TRUE FALSE INT LONG SHORT BYTE CHAR FLOAT DOUBLE BOOLEAN VOID NOT
-%type <str>  type primitive_type array_initializer array_init variable_initializer type_name
+%token <>  COMMA AT LPAREN RPAREN IDENTIFIER EQUALS DOT CLASS PUBLIC PRIVATE LANGULAR RANGULAR SEMICOLON COLON OR RETURN TRY SYNCHRONIZED THROW ASSERT BREAK CONTINUE YIELD CATCH ARROW FINAL IF ELSE WHILE FOR VAR LSPAR RSPAR ELLIPSIS TIMES_EQUALS DIVIDE_EQUALS MOD_EQUALS PLUS_EQUALS MINUS_EQUALS LEFT_SHIFT_EQUALS RIGHT_SHIFT_EQUALS UNSIGNED_RIGHT_SHIFT_EQUALS AND_EQUALS XOR_EQUALS OR_EQUALS QUES NOT_EQUALS LT GT LE GE INSTANCEOF AND XOR AND_AND OR_OR PLUS MINUS TIMES DIVIDE MOD PLUS_PLUS MINUS_MINUS LSHIFT RSHIFT UNSIGNED_RSHIFT TILDE EXCLAMATION POINT_TO NEW THIS SUPER NULL TRUE FALSE INT LONG SHORT BYTE CHAR FLOAT DOUBLE BOOLEAN VOID NOT EXTENDS IMPLEMENTS PERMITS RMPARA LMPARA PROTECTED STATIC TRANSIENT VOLATILE NATIVE STRICTFP 
+%type <str>  type primitive_type array_initializer array_init variable_initializer type_name local_class_or_interface_declaration local_variable_declaration_statement local_variable_declaration variable_modifiers local_variable_type statement block_statements block_statement variable_initializer_list variable_init element_value_array_initializer element_value_list element_values marker_annotation type_identifier package_identifier annotations annotation normal_annotation member_value_pairs_list member_value_pairs element_value empty 
 
 %%
 /* Grammer */
@@ -24,7 +24,7 @@ void yyerror(const char *s) {
 /* Block Statements */
 
 blocks:
-    blocks block
+    blocks block   
 |
 ;
 
@@ -484,7 +484,7 @@ unary_expression_not_plus_minus:
 ;
 
 postfix_expression:
-    primary
+    primary  
 |   expression_name
 |   post_increment_expression
 |   post_decrement_expression
@@ -518,6 +518,303 @@ floating_point_type:
 
 boolean:
     BOOLEAN
+;
+
+/* Class Declaration */
+class_declaration :
+    normal_class_declaration
+|   enum_declaration
+|   record_declaration
+;
+
+normal_class_declaration:
+    class_modifiers CLASS type_identifier type_parameters class_extends class_implements class_permits class_body;
+;
+
+
+class_modifiers:
+    class_modifier class_modifiers
+|   empty
+
+class_modifier:
+    PUBLIC 
+|   PRIVATE
+;
+
+type_parameters:
+    LANGULAR type_parameter_list RANGULAR
+|   empty
+;
+
+type_parameter_list:
+    type_parameter_list COMMA type_parameter
+|   type_parameter
+;
+
+class_extends:
+    EXTENDS class_type
+|   empty
+;   
+
+class_implements:
+    IMPLEMENTS interface_type_list
+|   empty
+;
+
+interface_type_list:
+    interface_type_list COMMA interface_type
+;
+
+class_permits:
+    PERMITS type_name_list
+|   empty
+;
+
+type_name_list:
+    type_name_list COMMA type_name
+|   type_name
+;
+
+class_body:
+    LMPARA class_body class_body_declaration RMPARA
+|   class_body_declaration
+;
+class_body_declaration:
+    class_member_declaration
+|   instance_initializer
+|   static_initializer
+|   constructor_declaration
+;
+
+class_member_declaration:
+    field_declaration
+|   method_declaration
+/* |   class_declaration */
+|   interface_declaration
+|   SEMICOLON
+;
+
+field_declaration:
+    field_modifier unanntype variable_declarators_list SEMICOLON
+;
+
+field_modifier:
+    PUBLIC
+|   PRIVATE
+|   annotation
+|   STATIC
+|   FINAL
+|   TRANSIENT
+|   VOLATILE
+|   PROTECTED
+;
+
+variable_declarator_id_follow:
+    EQUALS variable_initializer
+|   empty
+;
+
+method_declaration:
+    method_modifier method_header method_body
+;
+
+method_modifier:
+    PUBLIC
+|   PRIVATE
+|   annotation
+|   STATIC
+|   FINAL
+|   SYNCHRONIZED
+|   NATIVE
+|   ABSTRACT
+|   STRICTFP
+|   PROTECTED
+;
+
+method_header:
+    result method_declarator throws_empty
+|   type_parameters annotations result method_declarator throws_empty
+;
+
+result:
+    unanntype
+|   VOID
+;
+
+throws_empty:
+    throws
+|   empty
+;
+
+throws:
+    THROWS exception_type_list
+;
+
+exception_type_list:
+    exception_type_list COMMA exception_type
+|   exception_type
+;
+
+exception_type:
+    class_type
+|   type_variable
+;
+
+method_body:
+    block
+|   SEMICOLON
+;
+
+
+method_declarator:
+    IDENTIFIER LPAREN reciever_parameter formal_parameter_list RPAREN dim
+;
+
+reciever_parameter:
+    annotations unanntype IDENTIFIER DOT THIS 
+|   annotations unanntype THIS
+|   empty
+;
+
+formal_parameter_list:
+    formal_parameter_list COMMA formal_parameter
+|   formal_parameter
+|   empty
+;
+
+formal_parameter:
+    variable_modifiers unanntype variable_declarator_id
+|   variable_arity_parameter
+;
+
+instance_initializer:
+    block
+;
+
+static_initializer:
+    STATIC block
+;
+
+constructor_declaration:
+    constructor_modifiers constructor_declarator throws_empty constructor_body
+;
+
+constructor_modifiers:
+    constructor_modifier constructor_modifiers
+|   empty
+;
+
+constructor_modifier:
+    PUBLIC
+|   PRIVATE
+|   annotation
+|   PROTECTED
+;
+
+constructor_declarator:
+    type_parameters simple_type_name LPAREN reciever_parameter formal_parameter_list RPAREN
+;
+
+simple_type_name:
+    type_identifier
+;
+
+constructor_body:
+    LMPARA explicit_constructor_invocation block_statements RMPARA
+|   LMPARA constructor_body_declaration RMPARA
+|   LMPARA block_statements RMPARA
+|   LMPARA RMPARA
+;
+
+explicit_constructor_invocation:
+    type_arguments_empty THIS LPAREN argument_list_empty RPAREN SEMICOLON
+|   type_arguments_empty SUPER LPAREN argument_list_empty RPAREN SEMICOLON
+|   expression_name DOT type_arguments_empty SUPER LPAREN argument_list_empty RPAREN SEMICOLON
+|   primary DOT type_arguments_empty SUPER LPAREN argument_list_empty RPAREN SEMICOLON
+;
+
+type_arguments_empty:
+    type_arguments
+|   empty
+;
+
+
+enum_declaration:
+    class_modifiers ENUM type_identifier class_implements enum_body
+;
+
+enum_body:
+    LMPARA enum_constant_list COMMA enum_body_declarations RMPARA
+;
+
+enum_constant_list:
+    enum_constant_list COMMA enum_constant
+|   empty
+;
+
+// fix the arguments ke paas wale brackets optional optional betichod
+enum_constant:
+    annotations IDENTIFIER argument_list_empty class_body_empty
+;
+
+class_body_empty:
+    class_body
+|   empty
+;
+
+argument_list_empty:
+    argument_list
+|   empty
+;
+
+enum_body_declarations:
+    SEMICOLON class_body_declarations
+|   empty
+;
+
+class_body_declarations:
+    class_body_declarations class_body_declaration
+|   empty
+;
+
+record_declaration:
+    class_modifiers RECORD type_identifier type_parameters record_header class_implements record_body
+;
+
+record_header:
+    LPAREN record_component_list RPAREN
+;
+
+record_component_list:
+    record_component_list COMMA record_component
+|   empty
+;
+
+record_component:
+    annotations unanntype IDENTIFIER
+|   variable_arity_record_component
+;
+
+variable_arity_record_component:
+    annotations unanntype annotations ELLIPSIS IDENTIFIER
+;
+
+record_body:
+    LMPARA record_body_declarations RMPARA
+;
+
+record_body_declarations:
+    record_body_declarations record_body_declaration
+|   empty
+;
+
+record_body_declaration:
+    class_member_declaration
+|   compact_constructor_declaration
+;
+
+compact_constructor_declaration:
+    constructor_modifiers simple_type_name constructor_body
 ;
 
 
@@ -619,7 +916,7 @@ variable_initializer_list: variable_initializer variable_init
 variable_init: variable_init comma variable_initializer | ;
 
 variable_initializer : 
-    EXPRESSION
+    expression
 |   array_initializer
 ;
 
