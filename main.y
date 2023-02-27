@@ -15,11 +15,59 @@ void yyerror(const char *s) {
     char *str;
 }
 
-%token <>  COMMA EXPRESSION AT LPAREN RPAREN IDENTIFIER EQUALS DOT
+%token <>  COMMA EXPRESSION AT LPAREN RPAREN IDENTIFIER EQUALS DOT SEMICOLON
 %type <str>  type primitive_type array_initializer array_init variable_initializer type_name
 
 %%
 /* Grammer */
+blocks:
+    blocks block
+|
+;
+
+block:
+    block_statements
+|
+;
+
+block_statements:
+    block_statements block_statement
+|   block_statement
+;
+
+block_statement:
+    local_class_or_interface_declaration
+|   local_variable_declaration_statement
+|   statement
+;
+
+local_class_or_interface_declaration:
+    class_declaration
+|   interface_declaration
+;
+
+local_variable_declaration_statement:
+    local_variable_declaration SEMICOLON
+;
+
+local_variable_declaration:
+    variable_modifiers local_variable_type variable_declarators_list
+;
+
+variable_modifiers:
+    variable_modifiers variable_modifier
+|
+;
+
+local_variable_type:
+    unanntype
+|  var
+;
+
+statement:
+
+
+
 type: primitive_type;
 
 primitive_type: 
