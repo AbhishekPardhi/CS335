@@ -15,8 +15,8 @@ void yyerror(const char *s) {
     char *str;
 }
 
-%token <>  COMMA AT LPAREN RPAREN IDENTIFIER EQUALS DOT CLASS PUBLIC PRIVATE LANGULAR RANGULAR SEMICOLON COLON OR RETURN TRY SYNCHRONIZED THROW ASSERT BREAK CONTINUE YIELD CATCH ARROW FINAL IF ELSE WHILE FOR VAR LSPAR RSPAR ELLIPSIS TIMES_EQUALS DIVIDE_EQUALS MOD_EQUALS PLUS_EQUALS MINUS_EQUALS LEFT_SHIFT_EQUALS RIGHT_SHIFT_EQUALS UNSIGNED_RIGHT_SHIFT_EQUALS AND_EQUALS XOR_EQUALS OR_EQUALS QUES NOT_EQUALS LT GT LE GE INSTANCEOF AND XOR AND_AND OR_OR PLUS MINUS TIMES DIVIDE MOD PLUS_PLUS MINUS_MINUS LSHIFT RSHIFT UNSIGNED_RSHIFT TILDE EXCLAMATION POINT_TO NEW THIS SUPER NULL TRUE FALSE INT LONG SHORT BYTE CHAR FLOAT DOUBLE BOOLEAN VOID NOT
-%type <str>  type primitive_type array_initializer array_init variable_initializer type_name local_class_or_interface_declaration local_variable_declaration_statement local_variable_declaration variable_modifiers local_variable_type statement block_statements block_statement variable_initializer_list variable_init element_value_array_initializer element_value_list element_values marker_annotation type_identifier package_identifier annotations annotation normal_annotation member_value_pairs_list member_value_pairs element_value 
+%token <>  COMMA AT LPAREN RPAREN IDENTIFIER EQUALS DOT CLASS PUBLIC PRIVATE LANGULAR RANGULAR SEMICOLON COLON OR RETURN TRY SYNCHRONIZED THROW ASSERT BREAK CONTINUE YIELD CATCH ARROW FINAL IF ELSE WHILE FOR VAR LSPAR RSPAR ELLIPSIS TIMES_EQUALS DIVIDE_EQUALS MOD_EQUALS PLUS_EQUALS MINUS_EQUALS LEFT_SHIFT_EQUALS RIGHT_SHIFT_EQUALS UNSIGNED_RIGHT_SHIFT_EQUALS AND_EQUALS XOR_EQUALS OR_EQUALS QUES NOT_EQUALS LT GT LE GE INSTANCEOF AND XOR AND_AND OR_OR PLUS MINUS TIMES DIVIDE MOD PLUS_PLUS MINUS_MINUS LSHIFT RSHIFT UNSIGNED_RSHIFT TILDE EXCLAMATION POINT_TO NEW THIS SUPER NULL TRUE FALSE INT LONG SHORT BYTE CHAR FLOAT DOUBLE BOOLEAN VOID NOT EXTENDS IMPLEMENTS PERMITS RMPARA LMPARA PROTECTED STATIC TRANSIENT VOLATILE NATIVE STRICTFP 
+%type <str>  type primitive_type array_initializer array_init variable_initializer type_name local_class_or_interface_declaration local_variable_declaration_statement local_variable_declaration variable_modifiers local_variable_type statement block_statements block_statement variable_initializer_list variable_init element_value_array_initializer element_value_list element_values marker_annotation type_identifier package_identifier annotations annotation normal_annotation member_value_pairs_list member_value_pairs element_value empty 
 
 %%
 /* Grammer */
@@ -24,7 +24,7 @@ void yyerror(const char *s) {
 /* Block Statements */
 
 blocks:
-    blocks block
+    blocks block   
 |
 ;
 
@@ -484,7 +484,7 @@ unary_expression_not_plus_minus:
 ;
 
 postfix_expression:
-    primary
+    primary  
 |   expression_name
 |   post_increment_expression
 |   post_decrement_expression
@@ -522,14 +522,19 @@ boolean:
 
 /* Class Declaration */
 class_declaration :
-    normal_declaration
+    normal_class_declaration
 |   enum_declaration
 |   record_declaration
 ;
 
-normal_annotation:
-    class_modifier CLASS type_identifier type_parameters class_extends class_implements class_permits class_body;
+normal_class_declaration:
+    class_modifiers CLASS type_identifier type_parameters class_extends class_implements class_permits class_body;
 ;
+
+
+class_modifiers:
+    class_modifier class_modifiers
+|   empty
 
 class_modifier:
     PUBLIC 
@@ -637,12 +642,32 @@ result:
 ;
 
 throws_empty:
-    throw
+    throws
 |   empty
 ;
 
+throws:
+    THROWS exception_type_list
+;
+
+exception_type_list:
+    exception_type_list COMMA exception_type
+|   exception_type
+;
+
+exception_type:
+    class_type
+|   type_variable
+;
+
+method_body:
+    block
+|   SEMICOLON
+;
+
+
 method_declarator:
-    IDENTIFIER LPAREN reciever_parameter formal_parameter_list RPAREN dims_empty
+    IDENTIFIER LPAREN reciever_parameter formal_parameter_list RPAREN dim
 ;
 
 reciever_parameter:
@@ -661,6 +686,141 @@ formal_parameter:
     variable_modifiers unanntype variable_declarator_id
 |   variable_arity_parameter
 ;
+
+instance_initializer:
+    block
+;
+
+static_initializer:
+    STATIC block
+;
+
+constructor_declaration:
+    constructor_modifiers constructor_declarator throws_empty constructor_body
+;
+
+constructor_modifiers:
+    constructor_modifier constructor_modifiers
+|   empty
+;
+
+constructor_modifier:
+    PUBLIC
+|   PRIVATE
+|   annotation
+|   PROTECTED
+;
+
+constructor_declarator:
+    type_parameters simple_type_name LPAREN reciever_parameter formal_parameter_list RPAREN
+;
+
+simple_type_name:
+    type_identifier
+;
+
+constructor_body:
+    LMPARA explicit_constructor_invocation block_statements RMPARA
+|   LMPARA constructor_body_declaration RMPARA
+|   LMPARA block_statements RMPARA
+|   LMPARA RMPARA
+;
+
+explicit_constructor_invocation:
+    type_arguments_empty THIS LPAREN argument_list_empty RPAREN SEMICOLON
+|   type_arguments_empty SUPER LPAREN argument_list_empty RPAREN SEMICOLON
+|   expression_name DOT type_arguments_empty SUPER LPAREN argument_list_empty RPAREN SEMICOLON
+|   primary DOT type_arguments_empty SUPER LPAREN argument_list_empty RPAREN SEMICOLON
+;
+
+type_arguments_empty:
+    type_arguments
+|   empty
+;
+
+
+enum_declaration:
+    class_modifiers ENUM type_identifier class_implements enum_body
+;
+
+enum_body:
+    LMPARA enum_constant_list COMMA enum_body_declarations RMPARA
+;
+
+enum_constant_list:
+    enum_constant_list COMMA enum_constant
+|   empty
+;
+
+// fix the arguments ke paas wale brackets optional optional betichod
+enum_constant:
+    annotations IDENTIFIER argument_list_empty class_body_empty
+;
+
+class_body_empty:
+    class_body
+|   empty
+;
+
+argument_list_empty:
+    argument_list
+|   empty
+;
+
+enum_body_declarations:
+    SEMICOLON class_body_declarations
+|   empty
+;
+
+class_body_declarations:
+    class_body_declarations class_body_declaration
+|   empty
+;
+
+record_declaration:
+    class_modifiers RECORD type_identifier type_parameters record_header class_implements record_body
+;
+
+record_header:
+    LPAREN record_component_list RPAREN
+;
+
+record_component_list:
+    record_component_list COMMA record_component
+|   empty
+;
+
+record_component:
+    annotations unanntype IDENTIFIER
+|   variable_arity_record_component
+;
+
+variable_arity_record_component:
+    annotations unanntype annotations ELLIPSIS IDENTIFIER
+;
+
+record_body:
+    LMPARA record_body_declarations RMPARA
+;
+
+record_body_declarations:
+    record_body_declarations record_body_declaration
+|   empty
+;
+
+record_body_declaration:
+    class_member_declaration
+|   compact_constructor_declaration
+;
+
+compact_constructor_declaration:
+    constructor_modifiers simple_type_name constructor_body
+;
+
+
+
+
+
 
 type: primitive_type;
 
@@ -756,7 +916,7 @@ variable_initializer_list: variable_initializer variable_init
 variable_init: variable_init comma variable_initializer | ;
 
 variable_initializer : 
-    EXPRESSION
+    expression
 |   array_initializer
 ;
 
