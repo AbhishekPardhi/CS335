@@ -15,7 +15,7 @@ void yyerror(const char *s) {
     char *str;
 }
 
-%token <>  COMMA AT LPAREN RPAREN IDENTIFIER EQUALS DOT CLASS PUBLIC PRIVATE LANGULAR RANGULAR SEMICOLON COLON OR RETURN TRY SYNCHRONIZED THROW ASSERT BREAK CONTINUE YIELD CATCH ARROW FINAL IF ELSE WHILE FOR VAR LSPAR RSPAR ELLIPSIS TIMES_EQUALS DIVIDE_EQUALS MOD_EQUALS PLUS_EQUALS MINUS_EQUALS LEFT_SHIFT_EQUALS RIGHT_SHIFT_EQUALS UNSIGNED_RIGHT_SHIFT_EQUALS AND_EQUALS XOR_EQUALS OR_EQUALS QUES NOT_EQUALS LT GT LE GE INSTANCEOF AND XOR AND_AND OR_OR PLUS MINUS TIMES DIVIDE MOD PLUS_PLUS MINUS_MINUS LSHIFT RSHIFT UNSIGNED_RSHIFT TILDE EXCLAMATION POINT_TO NEW THIS SUPER NULL TRUE FALSE INT LONG SHORT BYTE CHAR FLOAT DOUBLE BOOLEAN VOID NOT EXTENDS IMPLEMENTS PERMITS RMPARA LMPARA PROTECTED STATIC TRANSIENT VOLATILE NATIVE STRICTFP 
+%token <>  COMMA AT LPAREN RPAREN IDENTIFIER EQUALS DOT CLASS PUBLIC PRIVATE LANGULAR RANGULAR SEMICOLON COLON OR RETURN TRY SYNCHRONIZED THROW ASSERT BREAK CONTINUE YIELD CATCH ARROW FINAL IF ELSE WHILE FOR VAR LSPAR RSPAR ELLIPSIS TIMES_EQUALS DIVIDE_EQUALS MOD_EQUALS PLUS_EQUALS MINUS_EQUALS LEFT_SHIFT_EQUALS RIGHT_SHIFT_EQUALS UNSIGNED_RIGHT_SHIFT_EQUALS AND_EQUALS XOR_EQUALS OR_EQUALS QUES NOT_EQUALS LT GT LE GE INSTANCEOF AND XOR PLUS MINUS TIMES DIVIDE MOD PLUS_PLUS MINUS_MINUS TILDE THIS SUPER INT LONG SHORT BYTE FLOAT DOUBLE BOOLEAN VOID NOT EXTENDS IMPLEMENTS PERMITS RMPARA LMPARA PROTECTED STATIC TRANSIENT VOLATILE NATIVE STRICTFP  LEFT_SHIFT RIGHT_SHIFT UNSIGNED_RIGHT_SHIFT ABSTRACT RECORD ENUM LITERAL THROWS
 %type <str>  type primitive_type array_initializer array_init variable_initializer type_name local_class_or_interface_declaration local_variable_declaration_statement local_variable_declaration variable_modifiers local_variable_type statement block_statements block_statement variable_initializer_list variable_init element_value_array_initializer element_value_list element_values marker_annotation type_identifier package_identifier annotations annotation normal_annotation member_value_pairs_list member_value_pairs element_value empty 
 
 %%
@@ -379,6 +379,16 @@ left_hand_side:
 |   array_access
 ;
 
+expression_name: 
+    IDENTIFIER
+|   ambiguous_name DOT IDENTIFIER
+;
+
+ambiguous_name:
+    ambiguous_name DOT IDENTIFIER
+|   IDENTIFIER
+;
+
 assignment_operator:
     EQUALS
 |   TIMES_EQUALS
@@ -476,6 +486,14 @@ pre_decrement_expression:
     MINUS_MINUS unary_expression
 ;
 
+post_increment_expression:
+    postfix_expression PLUS_PLUS
+;
+
+post_decrement_expression:
+    postfix_expression MINUS_MINUS
+;
+
 unary_expression_not_plus_minus:
     postfix_expression
 |   TILDE unary_expression
@@ -488,6 +506,35 @@ postfix_expression:
 |   expression_name
 |   post_increment_expression
 |   post_decrement_expression
+;
+
+primary:
+    primary_no_new_array
+|   array_creation_expression
+;
+
+primary_no_new_array:
+    LITERAL
+|   class_literal
+|   THIS
+|   type_name DOT THIS
+|   LPAREN expression RPAREN
+|   field_access
+|   array_access
+|   method_invocation
+|   method_reference
+;
+
+class_literal:
+    type_name brackets DOT CLASS
+|   numeric_type brackets DOT CLASS
+|   BOOLEAN brackets DOT CLASS
+|   VOID DOT CLASS
+;
+
+brackets:
+    LSPAR RSPAR brackets
+|   
 ;
 
 unanntype:
