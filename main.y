@@ -15,7 +15,7 @@ void yyerror(const char *s) {
     char *str;
 }
 
-%token <>  COMMA AT LPAREN RPAREN IDENTIFIER EQUALS DOT CLASS PUBLIC PRIVATE LANGULAR RANGULAR SEMICOLON COLON OR RETURN TRY SYNCHRONIZED THROW ASSERT BREAK CONTINUE YIELD CATCH ARROW FINAL IF ELSE WHILE FOR VAR LSPAR RSPAR ELLIPSIS TIMES_EQUALS DIVIDE_EQUALS MOD_EQUALS PLUS_EQUALS MINUS_EQUALS LEFT_SHIFT_EQUALS RIGHT_SHIFT_EQUALS UNSIGNED_RIGHT_SHIFT_EQUALS AND_EQUALS XOR_EQUALS OR_EQUALS QUES NOT_EQUALS LT GT LE GE INSTANCEOF AND XOR PLUS MINUS TIMES DIVIDE MOD PLUS_PLUS MINUS_MINUS TILDE THIS SUPER INT LONG SHORT BYTE FLOAT DOUBLE BOOLEAN VOID NOT EXTENDS IMPLEMENTS PERMITS RMPARA LMPARA PROTECTED STATIC TRANSIENT VOLATILE NATIVE STRICTFP  LEFT_SHIFT RIGHT_SHIFT UNSIGNED_RIGHT_SHIFT ABSTRACT RECORD ENUM LITERAL THROWS SUPER
+%token <>  COMMA AT LPAREN RPAREN IDENTIFIER EQUALS DOT CLASS PUBLIC PRIVATE LANGULAR RANGULAR SEMICOLON COLON OR RETURN TRY SYNCHRONIZED THROW ASSERT BREAK CONTINUE YIELD CATCH ARROW FINAL IF ELSE WHILE FOR VAR LSPAR RSPAR ELLIPSIS TIMES_EQUALS DIVIDE_EQUALS MOD_EQUALS PLUS_EQUALS MINUS_EQUALS LEFT_SHIFT_EQUALS RIGHT_SHIFT_EQUALS UNSIGNED_RIGHT_SHIFT_EQUALS AND_EQUALS XOR_EQUALS OR_EQUALS QUES NOT_EQUALS LT GT LE GE INSTANCEOF AND XOR PLUS MINUS TIMES DIVIDE MOD PLUS_PLUS MINUS_MINUS TILDE THIS SUPER INT LONG SHORT BYTE FLOAT DOUBLE BOOLEAN VOID NOT EXTENDS IMPLEMENTS PERMITS RMPARA LMPARA PROTECTED STATIC TRANSIENT VOLATILE NATIVE STRICTFP  LEFT_SHIFT RIGHT_SHIFT UNSIGNED_RIGHT_SHIFT ABSTRACT RECORD ENUM LITERAL THROWS NEW
 %type <str>  type primitive_type array_initializer array_init variable_initializer type_name local_class_or_interface_declaration local_variable_declaration_statement local_variable_declaration variable_modifiers local_variable_type statement block_statements block_statement variable_initializer_list variable_init element_value_array_initializer element_value_list element_values marker_annotation type_identifier package_identifier annotations annotation normal_annotation member_value_pairs_list member_value_pairs element_value empty 
 
 %%
@@ -523,6 +523,27 @@ primary:
 |   array_creation_expression
 ;
 
+array_creation_expression:
+    NEW primitive_type dimexprs dims_opt
+|   NEW class_or_interface_type dimexprs dims_opt
+|   NEW primitive_type dims array_initializer
+|   NEW class_or_interface_type dims array_initializer
+;
+
+dimexprs:
+    dimexprs dimexpr
+|   dimexpr
+;
+
+dimexpr:
+    annotations LSPAR expression RSPAR
+;
+
+dims_opt:
+    dims
+|
+;
+
 primary_no_new_array:
     LITERAL
 |   class_literal
@@ -606,6 +627,51 @@ type_parameters:
 type_parameter_list:
     type_parameter_list COMMA type_parameter
 |   type_parameter
+;
+
+type_parameter:
+    type_parameter_modifier type_identifier type_bound_opt
+;
+
+type_parameter_modifier:
+    annotations
+;
+
+type_bound_opt:
+    type_bound
+|   empty
+;
+
+type_bound:
+    EXTENDS type_variable
+|   EXTENDS class_or_interface_type additional_bounds
+;   
+
+type_variable:
+    annotations type_identifier
+;
+
+class_type:
+    annotations type_identifier type_arguments_opt  
+|   class_or_interface_type DOT annotations type_identifier type_arguments_opt
+|   package_name DOT annotations type_identifier type_arguments_opt
+;
+
+type_arguments_opt:
+    type_arguments
+|   empty
+;
+
+class_or_interface_type:
+    class_type
+|   interface_type
+;
+
+interface_type:
+    class_type
+;
+additional_bounds:
+    AND interface_type
 ;
 
 class_extends:
@@ -795,6 +861,33 @@ type_arguments_empty:
 |   empty
 ;
 
+type_arguments:
+    LANGULAR type_argument_list RANGULAR
+;
+
+type_argument_list:
+    type_argument_list COMMA type_argument
+|   type_argument
+;
+
+type_argument:
+    reference_type
+|   wildcard
+;
+
+wildcard:
+    annotations QUES wildcard_boun_opt
+;
+
+wildcard_boun_opt:
+    wildcard_bound
+|   empty
+;
+
+wildcard_bound:
+    EXTENDS reference_type
+|   SUPER reference_type
+;
 
 enum_declaration:
     class_modifiers ENUM type_identifier class_implements enum_body
@@ -822,6 +915,11 @@ class_body_empty:
 argument_list_empty:
     argument_list
 |   empty
+;
+
+argument_list:
+    argument_list COMMA expression
+|   expression
 ;
 
 enum_body_declarations:
@@ -874,12 +972,22 @@ compact_constructor_declaration:
     constructor_modifiers simple_type_name constructor_body
 ;
 
+type: 
+    primitive_type
+|   reference_type
+;
 
+reference_type:
+    class_or_interface_type
+|   array_type
+|   type_variable
+;
 
-
-
-
-type: primitive_type;
+array_type:
+    primitive_type dims
+|   class_or_interface_type dims
+|   type_variable dims
+;
 
 primitive_type: 
     annotations numeric_type
@@ -895,6 +1003,10 @@ annotation:
     normal_annotation
 |   marker_annotation
 |   single_element_annotation
+
+single_element_annotation:
+    at type_name LPAREN element_value RPAREN
+;
 
 normal_annotation: 
     at type_name LPAREN member_value_pairs_list RPAREN
