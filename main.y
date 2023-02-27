@@ -617,6 +617,12 @@ class_modifiers:
 class_modifier:
     PUBLIC 
 |   PRIVATE
+|   ABSTRACT
+|   STATIC
+|   FINAL
+|   STRICTFP
+|   SEALED
+|   NON_SEALED
 ;
 
 type_parameters:
@@ -686,6 +692,10 @@ class_implements:
 
 interface_type_list:
     interface_type_list COMMA interface_type
+;
+
+interface_type:
+    type_identifier
 ;
 
 class_permits:
@@ -844,7 +854,7 @@ simple_type_name:
 
 constructor_body:
     LMPARA explicit_constructor_invocation block_statements RMPARA
-|   LMPARA constructor_body_declaration RMPARA
+|   LMPARA explicit_constructor_invocation RMPARA
 |   LMPARA block_statements RMPARA
 |   LMPARA RMPARA
 ;
@@ -970,6 +980,171 @@ record_body_declaration:
 
 compact_constructor_declaration:
     constructor_modifiers simple_type_name constructor_body
+;
+
+//interface 
+
+interface_declaration:
+    normal_interface_declaration
+|   annotation_type_declaration
+;
+
+normal_interface_declaration:
+    interface_modifiers INTERFACE type_identifier type_parameters interface_extends interface_permits interface_body
+;
+
+interface_permits:
+    PERMITS interface_type_list
+|   empty
+;
+
+interface_modifiers:
+    interface_modifiers interface_modifier
+|   empty
+;
+
+interface_modifier:
+    PUBLIC
+|   PRIVATE
+|   annotation
+|   PROTECTED
+|   STATIC
+|   STRICTFP
+|   ABSTRACT
+|   NON_SEALED
+|   SEALED
+;
+
+interface_extends:
+    EXTENDS interface_type_list
+|   empty
+;
+
+interface_body:
+    LMPARA interface_body_declarations RMPARA
+;
+
+interface_body_declarations:
+    interface_body_declarations interface_body_declaration
+|   empty
+;
+
+interface_body_declaration:
+    interface_member_declaration
+|   constant_declaration
+|   interface_declaration
+|   annotation_type_declaration
+|   record_declaration
+|   SEMICOLON
+;
+
+interface_member_declaration:
+    constant_declaration
+|   interface_method_declaration
+;
+
+constant_declaration:
+    constant_modifiers unanntype variable_declarators SEMICOLON
+;
+
+constant_modifiers:
+    constant_modifier constant_modifiers
+|   empty
+;
+
+constant_modifier:
+    PUBLIC
+|   PRIVATE
+|   annotation
+|   PROTECTED
+|   STATIC
+|   FINAL
+;
+
+interface_method_declaration:
+    interface_method_modifiers unanntype method_declarator throws_empty SEMICOLON
+;
+
+interface_method_modifiers:
+    interface_method_modifier interface_method_modifiers
+|   empty
+;
+
+interface_method_modifier:
+    PUBLIC
+|   PRIVATE
+|   annotation
+|   PROTECTED
+|   ABSTRACT
+|   DEFAULT
+|   STATIC
+|   STRICTFP
+;
+
+annotation_type_declaration:
+    annotation_type_modifiers ANNOTATION type_identifier annotation_type_body
+;
+
+annotation_type_modifiers:
+    annotation_type_modifier annotation_type_modifiers
+|   empty
+;
+
+annotation_type_modifier:
+    PUBLIC
+|   PRIVATE
+|   annotation
+|   PROTECTED
+|   ABSTRACT
+|   STRICTFP
+;
+
+annotation_type_body:
+    LMPARA annotation_type_body_declarations RMPARA
+;
+
+annotation_type_body_declarations:
+    annotation_type_body_declarations annotation_type_body_declaration
+|   empty
+;
+
+annotation_type_body_declaration:
+    annotation_type_member_declaration
+|   constant_declaration
+|   interface_declaration
+|   annotation_type_declaration
+|   record_declaration
+|   SEMICOLON
+;
+
+annotation_type_member_declaration:
+    annotation_type_element_declaration
+|   constant_declaration
+;
+
+annotation_type_element_declaration:
+    annotation_type_element_modifiers unanntype IDENTIFIER LPAREN RPAREN default_value_empty SEMICOLON
+;
+
+annotation_type_element_modifiers:
+    annotation_type_element_modifier annotation_type_element_modifiers
+|   empty
+;
+
+annotation_type_element_modifier:
+    PUBLIC
+|   PRIVATE
+|   annotation
+|   PROTECTED
+|   ABSTRACT
+|   DEFAULT
+|   STATIC
+|   STRICTFP
+;
+
+default_value_empty:
+    DEFAULT element_value
+|   empty
 ;
 
 type: 
