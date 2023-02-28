@@ -849,11 +849,16 @@ int yy_flex_debug = 0;
 char *yytext;
 #line 1 "main.l"
 #line 2 "main.l"
-/* Declaration */
-#include "main.tab.h"
-#line 854 "lex.yy.c"
+    /* Declaration */
+    #include <bits/stdc++.h>
+    using namespace std;
+    #include "main.tab.h"
+    #include "Tokens.h"
+    // enum Tokens{_ABSTRACT=0, _CONTINUE=1, _FOR=2, _NEW_KEYWORD=3, _SWITCH=4, _ASSERT=5, _DEFAULT=6, _IF=7, _PACKAGE=8, _SYNCHRONIZED=9, _BOOLEAN=10, _DO=11, _GOTO=12, _PRIVATE=13, _THIS=14, _BREAK=15, _DOUBLE=16, _IMPLEMENTS=17, _PROTECTED=18, _THROW=19, _BYTE=20, _ELSE=21, _IMPORT=22, _PUBLIC=23, _THROWS=24, _CASE=25, _ENUM=26, _INSTANCEOF=27, _RETURN=28, _TRANSIENT=29, _CATCH=30, _EXTENDS=31, _INT=32, _SHORT=33, _TRY=34, _CHAR=35, _FINAL=36, _INTERFACE=37, _STATIC=38, _VOID=39, _CLASS=40, _FINALLY=41, _LONG=42, _STRICTFP=43, _VOLATILE=44, _CONST=45, _FLOAT=46, _NATIVE=47, _SUPER=48, _WHILE=49, _EXPORTS=50, _OPENS=51, _REQUIRES=52, _USES=53, _MODULE=54, _PERMITS=55, _SEALED=56, _VAR=57, _NON-SEALED=58, _PROVIDES=59, _TO=60, _WITH=61, _OPEN=62, _RECORD=63, _TRANSITIVE=64, _YIELD=65 , _LPAREN=66, _RPAREN=67, _LMPARA=68, _RMPARA=69, _LSPAR=70, _RSPAR=71, _SEMICOLON=72, _COMMA=73, _DOT=74, _ELLIPSIS=75, _AT=76, _EQUALS=77, _GT=78, _LT=79, _NOT=80, _TILDE=81, _QUESTION=82, _COLON=83, _EQUALS=84, _LE=85, _GE=86, _NOT_EQUALS=87, _AND=88, _OR=89, _PLUS_PLUS=90, _MINUS_MINUS=91, _PLUS=92, _MINUS=93, _TIMES=94, _DIVIDE=95, _XOR=96, _MOD=97, _LEFT_SHIFT=98, _RIGHT_SHIFT=99, _UNSIGNED_RIGHT_SHIFT=100, _PLUS_EQUALS=101, _MINUS_EQUALS=102, _TIMES_EQUALS=103, _DIVIDE_EQUALS=104, _AND_EQUALS=105, _OR_EQUALS=106, _XOR_EQUALS=107, _MOD_EQUALS=108, _LEFT_SHIFT_EQUALS=109, _RIGHT_SHIFT_EQUALS=110, _UNSIGNED_RIGHT_SHIFT_EQUALS=111};
+    map<string, int >mp = {{"abstract", _ABSTRACT}, {"continue", _CONTINUE}, {"for", _FOR}, {"new", _NEW_KEYWORD}, {"switch", _SWITCH}, {"assert", _ASSERT}, {"default", _DEFAULT}, {"if", _IF}, {"package", _PACKAGE}, {"synchronized", _SYNCHRONIZED}, {"boolean", _BOOLEAN}, {"do", _DO}, {"goto", _GOTO}, {"private", _PRIVATE}, {"this", _THIS}, {"break", _BREAK}, {"double", _DOUBLE}, {"implements", _IMPLEMENTS}, {"protected", _PROTECTED}, {"throw", _THROW}, {"byte", _BYTE}, {"else", _ELSE}, {"import", _IMPORT}, {"public", _PUBLIC}, {"throws", _THROWS}, {"case", _CASE}, {"enum", _ENUM}, {"instanceof", _INSTANCEOF}, {"return", _RETURN}, {"transient", _TRANSIENT}, {"catch", _CATCH}, {"extends", _EXTENDS}, {"int", _INT}, {"short", _SHORT}, {"try", _TRY}, {"char", _CHAR}, {"final", _FINAL}, {"interface", _INTERFACE}, {"static", _STATIC}, {"void", _VOID}, {"class", _CLASS}, {"finally", _FINALLY}, {"long", _LONG}, {"strictfp", _STRICTFP}, {"volatile", _VOLATILE}, {"const", _CONST}, {"float", _FLOAT}, {"native", _NATIVE}, {"super", _SUPER}, {"while", _WHILE}, {"exports", _EXPORTS}, {"opens", _OPENS}, {"requires", _REQUIRES}, {"uses", _USES}, {"module", _MODULE}, {"permits", _PERMITS}, {"sealed", _SEALED}, {"var", _VAR}, {"non-sealed", _NON_SEALED}, {"provides", _PROVIDES}, {"to", _TO}, {"with", _WITH}, {"open", _OPEN}, {"record", _RECORD}, {"transitive", _TRANSITIVE}, {"yield", _YIELD}, {"(", _LPAREN}, {")", _RPAREN}, {"{", _LMPARA}, {"}", _RMPARA}, {"[", _LSPAR}, {"]", _RSPAR}, {";", _SEMICOLON}, {",", _COMMA}, {".", _DOT}, {"...", _ELLIPSIS}, {"@", _AT}, {"=", _EQUALS}, {">", _GT}, {"<", _LT}, {"!", _NOT}, {"~", _TILDE}, {"?", _QUESTION}, {":", _COLON}, {"==", _EQUALS}, {"<=", _LE}, {">=", _GE}, {"!=", _NOT_EQUALS}, {"&&", _AND}, {"||", _OR}, {"++", _PLUS_PLUS}, {"--", _MINUS_MINUS}, {"+", _PLUS}, {"-", _MINUS}, {"*", _TIMES}, {"/", _DIVIDE}, {"^", _XOR}, {"%", _MOD}, {"<<", _LEFT_SHIFT}, {">>", _RIGHT_SHIFT}, {">>>", _UNSIGNED_RIGHT_SHIFT}, {"+=", _PLUS_EQUALS}, {"-=", _MINUS_EQUALS}, {"*=", _TIMES_EQUALS}, {"/=", _DIVIDE_EQUALS}, {"&=", _AND_EQUALS}, {"|=", _OR_EQUALS}, {"^=", _XOR_EQUALS}, {"%=", _MOD_EQUALS}, {"<<=", _LEFT_SHIFT_EQUALS}, {">>=", _RIGHT_SHIFT_EQUALS}, {">>>=", _UNSIGNED_RIGHT_SHIFT_EQUALS}}; 
+#line 865 "lex.yy.c"
 
-#line 856 "lex.yy.c"
+#line 867 "lex.yy.c"
 
 #define INITIAL 0
 #define comment 1
@@ -1071,11 +1076,11 @@ YY_DECL
 		}
 
 	{
-#line 101 "main.l"
+#line 106 "main.l"
 
-#line 103 "main.l"
+#line 108 "main.l"
     /* Rules */
-#line 1078 "lex.yy.c"
+#line 1089 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -1144,192 +1149,206 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 104 "main.l"
+#line 109 "main.l"
 {;}
 	YY_BREAK
 case 2:
 /* rule 2 can match eol */
 YY_RULE_SETUP
-#line 105 "main.l"
+#line 110 "main.l"
 {;}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 106 "main.l"
+#line 111 "main.l"
 BEGIN(comment);
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 107 "main.l"
+#line 112 "main.l"
 {;}
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 108 "main.l"
+#line 113 "main.l"
 {;}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 109 "main.l"
+#line 114 "main.l"
 BEGIN(INITIAL);
 	YY_BREAK
 case 7:
 /* rule 7 can match eol */
 YY_RULE_SETUP
-#line 111 "main.l"
+#line 116 "main.l"
 {   
-                                yyval.str = strdup(yytext);
+                                yylval.str = strdup(yytext);
                                 return LITERAL;
                             }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 115 "main.l"
+#line 120 "main.l"
 {   
-                                yyval.str = strdup(yytext);
-                                switch(yytext)
+                                yylval.str = strdup(yytext);
+                                switch(mp[strdup(yytext)])
                                 {
-                                    case "abstract":return ABSTRACT;
-                                    case "continue":return CONTINUE;
-                                    case "for":return FOR;
-                                    case "new":return NEW;
-                                    case "switch":return SWITCH;
-                                    case "assert":return ASSERT;
-                                    case "default":return DEFAULT;
-                                    case "if":return IF;
-                                    case "package":return PACKAGE;
-                                    case "synchronized":return SYNCHRONIZED;
-                                    case "boolean":return BOOLEAN;
-                                    case "do":return DO;
-                                    case "goto":return GOTO;
-                                    case "private":return PRIVATE;
-                                    case "this":return THIS;
-                                    case "break":return BREAK;
-                                    case "double":return DOUBLE;
-                                    case "implements":return IMPLEMENTS;
-                                    case "protected":return PROTECTED;
-                                    case "throw":return THROW;
-                                    case "byte":return BYTE;
-                                    case "else":return ELSE;
-                                    case "import":return IMPORT;
-                                    case "public":return PUBLIC;
-                                    case "throws":return THROWS;
-                                    case "case":return CASE;
-                                    case "enum":return ENUM;
-                                    case "instanceof":return INSTANCEOF;
-                                    case "return":return RETURN;
-                                    case "transient":return TRANSIENT;
-                                    case "catch":return CATCH;
-                                    case "extends":return EXTENDS;
-                                    case "int":return INT;
-                                    case "short":return SHORT;
-                                    case "try":return TRY;
-                                    case "char":return CHAR;
-                                    case "final":return FINAL;
-                                    case "interface":return INTERFACE;
-                                    case "static":return STATIC;
-                                    case "void":return VOID;
-                                    case "class":return CLASS;
-                                    case "finally":return FINALLY;
-                                    case "long":return LONG;
-                                    case "strictfp":return STRICTFP;
-                                    case "volatile":return VOLATILE;
-                                    case "const":return CONST;
-                                    case "float":return FLOAT;
-                                    case "native":return NATIVE;
-                                    case "super":return SUPER;
-                                    case "while":return WHILE;
+                                    case _ABSTRACT:return ABSTRACT;
+                                    case _CONTINUE:return CONTINUE;
+                                    case _FOR:return FOR;
+                                    case _NEW_KEYWORD:return NEW;
+                                    case _SWITCH:return SWITCH;
+                                    case _ASSERT:return ASSERT;
+                                    case _DEFAULT:return DEFAULT;
+                                    case _IF:return IF;
+                                    case _PACKAGE:return PACKAGE;
+                                    case _SYNCHRONIZED:return SYNCHRONIZED;
+                                    case _BOOLEAN:return BOOLEAN;
+                                    case _DO:return DO;
+                                    case _GOTO:return GOTO;
+                                    case _PRIVATE:return PRIVATE;
+                                    case _THIS:return THIS;
+                                    case _BREAK:return BREAK;
+                                    case _DOUBLE:return DOUBLE;
+                                    case _IMPLEMENTS:return IMPLEMENTS;
+                                    case _PROTECTED:return PROTECTED;
+                                    case _THROW:return THROW;
+                                    case _BYTE:return BYTE;
+                                    case _ELSE:return ELSE;
+                                    case _IMPORT:return IMPORT;
+                                    case _PUBLIC:return PUBLIC;
+                                    case _THROWS:return THROWS;
+                                    case _CASE:return CASE;
+                                    case _ENUM:return ENUM;
+                                    case _INSTANCEOF:return INSTANCEOF;
+                                    case _RETURN:return RETURN;
+                                    case _TRANSIENT:return TRANSIENT;
+                                    case _CATCH:return CATCH;
+                                    case _EXTENDS:return EXTENDS;
+                                    case _INT:return INT;
+                                    case _SHORT:return SHORT;
+                                    case _TRY:return TRY;
+                                    case _CHAR:return CHAR;
+                                    case _FINAL:return FINAL;
+                                    case _INTERFACE:return INTERFACE;
+                                    case _STATIC:return STATIC;
+                                    case _VOID:return VOID;
+                                    case _CLASS:return CLASS;
+                                    case _FINALLY:return FINALLY;
+                                    case _LONG:return LONG;
+                                    case _STRICTFP:return STRICTFP;
+                                    case _VOLATILE:return VOLATILE;
+                                    case _CONST:return CONST;
+                                    case _FLOAT:return FLOAT;
+                                    case _NATIVE:return NATIVE;
+                                    case _SUPER:return SUPER;
+                                    case _WHILE:return WHILE;
+                                    case _EXPORTS:return EXPORTS;
+                                    case _OPENS:return OPENS;
+                                    case _REQUIRES:return REQUIRES;
+                                    case _USES:return USES;
+                                    case _MODULE:return MODULE;
+                                    case _PERMITS:return PERMITS;
+                                    case _SEALED:return SEALED;
+                                    case _VAR:return VAR;
+                                    case _NON_SEALED:return NON_SEALED;
+                                    case _PROVIDES:return PROVIDES;
+                                    case _TO:return TO;
+                                    case _WITH:return WITH;
+                                    case _OPEN:return OPEN;
+                                    case _RECORD:return RECORD;
+                                    case _TRANSITIVE:return TRANSITIVE;
+                                    case _YIELD:return YIELD;
                                 }
                             }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 171 "main.l"
+#line 192 "main.l"
 {   
-                                switch(yytext)
+                                yylval.str = strdup(yytext);
+                                switch(mp[strdup(yytext)])
                                 {
-                                    case "(":return LPAREN;
-                                    case ")":return RPAREN;
-                                    case "{":return LPAREN;
-                                    case "}":return RPAREN;
-                                    case "[":return LPAREN;
-                                    case "]":return RPAREN;
-                                    case ";":return SEMICOLON;
-                                    case ",":return COMMA;
-                                    case ".":return DOT;
-                                    case "...":return ...;
-                                    case "@":return AT;
-                                    case "::":return ::;
+                                    case _LPAREN:return LPAREN;
+                                    case _RPAREN:return RPAREN;
+                                    case _LMPARA:return LMPARA;
+                                    case _RMPARA:return RMPARA;
+                                    case _LSPAR:return LSPAR;
+                                    case _RSPAR:return RSPAR;
+                                    case _SEMICOLON:return SEMICOLON;
+                                    case _COMMA:return COMMA;
+                                    case _DOT:return DOT;
+                                    case _ELLIPSIS:return ELLIPSIS;
+                                    case _AT:return AT;
                                 }
                             }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 188 "main.l"
+#line 209 "main.l"
 {   
-                                switch(yytext)
+                                yylval.str = strdup(yytext);
+                                switch(mp[strdup(yytext)])
                                 {
-                                    case "=":return =;
-                                    case ">":return GT;
-                                    case "<":return LT;
-                                    case "!":return NOT;
-                                    case "~":return TILDE;
-                                    case "?":return QUESTION;
-                                    case ":":return COLON;
-                                    case "==":return EQUALS;
-                                    case "<=":return LE;
-                                    case ">=":return GE;
-                                    case "!=":return NOT_EQUALS;
-                                    case "&&":return AND;
-                                    case "||":return ||;
-                                    case "++":return PLUS_PLUS;
-                                    case "--":return MINUS_MINUS;
-                                    case "+":return PLUS;
-                                    case "-":return MINUS;
-                                    case "*":return TIMES;
-                                    case "/":return DIVIDE;
-                                    case "&":return &;
-                                    case "|":return |;
-                                    case "^":return XOR;
-                                    case "%":return MOD;
-                                    case "<<":return LEFT_SHIFT;
-                                    case ">>":return RIGHT_SHIFT;
-                                    case ">>>":return UNSIGNED_RIGHT_SHIFT;
-                                    case "+=":return +=;
-                                    case "-=":return -=;
-                                    case "*=":return TIMES_EQUALS;
-                                    case "/=":return DIVIDE_EQUALS;
-                                    case "&=":return AND_EQUALS;
-                                    case "|=":return OR_EQUALS;
-                                    case "^=":return XOR_EQUALS;
-                                    case "%=":return MOD_EQUALS;
-                                    case "<<=":return LEFT_SHIFT_EQUALS;
-                                    case ">>=":return RIGHT_SHIFT_EQUALS;
-                                    case ">>>=":return UNSIGNED_RIGHT_SHIFT_EQUALS;
+                                    case _GT:return GT;
+                                    case _LT:return LT;
+                                    case _NOT:return NOT;
+                                    case _TILDE:return TILDE;
+                                    case _QUESTION:return QUESTION;
+                                    case _COLON:return COLON;
+                                    case _EQUALS:return EQUALS;
+                                    case _LE:return LE;
+                                    case _GE:return GE;
+                                    case _NOT_EQUALS:return NOT_EQUALS;
+                                    case _AND:return AND;
+                                    case _OR:return OR;
+                                    case _PLUS_PLUS:return PLUS_PLUS;
+                                    case _MINUS_MINUS:return MINUS_MINUS;
+                                    case _PLUS:return PLUS;
+                                    case _MINUS:return MINUS;
+                                    case _TIMES:return TIMES;
+                                    case _DIVIDE:return DIVIDE;
+                                    case _XOR:return XOR;
+                                    case _MOD:return MOD;
+                                    case _LEFT_SHIFT:return LEFT_SHIFT;
+                                    case _RIGHT_SHIFT:return RIGHT_SHIFT;
+                                    case _UNSIGNED_RIGHT_SHIFT:return UNSIGNED_RIGHT_SHIFT;
+                                    case _PLUS_EQUALS:return PLUS_EQUALS;
+                                    case _MINUS_EQUALS:return MINUS_EQUALS;
+                                    case _TIMES_EQUALS:return TIMES_EQUALS;
+                                    case _DIVIDE_EQUALS:return DIVIDE_EQUALS;
+                                    case _AND_EQUALS:return AND_EQUALS;
+                                    case _OR_EQUALS:return OR_EQUALS;
+                                    case _XOR_EQUALS:return XOR_EQUALS;
+                                    case _MOD_EQUALS:return MOD_EQUALS;
+                                    case _LEFT_SHIFT_EQUALS:return LEFT_SHIFT_EQUALS;
+                                    case _RIGHT_SHIFT_EQUALS:return RIGHT_SHIFT_EQUALS;
+                                    case _UNSIGNED_RIGHT_SHIFT_EQUALS:return UNSIGNED_RIGHT_SHIFT_EQUALS;
                                 }
                             }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 230 "main.l"
+#line 249 "main.l"
 {   
-                                yyval.str = strdup(yytext);
+                                yylval.str = strdup(yytext);
                                 return IDENTIFIER;
                             }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 234 "main.l"
+#line 253 "main.l"
 {
                                 cout << "Couldn't parse: " << yytext << endl;
                             }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 237 "main.l"
+#line 256 "main.l"
 ECHO;
 	YY_BREAK
-#line 1332 "lex.yy.c"
+#line 1357 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(comment):
 	yyterminate();
@@ -2347,6 +2366,6 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 237 "main.l"
+#line 256 "main.l"
 
 

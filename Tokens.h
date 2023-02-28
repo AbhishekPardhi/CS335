@@ -1,7 +1,7 @@
 #define _ABSTRACT 0
 #define _CONTINUE 1
 #define _FOR 2
-#define _NEW 3
+#define _NEW_KEYWORD 3
 #define _SWITCH 4
 #define _ASSERT 5
 #define _DEFAULT 6
@@ -56,7 +56,7 @@
 #define _PERMITS 55
 #define _SEALED 56
 #define _VAR 57
-#define _NON-SEALED 58
+#define _NON_SEALED 58
 #define _PROVIDES 59
 #define _TO 60
 #define _WITH 61
@@ -82,7 +82,6 @@
 #define _TILDE 81
 #define _QUESTION 82
 #define _COLON 83
-#define _EQUALS 84
 #define _LE 85
 #define _GE 86
 #define _NOT_EQUALS 87
