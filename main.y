@@ -15,8 +15,8 @@ void yyerror(const char *s) {
     char *str;
 }
 
-%token <str>  COMMA AT LPAREN RPAREN IDENTIFIER EQUALS DOT CLASS PUBLIC PRIVATE LANGULAR RANGULAR SEMICOLON COLON OR RETURN TRY SYNCHRONIZED THROW ASSERT BREAK CONTINUE YIELD CATCH ARROW FINAL IF ELSE WHILE FOR VAR LSPAR RSPAR ELLIPSIS TIMES_EQUALS DIVIDE_EQUALS MOD_EQUALS PLUS_EQUALS MINUS_EQUALS LEFT_SHIFT_EQUALS RIGHT_SHIFT_EQUALS UNSIGNED_RIGHT_SHIFT_EQUALS AND_EQUALS XOR_EQUALS OR_EQUALS QUESTION NOT_EQUALS LT GT LE GE INSTANCEOF AND XOR PLUS MINUS TIMES DIVIDE MOD PLUS_PLUS MINUS_MINUS TILDE THIS SUPER INT LONG SHORT BYTE FLOAT DOUBLE BOOLEAN VOID NOT EXTENDS IMPLEMENTS PERMITS RMPARA LMPARA PROTECTED STATIC TRANSIENT VOLATILE NATIVE STRICTFP  LEFT_SHIFT RIGHT_SHIFT UNSIGNED_RIGHT_SHIFT ABSTRACT RECORD ENUM LITERAL THROWS NEW INTERFACE SEALED NON_SEALED DEFAULT OPEN TRANSITIVE MODULE REQUIRES EXPORTS OPENS USES PROVIDES WITH IMPORT ASTERISK PACKAGE TO
-/* %type <str>  type primitive_type array_initializer array_init variable_initializer type_name local_class_or_interface_declaration local_variable_declaration_statement local_variable_declaration variable_modifiers local_variable_type statement block_statements block_statement variable_initializer_list variable_init element_value_array_initializer element_value_list element_values marker_annotation type_identifier package_identifier annotations annotation normal_annotation member_value_pairs_list member_value_pairs element_value empty  */
+%token <str>  COMMA AT LPAREN RPAREN IDENTIFIER EQUALS DOT FINALLY CLASS PUBLIC PRIVATE LANGULAR RANGULAR SEMICOLON COLON OR RETURN TRY SYNCHRONIZED THROW ASSERT BREAK CONTINUE YIELD CATCH ARROW FINAL IF ELSE WHILE FOR VAR LSPAR RSPAR ELLIPSIS TIMES_EQUALS DIVIDE_EQUALS MOD_EQUALS PLUS_EQUALS MINUS_EQUALS LEFT_SHIFT_EQUALS RIGHT_SHIFT_EQUALS UNSIGNED_RIGHT_SHIFT_EQUALS AND_EQUALS XOR_EQUALS OR_EQUALS QUESTION NOT_EQUALS LT GT LE GE INSTANCEOF AND XOR PLUS MINUS TIMES DIVIDE MOD PLUS_PLUS MINUS_MINUS TILDE THIS SUPER INT LONG SHORT BYTE FLOAT DOUBLE BOOLEAN VOID NOT EXTENDS IMPLEMENTS PERMITS RMPARA LMPARA PROTECTED STATIC TRANSIENT VOLATILE NATIVE STRICTFP  LEFT_SHIFT RIGHT_SHIFT UNSIGNED_RIGHT_SHIFT ABSTRACT RECORD ENUM LITERAL THROWS NEW INTERFACE SEALED NON_SEALED DEFAULT OPEN TRANSITIVE MODULE REQUIRES EXPORTS OPENS USES PROVIDES WITH IMPORT ASTERISK PACKAGE TO
+/* %type <str>  type primitive_type array_initializer array_init variable_initializer type_name local_class_or_interface_declaration local_variable_declaration_statement local_variable_declaration variable_modifiers local_variable_type statement block_statements block_statement variable_initializer_list variable_init element_value_array_initializer element_value_list element_values marker_annotation type_identifier package_identifier annotations annotation normal_annotation member_value_pairs_list member_value_pairs element_value    */
 
 %%
 /* Grammer */
@@ -34,17 +34,17 @@ ordinary_complilation_unit:
 
 /* package_declaration_opitonal:
     package_declaration
-|   empty
+|    
 ;
 
 import_declarations:
     import_declarations import_declaration
-|   empty
+|    
 ; */
 
 top_level_class_or_interface_declarations:
     top_level_class_or_interface_declarations class_declaration
-|   empty
+|    
 /* |   interface_declaration */
 ;
 
@@ -60,17 +60,17 @@ modular_declaration:
 
 open_optional:
     OPEN
-|   empty 
+|     
 ;
 
 submodules:
     submodules DOT IDENTIFIER
-| empty
+|  
 ;
 
 module_directives:
     module_directives module_directive
-|   empty
+|    
 ;
 
 module_directive:
@@ -88,7 +88,7 @@ requires_modifier:
 
 optional_to_module_names:
     TO module_name_list
-|   empty
+|    
 ;
 
 module_name_list:
@@ -162,12 +162,12 @@ unqualified_method_identifier:
 
 /* Block Statements */
 
-blocks:
-    blocks block   
-|
+block:
+    LMPARA block_statements_opt RMPARA  
+
 ;
 
-block:
+block_statements_opt:
     block_statements
 |
 ;
@@ -283,7 +283,7 @@ class_or_interface_type_to_instantiate:
 
 dot_annotation_indentifiers_optional:
     dot_annotation_indentifiers_optional DOT annotations IDENTIFIER
-|   empty
+|    
 ;
 
 method_invocation:
@@ -297,7 +297,7 @@ method_invocation:
 
 argument_list_optional:
     argument_list
-|   empty 
+|     
 ;
 
 argument_list:
@@ -400,7 +400,7 @@ for:
 
 for_init_opt:
     for_init
-|   empty
+|    
 ;
 
 for_init:
@@ -419,12 +419,12 @@ statement_expressions:
 
 expression_opt:
     expression
-|   empty
+|    
 ;
 
 for_update_opt:
     for_update
-|   empty
+|    
 ;
 
 for_update:
@@ -479,7 +479,7 @@ try_statement:
 
 finally_opt:
     finally
-|   empty
+|    
 ;
 
 catches:
@@ -489,7 +489,7 @@ catches:
 
 catches_opt:
     catches
-|   empty
+|    
 ;
 
 catch_clause:
@@ -509,7 +509,7 @@ catch_type:
 |   catch_type OR unanntype
 
 finally:
-    finally block
+    FINALLY block
 ;
 
 /* yield_statement:
@@ -533,22 +533,27 @@ lambda_expression:
 
 lambda_parameters:
     IDENTIFIER
-|   LPAREN lambda_parameter_list RPAREN
+|   LPAREN lambda_parameter_list_opt RPAREN
+;
+
+lambda_parameter_list_opt:
+    lambda_parameter_list
+|    
 ;
 
 lambda_parameter_list:
-    more_lambda_parameters lambda_parameter
-|   more_identifiers IDENTIFIER
+    lambda_parameter more_lambda_parameters
+|   IDENTIFIER more_identifiers
 ;
 
 more_lambda_parameters:
     more_lambda_parameters COMMA lambda_parameter
-|   
+|    
 ;
 
 more_identifiers:
-    more_identifiers COMMA IDENTIFIER
-|
+    more_identifiers COMMA IDENTIFIER 
+|    
 ;
 
 lambda_parameter:
@@ -740,11 +745,24 @@ primary:
 |   array_creation_expression
 ;
 
-array_creation_expression:
+/* array_creation_expression:
     NEW primitive_type dimexprs dims_opt
 |   NEW class_or_interface_type dimexprs dims_opt
 |   NEW primitive_type dims array_initializer
 |   NEW class_or_interface_type dims array_initializer
+; */
+
+array_creation_expression:
+    NEW array_creation_folllow
+;
+array_creation_folllow:
+    primitive_type array_creation_type_follow
+|   class_or_interface_type array_creation_type_follow
+;
+
+array_creation_type_follow:
+    dimexprs dims_opt
+|   dims array_initializer
 ;
 
 dimexprs:
@@ -758,7 +776,7 @@ dimexpr:
 
 dims_opt:
     dims
-|   empty
+|    
 ;
 
 primary_no_new_array:
@@ -782,7 +800,7 @@ class_literal:
 
 brackets:
     brackets LSPAR RSPAR 
-|   empty
+|    
 ;
 
 unanntype:
@@ -823,13 +841,12 @@ class_declaration :
 ;
 
 normal_class_declaration:
-    class_modifiers CLASS type_identifier type_parameters class_extends /*class_implements class_permits*/ class_body;
+    class_modifiers CLASS type_identifier type_parameters_opt class_extends_opt /*class_implements class_permits*/ class_body;
 ;
-
 
 class_modifiers:
     class_modifiers class_modifier
-|   empty
+|    
 
 class_modifier:
     PUBLIC 
@@ -838,13 +855,15 @@ class_modifier:
 |   STATIC
 |   FINAL
 |   STRICTFP
-/* |   SEALED
-|   NON_SEALED */
+;
+
+type_parameters_opt:
+    type_parameters
+|    
 ;
 
 type_parameters:
     LANGULAR type_parameter_list RANGULAR
-|   empty
 ;
 
 type_parameter_list:
@@ -862,12 +881,16 @@ type_parameter_modifier:
 
 type_bound_opt:
     type_bound
-|   empty
+|    
 ;
 
 type_bound:
-    EXTENDS type_variable
- |   EXTENDS class_or_interface_type /* additional_bounds */
+    EXTENDS type_variable_or_class_or_interface_type_list
+;
+
+type_variable_or_class_or_interface_type_list:
+    type_variable
+|   class_or_interface_type /* additional_bounds */
 ;   
 
 type_variable:
@@ -882,7 +905,7 @@ class_type:
 
 type_arguments_opt:
     type_arguments
-|   empty
+|    
 ;
 
 class_or_interface_type:
@@ -898,14 +921,18 @@ class_or_interface_type:
     AND interface_type
 ; */
 
+class_extends_opt:
+    class_extends
+|    
+;
+
 class_extends:
     EXTENDS class_type
-|   empty
-;   
+;
 
 /* class_implements:
     IMPLEMENTS interface_type_list
-|   empty
+|    
 ; */
 
 /* interface_type_list:
@@ -914,7 +941,7 @@ class_extends:
 
 /* class_permits:
     PERMITS type_name_list
-|   empty
+|    
 ; */
 
 /* type_name_list:
@@ -923,8 +950,12 @@ class_extends:
 ; */
 
 class_body:
-    LMPARA class_body class_body_declaration RMPARA
-|   class_body_declaration
+    LMPARA class_content RMPARA
+;
+
+class_content:
+    class_content class_body_declaration
+|    
 ;
 
 class_body_declaration:
@@ -949,17 +980,17 @@ field_declaration:
 field_modifier:
     PUBLIC
 |   PRIVATE
-|   annotation
 |   STATIC
 |   FINAL
 |   TRANSIENT
 |   VOLATILE
 |   PROTECTED
+|   annotation
 ;
 
 /* variable_declarator_id_follow:
     EQUALS variable_initializer
-|   empty
+|    
 ; */
 
 method_declaration:
@@ -991,7 +1022,7 @@ result:
 
 throws_empty:
     throws
-|   empty
+|    
 ;
 
 throws:
@@ -1021,13 +1052,13 @@ method_declarator:
 reciever_parameter:
     annotations unanntype IDENTIFIER DOT THIS 
 |   annotations unanntype THIS
-|   empty
+|    
 ;
 
 formal_parameter_list:
     formal_parameter_list COMMA formal_parameter
 |   formal_parameter
-|   empty
+|    
 ;
 
 formal_parameter:
@@ -1049,7 +1080,7 @@ constructor_declaration:
 
 constructor_modifiers:
     constructor_modifier constructor_modifiers
-|   empty
+|    
 ;
 
 constructor_modifier:
@@ -1075,15 +1106,15 @@ constructor_body:
 ;
 
 explicit_constructor_invocation:
-    type_arguments_empty THIS LPAREN argument_list_empty RPAREN SEMICOLON
-|   type_arguments_empty SUPER LPAREN argument_list_empty RPAREN SEMICOLON
-|   module_or_package_or_expression_name DOT type_arguments_empty SUPER LPAREN argument_list_empty RPAREN SEMICOLON
-|   primary DOT type_arguments_empty SUPER LPAREN argument_list_empty RPAREN SEMICOLON
+    type_arguments_empty THIS LPAREN argument_list_optional RPAREN SEMICOLON
+|   type_arguments_empty SUPER LPAREN argument_list_optional RPAREN SEMICOLON
+|   module_or_package_or_expression_name DOT type_arguments_empty SUPER LPAREN argument_list_optional RPAREN SEMICOLON
+|   primary DOT type_arguments_empty SUPER LPAREN argument_list_optional RPAREN SEMICOLON
 ;
 
 type_arguments_empty:
     type_arguments
-|   empty
+|    
 ;
 /* 
 enum_declaration:
@@ -1096,33 +1127,28 @@ enum_body:
 
 enum_constant_list:
     enum_constant_list COMMA enum_constant
-|   empty
+|    
 ;
 
 // fix the arguments ke paas wale brackets optional optional betichod
 enum_constant:
-    annotations IDENTIFIER argument_list_empty class_body_empty
+    annotations IDENTIFIER argument_list_optional class_body_empty
 ; */
 
 /* class_body_empty:
     class_body
-|   empty
+|    
 ; */
-
-argument_list_empty:
-    argument_list
-|   empty
-;
 
 
 /* enum_body_declarations:
     SEMICOLON class_body_declarations
-|   empty
+|    
 ; */
 
 /* class_body_declarations:
     class_body_declarations class_body_declaration
-|   empty
+|    
 ; */
 
 /* record_declaration:
@@ -1135,7 +1161,7 @@ record_header:
 
 record_component_list:
     record_component_list COMMA record_component
-|   empty
+|    
 ;
 
 record_component:
@@ -1153,7 +1179,7 @@ record_component:
 
 record_body_declarations:
     record_body_declarations record_body_declaration
-|   empty
+|    
 ;
 
 record_body_declaration:
@@ -1178,12 +1204,12 @@ normal_interface_declaration:
 
 interface_permits:
     PERMITS interface_type_list
-|   empty
+|    
 ;
 
 interface_modifiers:
     interface_modifiers interface_modifier
-|   empty
+|    
 ;
 
 interface_modifier:
@@ -1200,7 +1226,7 @@ interface_modifier:
 
 interface_extends:
     EXTENDS interface_type_list
-|   empty
+|    
 ;
 
 interface_body:
@@ -1209,7 +1235,7 @@ interface_body:
 
 interface_member_declarations:
     interface_member_declarations interface_member_declaration
-|   empty
+|    
 ;
 
 interface_member_declaration:
@@ -1226,7 +1252,7 @@ interface_method_declaration:
 
 interface_method_modifiers:
     interface_method_modifier interface_method_modifiers
-|   empty
+|    
 ;
 
 interface_method_modifier:
@@ -1245,7 +1271,7 @@ interface_method_modifier:
 
 constant_modifiers:
     constant_modifiers constant_modifier
-|   empty
+|    
 ;
 
 constant_modifier:
@@ -1265,7 +1291,7 @@ annotation_interface_body:
 
 annotation_interface_member_declarations:
      annotation_interface_member_declarations annotation_interface_member_declaration
-|   empty
+|    
 ;
 
 annotation_interface_member_declaration:
@@ -1288,20 +1314,20 @@ annotation_interface_element_modifier:
 |   annotation
 |   ABSTRACT
 ; */
-
+/* 
 default_value_empty:
     default_value
-|   empty
+|    
 ;
 
 default_value:
     DEFAULT element_value
-;
+; */
 
-type: 
+/* type: 
     primitive_type
 |   reference_type
-;
+; */
 
 reference_type:
     class_or_interface_type
@@ -1322,32 +1348,34 @@ primitive_type:
 
 annotations: 
     annotations annotation
-|
+|    
 ;
 
 annotation:
-    normal_annotation
-|   marker_annotation
-|   single_element_annotation
-
-single_element_annotation:
-    at type_name LPAREN element_value RPAREN
+    AT type_name annotation_body
 ;
 
-normal_annotation: 
-    at type_name LPAREN member_value_pairs_list RPAREN
-
-member_value_pairs_list:
-    member_value_pair member_value_pairs
-| 
+annotation_body:
+    LPAREN annotation_content RPAREN
+|    
 ;
 
-member_value_pairs: 
-    member_value_pairs COMMA member_value_pair
-|
+annotation_content:
+    element_value
+|   element_value_pairs_list_opt
 ;
 
-member_value_pair:
+element_value_pairs_list_opt:
+    element_value_pairs_list
+|      
+;
+
+element_value_pairs_list:
+    element_value_pairs_list COMMA element_value_pair
+|   element_value_pair
+;
+
+element_value_pair:
     IDENTIFIER EQUALS element_value
 ;
 
@@ -1357,11 +1385,10 @@ element_value:
 |   element_value_array_initializer
 
 element_value_array_initializer:
-    element_value_array_initializer Y Z
-| 
+    LMPARA  element_value_list_opt comma_opt RMPARA
 ;
 
-Z:
+element_value_list_opt:
     element_value_list
 ;
 
@@ -1371,50 +1398,36 @@ element_value_list:
 
 element_values:
     element_values COMMA element_value
-|
-;
-
-empty:
-;
-
-marker_annotation:
-    at type_name
+|    
 ;
 
 array_initializer: 
-    array_initializer array_init 
-|   
+    LMPARA variable_initializer_list_opt comma_opt RMPARA
 ;
 
-array_init: X Y;
-
-X: 
+variable_initializer_list_opt: 
     variable_initializer_list 
-|   
 ;
 
-Y: 
-    comma
-|   
+comma_opt: 
+    COMMA
+|    
 ;
 
 variable_initializer_list: 
     variable_initializer variable_init
+;
 
-variable_init: variable_init comma variable_initializer | ;
+variable_init: 
+    variable_init COMMA variable_initializer 
+|    
+;
 
 variable_initializer : 
     expression
 |   array_initializer
 ;
 
-comma: 
-    COMMA
-;
-
-at:
-    AT
-;
 %%
 
 int main(){
