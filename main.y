@@ -43,9 +43,12 @@ import_declarations:
 ; */
 
 top_level_class_or_interface_declarations:
-    class_body_declaration
+    top_level_class_or_interface_declarations class_declaration
+|   empty
 /* |   interface_declaration */
 ;
+
+
 
 /* modular_compliation_unit:
     import_declarations modular_declaration
@@ -467,12 +470,9 @@ return:
 ;
 
 synchronized_statement:
-    synchronized LPAREN expression RPAREN block
+    SYNCHRONIZED LPAREN expression RPAREN block
 ;
 
-synchronized:
-    SYNCHRONIZED
-;
 throw_statement:
     throw expression SEMICOLON
 ;
@@ -765,7 +765,7 @@ dimexpr:
 
 dims_opt:
     dims
-|
+|   empty
 ;
 
 primary_no_new_array:
@@ -788,8 +788,8 @@ class_literal:
 ;
 
 brackets:
-    LSPAR RSPAR brackets
-|   
+    brackets LSPAR RSPAR 
+|   empty
 ;
 
 unanntype:
@@ -830,12 +830,12 @@ class_declaration :
 ;
 
 normal_class_declaration:
-    class_modifiers CLASS type_identifier type_parameters class_extends class_implements /*class_permits*/ class_body;
+    class_modifiers CLASS type_identifier type_parameters class_extends /*class_implements class_permits*/ class_body;
 ;
 
 
 class_modifiers:
-    class_modifier class_modifiers
+    class_modifiers class_modifier
 |   empty
 
 class_modifier:
@@ -910,10 +910,10 @@ class_extends:
 |   empty
 ;   
 
-class_implements:
-    /* IMPLEMENTS interface_type_list */
+/* class_implements:
+    IMPLEMENTS interface_type_list
 |   empty
-;
+; */
 
 /* interface_type_list:
     interface_type_list COMMA interface_type
