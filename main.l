@@ -113,7 +113,7 @@ IDENTIFIERS                     {JAVA_LETTER}{JAVA_LETTER_OR_DIGIT}*
                             }
 {KEYWORDS}                  {   
                                 yyval.str = strdup(yytext);
-                                switch(yytext)
+                                switch(strdup(yytext))
                                 {
                                     case "abstract":return ABSTRACT;
                                     case "continue":return CONTINUE;
@@ -168,26 +168,25 @@ IDENTIFIERS                     {JAVA_LETTER}{JAVA_LETTER_OR_DIGIT}*
                                 }
                             }
 {DELIMITERS}                {   
-                                switch(yytext)
+                                switch(strdup(yytext))
                                 {
                                     case "(":return LPAREN;
                                     case ")":return RPAREN;
-                                    case "{":return LPAREN;
-                                    case "}":return RPAREN;
-                                    case "[":return LPAREN;
-                                    case "]":return RPAREN;
+                                    case "{":return LMPARA;
+                                    case "}":return RMPARA;
+                                    case "[":return LSPAR;
+                                    case "]":return RSPAR;
                                     case ";":return SEMICOLON;
                                     case ",":return COMMA;
                                     case ".":return DOT;
-                                    case "...":return ...;
+                                    case "...":return ELLIPSIS;
                                     case "@":return AT;
-                                    case "::":return ::;
                                 }
                             }
 {OPERATORS}                 {   
-                                switch(yytext)
+                                switch(strdup(yytext))
                                 {
-                                    case "=":return =;
+                                    case "=":return EQUALS;
                                     case ">":return GT;
                                     case "<":return LT;
                                     case "!":return NOT;
@@ -199,22 +198,20 @@ IDENTIFIERS                     {JAVA_LETTER}{JAVA_LETTER_OR_DIGIT}*
                                     case ">=":return GE;
                                     case "!=":return NOT_EQUALS;
                                     case "&&":return AND;
-                                    case "||":return ||;
+                                    case "||":return OR;
                                     case "++":return PLUS_PLUS;
                                     case "--":return MINUS_MINUS;
                                     case "+":return PLUS;
                                     case "-":return MINUS;
                                     case "*":return TIMES;
                                     case "/":return DIVIDE;
-                                    case "&":return &;
-                                    case "|":return |;
                                     case "^":return XOR;
                                     case "%":return MOD;
                                     case "<<":return LEFT_SHIFT;
                                     case ">>":return RIGHT_SHIFT;
                                     case ">>>":return UNSIGNED_RIGHT_SHIFT;
-                                    case "+=":return +=;
-                                    case "-=":return -=;
+                                    case "+=":return PLUS_EQUALS;
+                                    case "-=":return MINUS_EQUALS;
                                     case "*=":return TIMES_EQUALS;
                                     case "/=":return DIVIDE_EQUALS;
                                     case "&=":return AND_EQUALS;
