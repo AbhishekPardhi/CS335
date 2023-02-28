@@ -67,7 +67,7 @@
 
 
 /* First part of user prologue.  */
-#line 1 "/home/awso/Documents/CS335-Project/main.y"
+#line 1 "main.y"
 
 /* Declaration */
 #include <bits/stdc++.h>
@@ -2593,7 +2593,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 1426 "/home/awso/Documents/CS335-Project/main.y"
+#line 1426 "main.y"
 
 
 int main(){

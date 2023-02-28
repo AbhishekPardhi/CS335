@@ -172,7 +172,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 14 "/home/awso/Documents/CS335-Project/main.y"
+#line 14 "main.y"
 
     char *str;
 
