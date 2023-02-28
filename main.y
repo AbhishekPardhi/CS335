@@ -15,7 +15,7 @@ void yyerror(const char *s) {
     char *str;
 }
 
-%token <str>  COMMA AT LPAREN RPAREN IDENTIFIER EQUALS DOT FINALLY CLASS PUBLIC PRIVATE LANGULAR RANGULAR SEMICOLON COLON OR RETURN TRY SYNCHRONIZED THROW ASSERT BREAK CONTINUE YIELD CATCH ARROW FINAL IF ELSE WHILE FOR VAR LSPAR RSPAR ELLIPSIS TIMES_EQUALS DIVIDE_EQUALS MOD_EQUALS PLUS_EQUALS MINUS_EQUALS LEFT_SHIFT_EQUALS RIGHT_SHIFT_EQUALS UNSIGNED_RIGHT_SHIFT_EQUALS AND_EQUALS XOR_EQUALS OR_EQUALS QUESTION NOT_EQUALS LT GT LE GE INSTANCEOF AND XOR PLUS MINUS TIMES DIVIDE MOD PLUS_PLUS MINUS_MINUS TILDE THIS SUPER INT LONG SHORT BYTE FLOAT DOUBLE BOOLEAN VOID NOT EXTENDS IMPLEMENTS PERMITS RMPARA LMPARA PROTECTED STATIC TRANSIENT VOLATILE NATIVE STRICTFP  LEFT_SHIFT RIGHT_SHIFT UNSIGNED_RIGHT_SHIFT ABSTRACT RECORD ENUM LITERAL THROWS NEW INTERFACE SEALED NON_SEALED DEFAULT OPEN TRANSITIVE MODULE REQUIRES EXPORTS OPENS USES PROVIDES WITH IMPORT ASTERISK PACKAGE TO
+%token <str> IDENTIFIER_NOT DOUBLE_COLON COMMA AT LPAREN RPAREN IDENTIFIER EQUALS DOT FINALLY CLASS PUBLIC PRIVATE LANGULAR RANGULAR SEMICOLON OR COLON RETURN TRY SYNCHRONIZED THROW ASSERT BREAK CONTINUE YIELD CATCH ARROW FINAL IF ELSE WHILE FOR VAR LSPAR RSPAR ELLIPSIS TIMES_EQUALS DIVIDE_EQUALS MOD_EQUALS PLUS_EQUALS MINUS_EQUALS LEFT_SHIFT_EQUALS RIGHT_SHIFT_EQUALS UNSIGNED_RIGHT_SHIFT_EQUALS AND_EQUALS XOR_EQUALS OR_EQUALS QUESTION NOT_EQUALS LT GT LE GE INSTANCEOF AND XOR PLUS MINUS TIMES DIVIDE MOD PLUS_PLUS MINUS_MINUS TILDE THIS SUPER INT LONG SHORT BYTE FLOAT DOUBLE BOOLEAN VOID NOT EXTENDS IMPLEMENTS PERMITS RMPARA LMPARA PROTECTED STATIC TRANSIENT VOLATILE NATIVE STRICTFP  LEFT_SHIFT RIGHT_SHIFT UNSIGNED_RIGHT_SHIFT ABSTRACT RECORD ENUM LITERAL THROWS NEW INTERFACE SEALED NON_SEALED DEFAULT OPEN TRANSITIVE MODULE REQUIRES EXPORTS OPENS USES PROVIDES WITH IMPORT ASTERISK PACKAGE TO
 /* %type <str>  type primitive_type array_initializer array_init variable_initializer type_name local_class_or_interface_declaration local_variable_declaration_statement local_variable_declaration variable_modifiers local_variable_type statement block_statements block_statement variable_initializer_list variable_init element_value_array_initializer element_value_list element_values marker_annotation type_identifier package_identifier annotations annotation normal_annotation member_value_pairs_list member_value_pairs element_value    */
 
 %%
@@ -306,12 +306,12 @@ argument_list:
 ;
 
 method_reference:
-|   SUPER COLON COLON type_arguments IDENTIFIER
-|   type_name DOT SUPER COLON COLON type_arguments IDENTIFIER
-|   primary COLON COLON type_arguments IDENTIFIER
-|   module_or_package_or_expression_name COLON COLON type_arguments IDENTIFIER
-|   class_type COLON COLON type_arguments NEW
-|   array_type COLON COLON NEW
+|   SUPER DOUBLE_COLON type_arguments IDENTIFIER
+|   type_name DOT SUPER DOUBLE_COLON type_arguments IDENTIFIER
+|   primary DOUBLE_COLON type_arguments IDENTIFIER
+|   module_or_package_or_expression_name DOUBLE_COLON type_arguments IDENTIFIER
+|   class_type DOUBLE_COLON type_arguments NEW
+|   array_type DOUBLE_COLON NEW
 ;
 
 type_arguments:
@@ -419,7 +419,6 @@ statement_expressions:
 
 expression_opt:
     expression
-|    
 ;
 
 for_update_opt:
@@ -538,7 +537,6 @@ lambda_parameters:
 
 lambda_parameter_list_opt:
     lambda_parameter_list
-|    
 ;
 
 lambda_parameter_list:
@@ -1366,8 +1364,7 @@ annotation_content:
 ;
 
 element_value_pairs_list_opt:
-    element_value_pairs_list
-|      
+    element_value_pairs_list 
 ;
 
 element_value_pairs_list:
