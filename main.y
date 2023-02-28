@@ -232,7 +232,6 @@ local_variable_type:
 statement:
     statement_without_trailing_substatement
 |   labeled_statement
-|   if_then_statement
 |   if_then_else_statement
 |   while_statement
 |   for_statement
@@ -307,12 +306,10 @@ argument_list:
 ;
 
 method_reference:
-    module_or_package_or_expression_name COLON COLON type_arguments IDENTIFIER
 |   SUPER COLON COLON type_arguments IDENTIFIER
 |   type_name DOT SUPER COLON COLON type_arguments IDENTIFIER
 |   primary COLON COLON type_arguments IDENTIFIER
 |   module_or_package_or_expression_name COLON COLON type_arguments IDENTIFIER
-|   SUPER COLON COLON type_arguments IDENTIFIER
 |   class_type COLON COLON type_arguments NEW
 |   array_type COLON COLON NEW
 ;
@@ -340,14 +337,13 @@ wildcard_bound_opt:
 |   SUPER reference_type
 ;
 
-
-
-if_then_statement:
-    if LPAREN expression RPAREN statement 
+if_then_else_statement:
+    if LPAREN expression RPAREN if_footer
 ;
 
-if_then_else_statement:
-    if LPAREN expression RPAREN statement_no_short_if else statement
+if_footer:
+    statement
+|   statement_no_short_if else statement
 ;
 
 statement_no_short_if:
@@ -404,7 +400,7 @@ for:
 
 for_init_opt:
     for_init
-|   
+|   empty
 ;
 
 for_init:
@@ -423,12 +419,12 @@ statement_expressions:
 
 expression_opt:
     expression
-|   
+|   empty
 ;
 
 for_update_opt:
     for_update
-|
+|   empty
 ;
 
 for_update:
@@ -474,19 +470,16 @@ synchronized_statement:
 ;
 
 throw_statement:
-    throw expression SEMICOLON
+    THROW expression SEMICOLON
 ;
 
-throw:
-    THROW
-;
 try_statement:
-    try block catches
-|   try block catches_opt finally
+    TRY block catches_opt finally_opt 
 ;
 
-try:
-    TRY
+finally_opt:
+    finally
+|   empty
 ;
 
 catches:
@@ -496,7 +489,7 @@ catches:
 
 catches_opt:
     catches
-|
+|   empty
 ;
 
 catch_clause:
@@ -924,15 +917,16 @@ class_extends:
 |   empty
 ; */
 
-type_name_list:
+/* type_name_list:
     type_name_list COMMA type_name
 |   type_name
-;
+; */
 
 class_body:
     LMPARA class_body class_body_declaration RMPARA
 |   class_body_declaration
 ;
+
 class_body_declaration:
     class_member_declaration
 |   instance_initializer
@@ -963,10 +957,10 @@ field_modifier:
 |   PROTECTED
 ;
 
-variable_declarator_id_follow:
+/* variable_declarator_id_follow:
     EQUALS variable_initializer
 |   empty
-;
+; */
 
 method_declaration:
     method_modifier method_header method_body
@@ -1110,10 +1104,10 @@ enum_constant:
     annotations IDENTIFIER argument_list_empty class_body_empty
 ; */
 
-class_body_empty:
+/* class_body_empty:
     class_body
 |   empty
-;
+; */
 
 argument_list_empty:
     argument_list
@@ -1126,10 +1120,10 @@ argument_list_empty:
 |   empty
 ; */
 
-class_body_declarations:
+/* class_body_declarations:
     class_body_declarations class_body_declaration
 |   empty
-;
+; */
 
 /* record_declaration:
     class_modifiers RECORD type_identifier type_parameters record_header class_implements record_body
@@ -1149,9 +1143,9 @@ record_component:
 |   variable_arity_record_component
 ; */
 
-variable_arity_record_component:
+/* variable_arity_record_component:
     annotations unanntype annotations ELLIPSIS IDENTIFIER
-;
+; */
 
 /* record_body:
     LMPARA record_body_declarations RMPARA
@@ -1245,7 +1239,7 @@ interface_method_modifier:
 |   STRICTFP
 ; */
 
-constant_declaration:
+/* constant_declaration:
     constant_modifiers unanntype variable_declarators_list SEMICOLON
 ;
 
@@ -1259,7 +1253,7 @@ constant_modifier:
 |   annotation
 |   STATIC
 |   FINAL
-;
+; */
 
 /* annotation_interface_declaration:
     interface_modifiers AT INTERFACE type_identifier annotation_interface_body
@@ -1387,9 +1381,6 @@ marker_annotation:
     at type_name
 ;
 
-package_identifier:
-    IDENTIFIER
-;
 array_initializer: 
     array_initializer array_init 
 |   
@@ -1407,7 +1398,8 @@ Y:
 |   
 ;
 
-variable_initializer_list: variable_initializer variable_init
+variable_initializer_list: 
+    variable_initializer variable_init
 
 variable_init: variable_init comma variable_initializer | ;
 
