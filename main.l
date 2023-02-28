@@ -108,21 +108,126 @@ IDENTIFIERS                     {JAVA_LETTER}{JAVA_LETTER_OR_DIGIT}*
 <comment>{COMMENT_END}      BEGIN(INITIAL);
 
 {LITERALS}                  {   
-                                
+                                yyval.str = strdup(yytext);
+                                return LITERAL;
                             }
 {KEYWORDS}                  {   
-                                
+                                yyval.str = strdup(yytext);
+                                switch(strdup(yytext))
+                                {
+                                    case "abstract":return ABSTRACT;
+                                    case "continue":return CONTINUE;
+                                    case "for":return FOR;
+                                    case "new":return NEW;
+                                    case "switch":return SWITCH;
+                                    case "assert":return ASSERT;
+                                    case "default":return DEFAULT;
+                                    case "if":return IF;
+                                    case "package":return PACKAGE;
+                                    case "synchronized":return SYNCHRONIZED;
+                                    case "boolean":return BOOLEAN;
+                                    case "do":return DO;
+                                    case "goto":return GOTO;
+                                    case "private":return PRIVATE;
+                                    case "this":return THIS;
+                                    case "break":return BREAK;
+                                    case "double":return DOUBLE;
+                                    case "implements":return IMPLEMENTS;
+                                    case "protected":return PROTECTED;
+                                    case "throw":return THROW;
+                                    case "byte":return BYTE;
+                                    case "else":return ELSE;
+                                    case "import":return IMPORT;
+                                    case "public":return PUBLIC;
+                                    case "throws":return THROWS;
+                                    case "case":return CASE;
+                                    case "enum":return ENUM;
+                                    case "instanceof":return INSTANCEOF;
+                                    case "return":return RETURN;
+                                    case "transient":return TRANSIENT;
+                                    case "catch":return CATCH;
+                                    case "extends":return EXTENDS;
+                                    case "int":return INT;
+                                    case "short":return SHORT;
+                                    case "try":return TRY;
+                                    case "char":return CHAR;
+                                    case "final":return FINAL;
+                                    case "interface":return INTERFACE;
+                                    case "static":return STATIC;
+                                    case "void":return VOID;
+                                    case "class":return CLASS;
+                                    case "finally":return FINALLY;
+                                    case "long":return LONG;
+                                    case "strictfp":return STRICTFP;
+                                    case "volatile":return VOLATILE;
+                                    case "const":return CONST;
+                                    case "float":return FLOAT;
+                                    case "native":return NATIVE;
+                                    case "super":return SUPER;
+                                    case "while":return WHILE;
+                                }
                             }
 {DELIMITERS}                {   
-                                
+                                switch(strdup(yytext))
+                                {
+                                    case "(":return LPAREN;
+                                    case ")":return RPAREN;
+                                    case "{":return LMPARA;
+                                    case "}":return RMPARA;
+                                    case "[":return LSPAR;
+                                    case "]":return RSPAR;
+                                    case ";":return SEMICOLON;
+                                    case ",":return COMMA;
+                                    case ".":return DOT;
+                                    case "...":return ELLIPSIS;
+                                    case "@":return AT;
+                                }
                             }
 {OPERATORS}                 {   
-                                
+                                switch(strdup(yytext))
+                                {
+                                    case "=":return EQUALS;
+                                    case ">":return GT;
+                                    case "<":return LT;
+                                    case "!":return NOT;
+                                    case "~":return TILDE;
+                                    case "?":return QUESTION;
+                                    case ":":return COLON;
+                                    case "==":return EQUALS;
+                                    case "<=":return LE;
+                                    case ">=":return GE;
+                                    case "!=":return NOT_EQUALS;
+                                    case "&&":return AND;
+                                    case "||":return OR;
+                                    case "++":return PLUS_PLUS;
+                                    case "--":return MINUS_MINUS;
+                                    case "+":return PLUS;
+                                    case "-":return MINUS;
+                                    case "*":return TIMES;
+                                    case "/":return DIVIDE;
+                                    case "^":return XOR;
+                                    case "%":return MOD;
+                                    case "<<":return LEFT_SHIFT;
+                                    case ">>":return RIGHT_SHIFT;
+                                    case ">>>":return UNSIGNED_RIGHT_SHIFT;
+                                    case "+=":return PLUS_EQUALS;
+                                    case "-=":return MINUS_EQUALS;
+                                    case "*=":return TIMES_EQUALS;
+                                    case "/=":return DIVIDE_EQUALS;
+                                    case "&=":return AND_EQUALS;
+                                    case "|=":return OR_EQUALS;
+                                    case "^=":return XOR_EQUALS;
+                                    case "%=":return MOD_EQUALS;
+                                    case "<<=":return LEFT_SHIFT_EQUALS;
+                                    case ">>=":return RIGHT_SHIFT_EQUALS;
+                                    case ">>>=":return UNSIGNED_RIGHT_SHIFT_EQUALS;
+                                }
                             }
 {IDENTIFIERS}               {   
-                                
+                                yyval.str = strdup(yytext);
+                                return IDENTIFIER;
                             }
 .                           {
-                                
+                                cout << "Couldn't parse: " << yytext << endl;
                             }
 %%
