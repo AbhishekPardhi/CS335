@@ -130,10 +130,6 @@ block:
     LMPARA RMPARA	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
 ;
 
-/* block_statements_opt:
-    block_statements	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-| */	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-;
 
 block_statements:
     block_statements block_statement	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
