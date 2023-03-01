@@ -9,6 +9,7 @@
         exit(0);
         return;
     }
+    ofstream fout("./result.dot");
     typedef struct node{
         int id;
         string val;
@@ -975,7 +976,24 @@ variable_initializer :
 
 %%
 
+void MakeDOTFile(NODE*cell)
+{
+    fout << "\t" << cell->id << "\t\t[ style = solid label = \"" + cell->val + "\"  ];" << endl;
+    for(auto &child:cell->list)
+    {
+        fout << "\t" << cell->id << " -> " << child->id << endl;
+        MakeDOTFile(child);
+    }
+}
+
 int main(){
+    ifstream infile("./DOT_Template.txt");
+    string line;
+    while (getline(infile, line))
+        fout << line << endl;
     yyparse();
+    MakeDOTFile(head);
+    fout << "}";
+    fout.close();
     return 0;
 }
