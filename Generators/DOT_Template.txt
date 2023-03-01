@@ -1,0 +1,9 @@
+digraph G{
+
+    label     = "AST"
+    fontname  = "Cascadia code"
+    fontsize  = 30
+    labelloc  = t
+    
+    node   [ shape = rect fontname="Cascadia code" ]
+

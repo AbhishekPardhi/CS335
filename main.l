@@ -113,11 +113,11 @@ IDENTIFIERS                     {JAVA_LETTER}{JAVA_LETTER_OR_DIGIT}*
 <comment>{COMMENT_END}      BEGIN(INITIAL);
 
 {LITERALS}                  {   
-                                yylval.str = strdup(yytext);
+                                yylval.elem = create_node(strdup(yytext));
                                 return LITERAL;
                             }
 {KEYWORDS}                  {   
-                                yylval.str = strdup(yytext);
+                                yylval.elem = create_node(strdup(yytext));
                                 switch(mp[strdup(yytext)])
                                 {
                                     case _ABSTRACT:return ABSTRACT;
@@ -189,7 +189,7 @@ IDENTIFIERS                     {JAVA_LETTER}{JAVA_LETTER_OR_DIGIT}*
                                 }
                             }
 {DELIMITERS}                {   
-                                yylval.str = strdup(yytext);
+                                yylval.elem = create_node(strdup(yytext));
                                 switch(mp[strdup(yytext)])
                                 {
                                     case _LPAREN:return LPAREN;
@@ -206,7 +206,7 @@ IDENTIFIERS                     {JAVA_LETTER}{JAVA_LETTER_OR_DIGIT}*
                                 }
                             }
 {OPERATORS}                 {   
-                                yylval.str = strdup(yytext);
+                                yylval.elem = create_node(strdup(yytext));
                                 switch(mp[strdup(yytext)])
                                 {
                                     case _GT:return GT;
@@ -246,10 +246,10 @@ IDENTIFIERS                     {JAVA_LETTER}{JAVA_LETTER_OR_DIGIT}*
                                 }
                             }
 {IDENTIFIERS}               {   
-                                yylval.str = strdup(yytext);
+                                yylval.elem = create_node(strdup(yytext));
                                 return IDENTIFIER;
                             }
 .                           {
-                                cout << "Couldn't parse: " << yytext << endl;
+                                cout << "Couldn't parse: " << strdup(yytext) << endl;
                             }
 %%
