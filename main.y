@@ -127,7 +127,7 @@ unqualified_method_identifier:
 
 block:
     LMPARA block_statements RMPARA  	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-    LMPARA RMPARA	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
+|   LMPARA RMPARA	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
 ;
 
 
@@ -165,11 +165,6 @@ variable_declarator:
     variable_declarator_id EQUALS variable_initializer	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
 |   variable_declarator_id	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
 ;
-
-/* variable_initializer_opt:
-    EQUALS variable_initializer	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
-|	{ NODE *cell = create_node(""); cell->list = {}; $$ = cell; }
-; */
 
 variable_modifiers:
     variable_modifiers FINAL	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
@@ -319,7 +314,7 @@ while_statement_no_short_if:
 ;
 
 for_statement_no_short_if:
-|   FOR LPAREN SEMICOLON expression SEMICOLON for_update RPAREN statement_no_short_if	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6, $7, $8}; $$ = cell; }
+    FOR LPAREN SEMICOLON expression SEMICOLON for_update RPAREN statement_no_short_if	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6, $7, $8}; $$ = cell; }
 |   FOR LPAREN for_init SEMICOLON expression SEMICOLON for_update RPAREN statement_no_short_if	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6, $7, $8, $9}; $$ = cell; }
 |   FOR LPAREN SEMICOLON SEMICOLON for_update RPAREN statement_no_short_if	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6, $7}; $$ = cell; }
 |   FOR LPAREN for_init SEMICOLON SEMICOLON for_update RPAREN statement_no_short_if	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6, $7, $8}; $$ = cell; }
@@ -339,7 +334,6 @@ while_statement:
 ;
 
 for_statement:
-    /* FOR LPAREN for_init_opt SEMICOLON expression_opt SEMICOLON for_update_opt RPAREN statement */	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11}; $$ = cell; }
     FOR LPAREN SEMICOLON expression SEMICOLON for_update RPAREN statement	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6, $7, $8}; $$ = cell; }
 |   FOR LPAREN for_init SEMICOLON expression SEMICOLON for_update RPAREN statement	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6, $7, $8, $9}; $$ = cell; }
 |   FOR LPAREN SEMICOLON SEMICOLON for_update RPAREN statement	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6, $7}; $$ = cell; }
@@ -364,15 +358,6 @@ statement_expressions:
     statement_expressions COMMA statement_expression	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
 |	{ NODE *cell = create_node(""); cell->list = {}; $$ = cell; }
 ;
-
-/* expression_opt:
-    expression	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-; */
-
-/* for_update_opt:
-    for_update	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|    	{ NODE *cell = create_node(""); cell->list = {}; $$ = cell; }
-; */
 
 for_update:
     statement_expression_list	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
