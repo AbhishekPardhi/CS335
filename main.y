@@ -167,8 +167,7 @@ variable_declarator:
 ;
 
 variable_modifiers:
-    variable_modifiers FINAL	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
-|   FINAL	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+    FINAL	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
 ;
 
 
@@ -665,8 +664,7 @@ primary_no_new_array:
 |   THIS	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
 |   module_or_package_or_expression_name DOT THIS	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
 |   LPAREN expression RPAREN	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   field_access	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   array_access	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+|   left_hand_side    { NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
 |   method_invocation	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
 |   method_reference	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
 ;
