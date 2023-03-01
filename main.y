@@ -29,8 +29,8 @@
     NODE *elem;
 }
 
-%token <elem>  COMMA FINALLY DOUBLE_COLON LPAREN RPAREN IDENTIFIER EQUALS DOT CLASS PUBLIC PRIVATE LANGULAR RANGULAR SEMICOLON COLON OR RETURN TRY SYNCHRONIZED THROW ASSERT BREAK CONTINUE CATCH ARROW FINAL IF ELSE WHILE FOR VAR LSPAR RSPAR ELLIPSIS TIMES_EQUALS DIVIDE_EQUALS MOD_EQUALS PLUS_EQUALS MINUS_EQUALS LEFT_SHIFT_EQUALS RIGHT_SHIFT_EQUALS UNSIGNED_RIGHT_SHIFT_EQUALS AND_EQUALS XOR_EQUALS OR_EQUALS QUESTION NOT_EQUALS LT GT LE GE INSTANCEOF AND XOR PLUS MINUS TIMES DIVIDE MOD PLUS_PLUS MINUS_MINUS TILDE THIS SUPER INT LONG SHORT BYTE FLOAT DOUBLE BOOLEAN VOID NOT EXTENDS RMPARA LMPARA PROTECTED STATIC TRANSIENT VOLATILE NATIVE STRICTFP  LEFT_SHIFT RIGHT_SHIFT UNSIGNED_RIGHT_SHIFT ABSTRACT LITERAL THROWS NEW OPEN TRANSITIVE MODULE REQUIRES EXPORTS OPENS USES PROVIDES WITH IMPORT ASTERISK PACKAGE TO
-%type <elem>  compilation_unit modular_compliation_unit module_declaration module_directive module_or_package_or_expression_name_list ordinary_complilation_unit package_declaration import_declarations top_level_class_or_interface_declarations import_declaration class_declaration  class_body class_member_declaration  field_declaration method_declaration constructor_declaration  formal_parameter_list formal_parameter variable_declarator variable_declarator_id variable_initializer variable_initializer_list array_initializer block_statements block_statement local_variable_declaration_statement statement statement_no_short_if statement_without_trailing_substatement expression statement_expression module_or_package_or_expression_name type_identifier type type_arguments type_argument type_parameters type_parameter type_bound  method_name method_body method_header method_declarator throws unqualified_method_identifier block local_class_or_interface_declaration local_variable_declaration variable_declarators_list variable_modifiers local_variable_type empty_statement class_instance_creation_expression labeled_statement class_or_interface_type_to_instantiate method_invocation argument_list method_reference type_argument_list wildcard if_then_else_statement if_footer labeled_statement_no_short_if if_then_else_statement_no_short_if while_statement_no_short_if for_statement_no_short_if enhanced_for_statement_no_short_if while_statement for_statement for_init statement_expression_list statement_expressions for_update assert_statement assert break_statement continue_statement return_statement throw_statement synchronized_statement try_statement catch_clause catches finally lambda_body lambda_expression lambda_parameter lambda_parameter_list lambda_parameters more_identifiers expression_statement catch_formal_parameter catch_type more_lambda_parameters dims dim variable_arity_parameter variable_arity_parameter_id assignment_expression assignment left_hand_side field_access array_access assignment_operator conditional_expression conditional_and_expression conditional_or_expression inclusive_or_expression exclusive_or_expression and_expression equality_expression relational_expression shift_expression additive_expression multiplicative_expression unary_expression unary_expression_not_plus_minus postfix_expression primary primary_no_new_array pre_decrement_expression pre_increment_expression post_decrement_expression post_increment_expression array_creation_expression array_creation_folllow array_creation_type_follow dimexpr dimexprs class_literal brackets numeric_type integral_type floating_point_type boolean normal_class_declaration class_modifiers modifier type_parameter_list type_variable_or_class_or_interface_type_list class_type class_extends class_content class_body_declaration result exception_type exception_type_list reciever_parameter instance_initializer static_initializer constructor_modifiers constructor_declarator constructor_body simple_type_name explicit_constructor_invocation reference_type array_type primitive_type variable_init 
+%token <elem>  BITWISE_AND BITWISE_OR COMMA FINALLY DOUBLE_COLON LPAREN RPAREN IDENTIFIER EQUALS DOT CLASS PUBLIC PRIVATE LANGULAR RANGULAR SEMICOLON COLON OR RETURN TRY SYNCHRONIZED THROW ASSERT BREAK CONTINUE CATCH ARROW FINAL IF ELSE WHILE FOR VAR LSPAR RSPAR ELLIPSIS TIMES_EQUALS DIVIDE_EQUALS MOD_EQUALS PLUS_EQUALS MINUS_EQUALS LEFT_SHIFT_EQUALS RIGHT_SHIFT_EQUALS UNSIGNED_RIGHT_SHIFT_EQUALS AND_EQUALS XOR_EQUALS OR_EQUALS QUESTION NOT_EQUALS LT GT LE GE INSTANCEOF AND XOR PLUS MINUS TIMES DIVIDE MOD PLUS_PLUS MINUS_MINUS TILDE THIS SUPER INT LONG SHORT BYTE FLOAT DOUBLE BOOLEAN VOID NOT EXTENDS RMPARA LMPARA PROTECTED STATIC TRANSIENT VOLATILE NATIVE STRICTFP  LEFT_SHIFT RIGHT_SHIFT UNSIGNED_RIGHT_SHIFT ABSTRACT LITERAL THROWS NEW OPEN TRANSITIVE MODULE REQUIRES EXPORTS OPENS USES PROVIDES WITH IMPORT ASTERISK PACKAGE TO
+%type <elem>  compilation_unit modular_compliation_unit module_declaration module_directive module_or_package_or_expression_name_list ordinary_complilation_unit package_declaration import_declarations top_level_class_or_interface_declarations import_declaration class_declaration  class_body class_member_declaration  field_declaration method_declaration constructor_declaration  formal_parameter_list formal_parameter variable_declarator variable_declarator_id variable_initializer variable_initializer_list array_initializer block_statements block_statement local_variable_declaration_statement statement statement_no_short_if statement_without_trailing_substatement expression statement_expression module_or_package_or_expression_name type_identifier type type_arguments type_argument type_parameters type_parameter type_bound  method_name method_body method_header method_declarator throws unqualified_method_identifier block local_class_or_interface_declaration local_variable_declaration variable_declarators_list variable_modifiers local_variable_type empty_statement class_instance_creation_expression labeled_statement class_or_interface_type_to_instantiate method_invocation argument_list method_reference type_argument_list wildcard if_then_else_statement if_footer labeled_statement_no_short_if if_then_else_statement_no_short_if while_statement_no_short_if for_statement_no_short_if enhanced_for_statement_no_short_if while_statement for_statement for_init statement_expression_list statement_expressions for_update assert_statement assert break_statement continue_statement return_statement throw_statement synchronized_statement try_statement catch_clause catches finally lambda_body lambda_expression lambda_parameter lambda_parameter_list lambda_parameters more_identifiers expression_statement catch_formal_parameter catch_type more_lambda_parameters dims dim variable_arity_parameter variable_arity_parameter_id assignment_expression assignment left_hand_side field_access array_access assignment_operator conditional_expression conditional_and_expression conditional_or_expression inclusive_or_expression exclusive_or_expression and_expression equality_expression relational_expression shift_expression additive_expression multiplicative_expression unary_expression unary_expression_not_plus_minus postfix_expression primary primary_no_new_array pre_decrement_expression pre_increment_expression post_decrement_expression post_increment_expression array_creation_expression array_creation_folllow array_creation_type_follow dimexpr dimexprs class_literal numeric_type integral_type floating_point_type normal_class_declaration class_modifiers modifier type_parameter_list type_variable_or_class_or_interface_type_list class_type class_extends class_content class_body_declaration result exception_type exception_type_list reciever_parameter instance_initializer static_initializer constructor_modifiers constructor_declarator constructor_body simple_type_name explicit_constructor_invocation reference_type array_type primitive_type variable_init 
 
 %%
 // Grammer
@@ -546,7 +546,7 @@ conditional_and_expression:
 
 inclusive_or_expression:
     exclusive_or_expression	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   inclusive_or_expression OR exclusive_or_expression	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
+|   inclusive_or_expression BITWISE_OR exclusive_or_expression	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
 ;
 
 exclusive_or_expression:
@@ -556,7 +556,7 @@ exclusive_or_expression:
 
 and_expression:
     equality_expression	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   and_expression AND equality_expression	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
+|   and_expression BITWISE_AND equality_expression	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
 ;
 
 equality_expression:
@@ -670,18 +670,11 @@ primary_no_new_array:
 ;
 
 class_literal:
-    module_or_package_or_expression_name brackets DOT CLASS	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4}; $$ = cell; }
-|   numeric_type brackets DOT CLASS	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4}; $$ = cell; }
-|   BOOLEAN brackets DOT CLASS	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4}; $$ = cell; }
+    module_or_package_or_expression_name dims DOT CLASS	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4}; $$ = cell; }
+|   primitive_type DOT CLASS	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
+|   primitive_type dims DOT CLASS	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4}; $$ = cell; }
 |   module_or_package_or_expression_name DOT CLASS	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   numeric_type DOT CLASS	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   BOOLEAN DOT CLASS	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
 |   VOID DOT CLASS	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-;
-
-brackets:
-    brackets LSPAR RSPAR 	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   LSPAR RSPAR	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
 ;
 
 type:
@@ -704,10 +697,6 @@ integral_type:
 floating_point_type:
     FLOAT	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
 |   DOUBLE	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-;
-
-boolean:
-    BOOLEAN	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
 ;
 
 /* Class Declaration */
@@ -927,7 +916,7 @@ array_type:
 
 primitive_type: 
     numeric_type	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   boolean	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+|   BOOLEAN	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
 ;
 
 array_initializer: 
