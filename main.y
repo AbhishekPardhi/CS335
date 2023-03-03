@@ -12,8 +12,7 @@
         return;
     }
     NODE *start_node;
-    ofstream fout("./result.dot");
-    // #define YYSTYPE NODE
+	ofstream fout("./result.dot");
 %}
 
 %union {
@@ -756,9 +755,60 @@ void MakeDOTFile(NODE*cell)
     }
 }
 
-int main(int argc, char** argv){
-	cout<<argc<<endl;
-    /* yydebug = 1; */
+int main(int argc, char* argv[]){
+	if(argc < 2 || argc > 4) {
+		cout << "Usage: ./main <input file> <output file> <debug>" << endl;
+		cout << "Example: ./main --input=input.java --output=output.dot --verbose" << endl;
+		cout<<endl;
+		cout << "For more help, run ./main --help" << endl;
+		return 0;
+	}
+
+	string input_file = "";
+	string output_file = "";
+	int yydebug = 0;
+	bool debug = false;
+	bool noInputFile = true;
+
+	for(int i=1;i<argc;i++){
+		string arg = argv[i];
+		if(arg == "--help"){
+			cout << "Usage: ./main <input file> <output file> <debug>" << endl;
+			cout << "Example: ./main --input=input.java --output=output.dot --verbose" << endl;
+			return 0;
+		}
+		else if(arg.substr(0,8) == "--input="){
+			input_file = arg.substr(8);
+			noInputFile = false;
+		}
+		else if(arg.substr(0,9) == "--output="){
+			output_file = arg.substr(9);
+		}
+		else if(arg == "--verbose"){
+			debug = true;
+		}
+
+		else{
+			cout << "Invalid argument: " << arg << endl;
+			return 0;
+		}
+	}
+
+	if(input_file == "" || noInputFile){
+		cout << "Please specify an input file." << endl;
+		return 0;
+	}
+	if(output_file == ""){
+		output_file = "output.dot";
+	}
+	if(debug){
+		cout << "Input file: " << input_file << endl;
+		cout << "Output file: " << output_file << endl;
+		cout << "Debug: " << debug << endl;
+		yydebug = 1;
+	}
+
+
     ifstream infile("./DOT_Template.txt");
     string line;
     while (getline(infile, line))
