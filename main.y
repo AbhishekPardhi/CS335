@@ -1,960 +1,863 @@
 %{
     /* Declaration */
     #include <bits/stdc++.h>
+    #include "data.h"
+    // #include "data.cpp"
     using namespace std;
     int yylex();
     extern int yylineno;
     void yyerror(const char *s) {
-        printf("Error: %s at line %d\n", s, yylineno);
+        printf("\nError: %s at line %d\n", s, yylineno);
         exit(0);
         return;
     }
-    ofstream fout("./result.dot");
-    typedef struct node{
-        int id;
-        string val;
-        vector<struct node *> list;
-    }NODE;
+    NODE *start_node;
+	fstream fout;
+	extern FILE *yyin;
 
-    NODE* create_node(string val)
-    {
-        NODE *element = (NODE *)calloc(1, sizeof(NODE));
-        element->id = num++;
-        element->val;
-        return element;
-    }
 %}
 
 %union {
     NODE *elem;
 }
 
-%token <elem>  BITWISE_AND BITWISE_OR COMMA FINALLY DOUBLE_COLON LPAREN RPAREN IDENTIFIER EQUALS DOT CLASS PUBLIC PRIVATE LANGULAR RANGULAR SEMICOLON COLON OR RETURN TRY SYNCHRONIZED THROW ASSERT BREAK CONTINUE CATCH ARROW FINAL IF ELSE WHILE FOR VAR LSPAR RSPAR ELLIPSIS TIMES_EQUALS DIVIDE_EQUALS MOD_EQUALS PLUS_EQUALS MINUS_EQUALS LEFT_SHIFT_EQUALS RIGHT_SHIFT_EQUALS UNSIGNED_RIGHT_SHIFT_EQUALS AND_EQUALS XOR_EQUALS OR_EQUALS QUESTION NOT_EQUALS LT GT LE GE INSTANCEOF AND XOR PLUS MINUS TIMES DIVIDE MOD PLUS_PLUS MINUS_MINUS TILDE THIS SUPER INT LONG SHORT BYTE FLOAT DOUBLE BOOLEAN VOID NOT EXTENDS RMPARA LMPARA PROTECTED STATIC TRANSIENT VOLATILE NATIVE STRICTFP  LEFT_SHIFT RIGHT_SHIFT UNSIGNED_RIGHT_SHIFT ABSTRACT LITERAL THROWS NEW OPEN TRANSITIVE MODULE REQUIRES EXPORTS OPENS USES PROVIDES WITH IMPORT ASTERISK PACKAGE TO
-%type <elem>  compilation_unit modular_compliation_unit module_declaration module_directive module_or_package_or_expression_name_list ordinary_complilation_unit package_declaration import_declarations top_level_class_or_interface_declarations import_declaration class_declaration  class_body class_member_declaration  field_declaration method_declaration constructor_declaration  formal_parameter_list formal_parameter variable_declarator variable_declarator_id variable_initializer variable_initializer_list array_initializer block_statements block_statement local_variable_declaration_statement statement statement_no_short_if statement_without_trailing_substatement expression statement_expression module_or_package_or_expression_name type_identifier type type_arguments type_argument type_parameters type_parameter type_bound  method_name method_body method_header method_declarator throws unqualified_method_identifier block local_class_or_interface_declaration local_variable_declaration variable_declarators_list variable_modifiers local_variable_type empty_statement class_instance_creation_expression labeled_statement class_or_interface_type_to_instantiate method_invocation argument_list method_reference type_argument_list wildcard if_then_else_statement if_footer labeled_statement_no_short_if if_then_else_statement_no_short_if while_statement_no_short_if for_statement_no_short_if enhanced_for_statement_no_short_if while_statement for_statement for_init statement_expression_list statement_expressions for_update assert_statement assert break_statement continue_statement return_statement throw_statement synchronized_statement try_statement catch_clause catches finally lambda_body lambda_expression lambda_parameter lambda_parameter_list lambda_parameters more_identifiers expression_statement catch_formal_parameter catch_type more_lambda_parameters dims dim variable_arity_parameter variable_arity_parameter_id assignment_expression assignment left_hand_side field_access array_access assignment_operator conditional_expression conditional_and_expression conditional_or_expression inclusive_or_expression exclusive_or_expression and_expression equality_expression relational_expression shift_expression additive_expression multiplicative_expression unary_expression unary_expression_not_plus_minus postfix_expression primary primary_no_new_array pre_decrement_expression pre_increment_expression post_decrement_expression post_increment_expression array_creation_expression array_creation_folllow array_creation_type_follow dimexpr dimexprs class_literal numeric_type integral_type floating_point_type normal_class_declaration class_modifiers modifier type_parameter_list type_variable_or_class_or_interface_type_list class_type class_extends class_content class_body_declaration exception_type exception_type_list reciever_parameter instance_initializer static_initializer constructor_modifiers constructor_declarator constructor_body simple_type_name explicit_constructor_invocation reference_type array_type primitive_type 
+%token <elem>  BITWISE_AND BITWISE_OR COMMA FINALLY LPAREN RPAREN IDENTIFIER EQUALS DOT CLASS PUBLIC PRIVATE SEMICOLON COLON OR RETURN TRY SYNCHRONIZED THROW BREAK CONTINUE CATCH FINAL IF ELSE WHILE FOR LSPAR RSPAR TIMES_EQUALS DIVIDE_EQUALS MOD_EQUALS PLUS_EQUALS MINUS_EQUALS LEFT_SHIFT_EQUALS RIGHT_SHIFT_EQUALS UNSIGNED_RIGHT_SHIFT_EQUALS AND_EQUALS XOR_EQUALS OR_EQUALS QUESTION NOT_EQUALS LT GT LE GE INSTANCEOF AND XOR PLUS MINUS TIMES DIVIDE MOD PLUS_PLUS MINUS_MINUS TILDE THIS SUPER INT LONG SHORT BYTE CHAR IMPLEMENTS FLOAT DOUBLE BOOLEAN VOID NOT EXTENDS RMPARA LMPARA STATIC LEFT_SHIFT RIGHT_SHIFT UNSIGNED_RIGHT_SHIFT LITERAL THROWS NEW IMPORT PACKAGE INTERFACE EQUALS_EQUALS 
+%type <elem> Goal CompilationUnit Type PrimitiveType NumericType IntegralType FloatingPointType ReferenceType ClassOrInterfaceType ClassType InterfaceType ArrayType Name SimpleName QualifiedName ImportDeclarations TypeDeclarations PackageDeclaration ImportDeclaration TypeDeclaration Modifiers Modifier ClassDeclaration Super Interfaces ClassBody ClassBodyDeclarations ClassBodyDeclaration ClassMemberDeclaration FieldDeclaration VariableDeclarators VariableDeclarator VariableDeclaratorId VariableInitializer MethodDeclaration MethodHeader MethodDeclarator FormalParameterList Throws ClassTypeList MethodBody StaticInitializer ConstructorDeclaration ConstructorDeclarator ConstructorBody InterfaceDeclaration Expression ArrayInitializer FormalParameter Block SingleTypeImportDeclaration TypeImportOnDemandDeclaration AssignmentExpression ConditionalExpression Assignment ConditionalOrExpression LeftHandSide ConditionalAndExpression InclusiveOrExpression ExclusiveOrExpression AndExpression EqualityExpression RelationalExpression ShiftExpression AdditiveExpression MultiplicativeExpression UnaryExpression PreIncrementExpression PreDecrementExpression UnaryExpressionNotPlusMinus PostIncrementExpression PostDecrementExpression CastExpression Primary PrimaryNoNewArray ArrayCreationExpression ArrayAccess FieldAccess MethodInvocation ClassInstanceCreationExpression ArgumentList PostfixExpression InterfaceTypeList ExplicitConstructorInvocation InterfaceBody InterfaceMemberDeclarations InterfaceMemberDeclaration ConstantDeclaration AbstractMethodDeclaration ExtendsInterfaces AssignmentOperator Dims DimExprs DimExpr VariableInitializers BlockStatements BlockStatement LocalVariableDeclarationStatement Statement StatementNoShortIf StatementWithoutTrailingSubstatement IfThenStatement IfThenElseStatement IfThenElseStatementNoShortIf WhileStatement WhileStatementNoShortIf ForStatement ForStatementNoShortIf ForInit ForUpdate StatementExpression StatementExpressionList LocalVariableDeclaration EmptyStatement LabeledStatement ExpressionStatement BreakStatement ContinueStatement ReturnStatement ThrowStatement SynchronizedStatement TryStatement Catches CatchClause Finally LabeledStatementNoShortIf
 
 %%
 // Grammer
 // Start
-
-compilation_unit:
-    ordinary_complilation_unit	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   modular_compliation_unit	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-;
-
-modular_compliation_unit:
-    module_declaration	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-;
-
-module_declaration:
-    OPEN MODULE module_or_package_or_expression_name LMPARA module_directive RMPARA	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6}; $$ = cell; }
-|   MODULE module_or_package_or_expression_name LMPARA module_directive RMPARA	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5}; $$ = cell; }
-|   OPEN MODULE module_or_package_or_expression_name LMPARA RMPARA	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5}; $$ = cell; }
-|   MODULE module_or_package_or_expression_name LMPARA RMPARA	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4}; $$ = cell; }
-;
-
-module_directive:
-    REQUIRES TRANSITIVE module_or_package_or_expression_name SEMICOLON	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4}; $$ = cell; }
-|   REQUIRES STATIC module_or_package_or_expression_name SEMICOLON	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4}; $$ = cell; }
-|   REQUIRES module_or_package_or_expression_name SEMICOLON	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   EXPORTS module_or_package_or_expression_name SEMICOLON	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   EXPORTS module_or_package_or_expression_name SEMICOLON TO module_or_package_or_expression_name_list	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5}; $$ = cell; }
-|   OPENS module_or_package_or_expression_name SEMICOLON	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   OPENS module_or_package_or_expression_name SEMICOLON TO module_or_package_or_expression_name_list	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5}; $$ = cell; }
-|   USES module_or_package_or_expression_name SEMICOLON	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   PROVIDES module_or_package_or_expression_name SEMICOLON	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   PROVIDES module_or_package_or_expression_name WITH module_or_package_or_expression_name_list SEMICOLON	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5}; $$ = cell; }
-;
-
-module_or_package_or_expression_name_list:
-    module_or_package_or_expression_name_list COMMA module_or_package_or_expression_name	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   module_or_package_or_expression_name	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-;
-
-ordinary_complilation_unit:
-    package_declaration import_declarations top_level_class_or_interface_declarations	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   import_declarations top_level_class_or_interface_declarations	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
-|   package_declaration top_level_class_or_interface_declarations	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
-|   top_level_class_or_interface_declarations	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-;
-
-package_declaration:
-    PACKAGE module_or_package_or_expression_name SEMICOLON	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-;
-
-import_declarations:
-    import_declarations import_declaration	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
-|   import_declaration	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-;
-
-import_declaration:
-    IMPORT IDENTIFIER SEMICOLON	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   IMPORT STATIC IDENTIFIER DOT ASTERISK SEMICOLON	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6}; $$ = cell; }
-|   IMPORT STATIC IDENTIFIER DOT IDENTIFIER SEMICOLON	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6}; $$ = cell; }
-|   IMPORT IDENTIFIER DOT ASTERISK SEMICOLON	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5}; $$ = cell; }
-;
-
-
-top_level_class_or_interface_declarations:
-    top_level_class_or_interface_declarations class_declaration	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
-|   SEMICOLON	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-;    
-
-
-// names 
-module_or_package_or_expression_name:
-    type_identifier	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   module_or_package_or_expression_name DOT type_identifier	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-;
-
-// type identifier() cannot be  permits, record, sealed, var, or yield
-
-type_identifier:
-    IDENTIFIER	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-;
-
-// unqualified method identifier cannot be yield 
-method_name:
-    unqualified_method_identifier	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-;
-
-unqualified_method_identifier:
-    IDENTIFIER	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-;
-
-
-
-/* Block Statements */
-
-block:
-    LMPARA block_statements RMPARA  	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   LMPARA RMPARA	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
-;
-
-
-block_statements:
-    block_statements block_statement	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
-|   block_statement	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-;
-
-block_statement:
-    local_class_or_interface_declaration	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   local_variable_declaration_statement	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   statement	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+Goal:
+	CompilationUnit	{ $$ = create_node ( 2 ,"Goal", $1); start_node=$$; } 
 ;
-
-local_class_or_interface_declaration:
-    class_declaration	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
 
+Type:
+	PrimitiveType	{ $$ = $1; }
+|	ReferenceType	{ $$ = $1; }
 ;
 
-local_variable_declaration_statement:
-    local_variable_declaration SEMICOLON	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
+PrimitiveType:
+	NumericType	{ $$ = $1; }
+|	BOOLEAN	{ $$ = $1; }
 ;
 
-local_variable_declaration:
-    variable_modifiers local_variable_type variable_declarators_list	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   local_variable_type variable_declarators_list	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
+NumericType:
+	IntegralType	{ $$ = $1; }
+|	FloatingPointType	{ $$ = $1; }
 ;
 
-variable_declarators_list:
-    variable_declarators_list COMMA variable_declarator	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   variable_declarator	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+IntegralType:
+	BYTE 	{ $$ = $1; }
+|	SHORT 	{ $$ = $1; }
+|	INT 	{ $$ = $1; }
+|	LONG 	{ $$ = $1; }
+|	CHAR	{ $$ = $1; }
 ;
 
-variable_declarator:
-    variable_declarator_id EQUALS variable_initializer	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   variable_declarator_id	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+FloatingPointType:
+	FLOAT 	{ $$ = $1; }
+|	DOUBLE	{ $$ = $1; }
 ;
 
-variable_modifiers:
-    FINAL	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+ReferenceType:
+	ClassOrInterfaceType	{ $$ = $1; }
+|	ArrayType	{ $$ = $1; }
 ;
 
-
-local_variable_type:
-    type	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   VAR	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+ClassOrInterfaceType:
+	Name	{ $$ = $1; }
 ;
 
-statement:
-    statement_without_trailing_substatement	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   labeled_statement	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   if_then_else_statement	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   while_statement	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   for_statement	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+ClassType:
+	ClassOrInterfaceType	{ $$ = $1; }
 ;
 
-statement_without_trailing_substatement:
-    block	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   empty_statement	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   expression_statement	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   assert_statement	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   break_statement	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   continue_statement	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   return_statement	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   synchronized_statement	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   throw_statement	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   try_statement	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+InterfaceType:
+	ClassOrInterfaceType	{ $$ = $1; }
 ;
 
-empty_statement:
-    SEMICOLON	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+ArrayType:
+	PrimitiveType LSPAR RSPAR 	{ $$ = create_node ( 4 ,"ArrayType", $1, $2, $3); } 
+|	Name LSPAR RSPAR	{ $$ = create_node ( 4 ,"ArrayType", $1, $2, $3); } 
+|	ArrayType LSPAR RSPAR	{ $$ = create_node ( 4 ,"ArrayType", $1, $2, $3); } 
 ;
 
-labeled_statement:
-    IDENTIFIER COLON statement	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-;
 
-expression_statement:
-    statement_expression SEMICOLON	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
+Name:
+	SimpleName	{ $$ = $1; }
+|	QualifiedName	{ $$ = $1; }
 ;
 
-statement_expression:
-    assignment	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   pre_increment_expression	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   pre_decrement_expression	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   post_increment_expression	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   post_decrement_expression	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   method_invocation	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   class_instance_creation_expression	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+SimpleName:
+	IDENTIFIER	{ $$ = $1; }
 ;
 
-class_instance_creation_expression:
-    NEW type_arguments class_or_interface_type_to_instantiate LPAREN argument_list RPAREN class_body	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6, $7}; $$ = cell; }
-|   NEW type_arguments class_or_interface_type_to_instantiate LPAREN RPAREN class_body	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6}; $$ = cell; }
-|   NEW class_or_interface_type_to_instantiate LPAREN RPAREN class_body	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5}; $$ = cell; }
-|   NEW class_or_interface_type_to_instantiate LPAREN argument_list RPAREN class_body	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6}; $$ = cell; }
+QualifiedName:
+	Name DOT IDENTIFIER	{ $$ = create_node ( 4 ,"QualifiedName", $1, $2, $3); } 
 ;
 
-class_or_interface_type_to_instantiate:
-    module_or_package_or_expression_name type_arguments	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
-|   module_or_package_or_expression_name 	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+CompilationUnit:
+	PackageDeclaration ImportDeclarations TypeDeclarations	{ $$ = create_node ( 4 ,"CompilationUnit", $1, $2, $3); }
+|	ImportDeclarations PackageDeclaration TypeDeclarations	{ $$ = create_node ( 4 ,"CompilationUnit", $1, $2, $3); }
+|	ImportDeclarations TypeDeclarations	{ $$ = create_node ( 3 ,"CompilationUnit", $1, $2); } 
+|	PackageDeclaration TypeDeclarations	{ $$ = create_node ( 3 ,"CompilationUnit", $1, $2); } 
+|	TypeDeclarations	{ $$ = $1; }
+|	PackageDeclaration ImportDeclarations 	{ $$ = create_node ( 3 ,"CompilationUnit", $1, $2); } 
+|	ImportDeclarations PackageDeclaration 	{ $$ = create_node ( 3 ,"CompilationUnit", $1, $2); }
+|	ImportDeclarations 	{ $$ = $1; }
+|	PackageDeclaration 	{ $$ = $1; }
+|	{;}
 ;
 
-method_invocation:
-    method_name LPAREN argument_list RPAREN	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4}; $$ = cell; }
-|   module_or_package_or_expression_name DOT type_arguments IDENTIFIER LPAREN argument_list RPAREN	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6, $7}; $$ = cell; }
-|   primary DOT type_arguments IDENTIFIER LPAREN argument_list RPAREN	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6, $7}; $$ = cell; }
-|   SUPER DOT type_arguments IDENTIFIER LPAREN argument_list RPAREN	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6, $7}; $$ = cell; }
-|   module_or_package_or_expression_name DOT SUPER DOT type_arguments IDENTIFIER LPAREN argument_list RPAREN	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6, $7, $8, $9}; $$ = cell; }
-|   method_name LPAREN  RPAREN	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   module_or_package_or_expression_name DOT type_arguments IDENTIFIER LPAREN  RPAREN	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6}; $$ = cell; }
-|   primary DOT type_arguments IDENTIFIER LPAREN  RPAREN	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6}; $$ = cell; }
-|   SUPER DOT type_arguments IDENTIFIER LPAREN  RPAREN	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6}; $$ = cell; }
-|   module_or_package_or_expression_name DOT SUPER DOT type_arguments IDENTIFIER LPAREN RPAREN	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6, $7, $8}; $$ = cell; }
-;
 
-argument_list:
-    argument_list COMMA expression	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   expression	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+ImportDeclarations:
+	ImportDeclaration	{ $$ = $1; }
+|	ImportDeclarations ImportDeclaration	{ $$ = create_node ( 3 ,"ImportDeclarations", $1, $2); } 
 ;
 
-method_reference:
-    SUPER DOUBLE_COLON type_arguments IDENTIFIER	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4}; $$ = cell; }
-|   module_or_package_or_expression_name DOT SUPER DOUBLE_COLON type_arguments IDENTIFIER	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6}; $$ = cell; }
-|   primary DOUBLE_COLON type_arguments IDENTIFIER	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4}; $$ = cell; }
-|   module_or_package_or_expression_name DOUBLE_COLON type_arguments IDENTIFIER	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4}; $$ = cell; }
-|   class_type DOUBLE_COLON type_arguments NEW	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4}; $$ = cell; }
-|   SUPER DOUBLE_COLON IDENTIFIER	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   module_or_package_or_expression_name DOT SUPER DOUBLE_COLON IDENTIFIER	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5}; $$ = cell; }
-|   primary DOUBLE_COLON IDENTIFIER	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   module_or_package_or_expression_name DOUBLE_COLON IDENTIFIER	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   class_type DOUBLE_COLON NEW	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   array_type DOUBLE_COLON NEW	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
+TypeDeclarations:
+	TypeDeclaration	{ $$ = $1; }
+|	TypeDeclarations TypeDeclaration	{ $$ = create_node ( 3 ,"TypeDeclarations", $1, $2); } 
 ;
 
-type_arguments:
-    LT type_argument_list GT	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
+PackageDeclaration:
+	PACKAGE Name SEMICOLON	{ $$ = create_node ( 4 ,"PackageDeclaration", $1, $2, $3); } 
 ;
 
-type_argument_list:
-    type_argument_list COMMA type_argument	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   type_argument	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+ImportDeclaration:
+	SingleTypeImportDeclaration	{ $$ = $1; }
+|	TypeImportOnDemandDeclaration	{ $$ = $1; }
 ;
 
-type_argument:
-    reference_type	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   wildcard	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+SingleTypeImportDeclaration:
+	IMPORT Name SEMICOLON	{ $$ = create_node ( 4 ,"SingleTypeImportDeclaration", $1, $2, $3); } 
 ;
 
-wildcard:
-    QUESTION EXTENDS reference_type	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   QUESTION SUPER reference_type	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   QUESTION	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+TypeImportOnDemandDeclaration:
+	IMPORT Name DOT TIMES SEMICOLON	{ $$ = create_node ( 6 ,"TypeImportOnDemandDeclaration", $1, $2, $3, $4, $5); } 
 ;
 
-if_then_else_statement:
-    IF LPAREN expression RPAREN if_footer	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5}; $$ = cell; }
-;
 
-if_footer:
-    statement	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   statement_no_short_if ELSE statement	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
+TypeDeclaration:
+	ClassDeclaration	{ $$ = $1; }
+|	InterfaceDeclaration	{ $$ = $1; }
+|	SEMICOLON	{ $$ = $1; }
 ;
 
-statement_no_short_if:
-    statement_without_trailing_substatement	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   labeled_statement_no_short_if	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   if_then_else_statement_no_short_if	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   while_statement_no_short_if	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   for_statement_no_short_if	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+Modifiers:
+	Modifier	{ $$ = $1; }
+|	Modifiers Modifier	{ $$ = create_node ( 3 ,"Modifiers", $1, $2); } 
 ;
 
-labeled_statement_no_short_if:
-    IDENTIFIER COLON statement_no_short_if	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
+Modifier:
+	PUBLIC	{ $$ = $1; }
+|	PRIVATE	{ $$ = $1; }
+|	STATIC	{ $$ = $1; }
+|	FINAL	{ $$ = $1; }
 ;
 
-if_then_else_statement_no_short_if:
-    IF LPAREN expression RPAREN statement_no_short_if ELSE statement_no_short_if	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6, $7}; $$ = cell; }
+ClassDeclaration:
+	Modifiers CLASS IDENTIFIER Super Interfaces ClassBody	{ $$ = create_node ( 7 ,"ClassDeclaration", $1, $2, $3, $4, $5, $6); } 
+|	CLASS IDENTIFIER Interfaces ClassBody	{ $$ = create_node ( 5 ,"ClassDeclaration", $1, $2, $3, $4); } 
+|	Modifiers CLASS IDENTIFIER Super ClassBody	{ $$ = create_node ( 6 ,"ClassDeclaration", $1, $2, $3, $4, $5); } 
+|	Modifiers CLASS IDENTIFIER Interfaces ClassBody	{ $$ = create_node ( 6 ,"ClassDeclaration", $1, $2, $3, $4, $5); } 
+|	CLASS IDENTIFIER ClassBody	{ $$ = create_node ( 4 ,"ClassDeclaration", $1, $2, $3); } 
+|	Modifiers CLASS IDENTIFIER ClassBody	{ $$ = create_node ( 5 ,"ClassDeclaration", $1, $2, $3, $4); } 
 ;
 
-while_statement_no_short_if:
-    WHILE LPAREN expression RPAREN statement_no_short_if	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5}; $$ = cell; }
+Super:
+	EXTENDS ClassType	{ $$ = create_node ( 3 ,"Super", $1, $2); } 
 ;
 
-for_statement_no_short_if:
-    FOR LPAREN SEMICOLON expression SEMICOLON for_update RPAREN statement_no_short_if	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6, $7, $8}; $$ = cell; }
-|   FOR LPAREN for_init SEMICOLON expression SEMICOLON for_update RPAREN statement_no_short_if	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6, $7, $8, $9}; $$ = cell; }
-|   FOR LPAREN SEMICOLON SEMICOLON for_update RPAREN statement_no_short_if	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6, $7}; $$ = cell; }
-|   FOR LPAREN for_init SEMICOLON SEMICOLON for_update RPAREN statement_no_short_if	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6, $7, $8}; $$ = cell; }
-|   FOR LPAREN SEMICOLON expression SEMICOLON RPAREN statement_no_short_if	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6, $7}; $$ = cell; }
-|   FOR LPAREN for_init SEMICOLON expression SEMICOLON RPAREN statement_no_short_if	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6, $7, $8}; $$ = cell; }
-|   FOR LPAREN SEMICOLON SEMICOLON RPAREN statement_no_short_if	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6}; $$ = cell; }
-|   FOR LPAREN for_init SEMICOLON SEMICOLON  RPAREN statement_no_short_if	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6, $7}; $$ = cell; }
-|   enhanced_for_statement_no_short_if	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+Interfaces:
+	IMPLEMENTS InterfaceTypeList	{ $$ = create_node ( 3 ,"Interfaces", $1, $2); } 
 ;
 
-enhanced_for_statement_no_short_if:
-    FOR LPAREN local_variable_declaration COLON expression RPAREN statement_no_short_if	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6, $7}; $$ = cell; }
+InterfaceTypeList:
+	InterfaceType	{ $$ = $1; }
+|	InterfaceTypeList COMMA InterfaceType	{ $$ = create_node ( 4 ,"InterfaceTypeList", $1, $2, $3); } 
 ;
 
-while_statement:
-    WHILE LPAREN expression RPAREN statement	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5}; $$ = cell; }
+ClassBody:
+	LMPARA ClassBodyDeclarations RMPARA	{ $$ = create_node ( 4 ,"ClassBody", $1, $2, $3); } 
+|	LMPARA RMPARA	{ $$ = create_node ( 3 ,"ClassBody", $1, $2); } 
 ;
 
-for_statement:
-    FOR LPAREN SEMICOLON expression SEMICOLON for_update RPAREN statement	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6, $7, $8}; $$ = cell; }
-|   FOR LPAREN for_init SEMICOLON expression SEMICOLON for_update RPAREN statement	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6, $7, $8, $9}; $$ = cell; }
-|   FOR LPAREN SEMICOLON SEMICOLON for_update RPAREN statement	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6, $7}; $$ = cell; }
-|   FOR LPAREN for_init SEMICOLON SEMICOLON for_update RPAREN statement	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6, $7, $8}; $$ = cell; }
-|   FOR LPAREN SEMICOLON expression SEMICOLON RPAREN statement	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6, $7}; $$ = cell; }
-|   FOR LPAREN for_init SEMICOLON expression SEMICOLON RPAREN statement	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6, $7, $8}; $$ = cell; }
-|   FOR LPAREN SEMICOLON SEMICOLON RPAREN statement	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6}; $$ = cell; }
-|   FOR LPAREN for_init SEMICOLON SEMICOLON  RPAREN statement	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6, $7}; $$ = cell; }
+ClassBodyDeclarations:
+	ClassBodyDeclaration	{ $$ = $1; }
+|	ClassBodyDeclarations ClassBodyDeclaration	{ $$ = create_node ( 3 ,"ClassBodyDeclarations", $1, $2); } 
 ;
-
 
-for_init:
-    statement_expression_list	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   local_variable_declaration	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+ClassBodyDeclaration:
+	ClassMemberDeclaration	{ $$ = $1; }
+|	StaticInitializer	{ $$ = $1; }
+|	ConstructorDeclaration	{ $$ = $1; }
 ;
 
-statement_expression_list:
-    statement_expression statement_expressions	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
+ClassMemberDeclaration:
+	FieldDeclaration	{ $$ = $1; }
+|	MethodDeclaration	{ $$ = $1; }
 ;
 
-statement_expressions:
-    statement_expressions COMMA statement_expression	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|	{ NODE *cell = create_node(""); cell->list = {}; $$ = cell; }
+FieldDeclaration:
+	Modifiers Type VariableDeclarators SEMICOLON	{ $$ = create_node ( 5 ,"FieldDeclaration", $1, $2, $3, $4); } 
+|	Type VariableDeclarator SEMICOLON	{ $$ = create_node ( 4 ,"FieldDeclaration", $1, $2, $3); } 
 ;
 
-for_update:
-    statement_expression_list	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+VariableDeclarators:
+	VariableDeclarator	{ $$ = $1; }
+|	VariableDeclarators COMMA VariableDeclarator	{ $$ = create_node ( 4 ,"VariableDeclarators", $1, $2, $3); } 
 ;
 
-assert_statement:
-    assert expression SEMICOLON	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   assert expression COLON expression SEMICOLON	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5}; $$ = cell; }
+VariableDeclarator:
+	VariableDeclaratorId	{ $$ = $1; }
+|	VariableDeclaratorId EQUALS VariableInitializer	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
 ;
 
-assert:
-    ASSERT	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+VariableDeclaratorId:
+	IDENTIFIER	{ $$ = $1; }
+|	VariableDeclaratorId LSPAR RSPAR	{ $$ = create_node ( 4 ,"VariableDeclaratorId", $1, $2, $3); } 
 ;
 
-break_statement:
-    BREAK SEMICOLON	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
-|   BREAK IDENTIFIER SEMICOLON	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
+VariableInitializer:
+	Expression	{ $$ = $1; }
+|	ArrayInitializer	{ $$ = $1; }
 ;
 
-continue_statement:
-    CONTINUE SEMICOLON	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
-|   CONTINUE IDENTIFIER SEMICOLON	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
+MethodDeclaration:
+	MethodHeader MethodBody	{ $$ = create_node ( 3 ,"MethodDeclaration", $1, $2); } 
 ;
 
-return_statement:
-    RETURN SEMICOLON	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
-|   RETURN expression SEMICOLON	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
+MethodHeader:
+	Modifiers Type MethodDeclarator Throws	{ $$ = create_node ( 5 ,"MethodHeader", $1, $2, $3, $4); } 
+|	Modifiers Type MethodDeclarator	{ $$ = create_node ( 4 ,"MethodHeader", $1, $2, $3); } 
+|	Type MethodDeclarator Throws	{ $$ = create_node ( 4 ,"MethodHeader", $1, $2, $3); } 
+|	Type MethodDeclarator	{ $$ = create_node ( 3 ,"MethodHeader", $1, $2); } 
+|	Modifiers VOID MethodDeclarator Throws	{ $$ = create_node ( 5 ,"MethodHeader", $1, $2, $3, $4); } 
+|	Modifiers VOID MethodDeclarator	{ $$ = create_node ( 4 ,"MethodHeader", $1, $2, $3); } 
+|	VOID MethodDeclarator Throws	{ $$ = create_node ( 4 ,"MethodHeader", $1, $2, $3); } 
+|	VOID MethodDeclarator	{ $$ = create_node ( 3 ,"MethodHeader", $1, $2); } 
 ;
 
-synchronized_statement:
-    SYNCHRONIZED LPAREN expression RPAREN block	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5}; $$ = cell; }
-;
 
-throw_statement:
-    THROW expression SEMICOLON	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
+MethodDeclarator:
+	IDENTIFIER LPAREN FormalParameterList RPAREN	{ $$ = create_node ( 5 ,"MethodDeclarator", $1, $2, $3, $4); } 
+|	MethodDeclarator LSPAR RSPAR	{ $$ = create_node ( 4 ,"MethodDeclarator", $1, $2, $3); } 
+|	IDENTIFIER LPAREN RPAREN	{ $$ = create_node ( 4 ,"MethodDeclarator", $1, $2, $3); } 
 ;
 
-try_statement:
-    TRY block catches finally	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4}; $$ = cell; }
-|   TRY block catches	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   TRY block finally	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   TRY block 	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
+FormalParameterList:
+	FormalParameter	{ $$ = $1; }
+|	FormalParameterList COMMA FormalParameter	{ $$ = create_node ( 4 ,"FormalParameterList", $1, $2, $3); } 
 ;
 
-catches:
-    catch_clause catches	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
-|   catch_clause	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+FormalParameter:
+	Type VariableDeclaratorId	{ $$ = create_node ( 3 ,"FormalParameter", $1, $2); } 
+|	FINAL Type VariableDeclaratorId	{ $$ = create_node ( 4 ,"FormalParameter", $1, $2, $3); }
 ;
 
-catch_clause:
-    CATCH LPAREN catch_formal_parameter RPAREN block	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5}; $$ = cell; }
+Throws:
+	THROWS ClassTypeList	{ $$ = create_node ( 3 ,"Throws", $1, $2); } 
 ;
 
-catch_formal_parameter:
-    catch_type IDENTIFIER	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
+ClassTypeList:
+	ClassType	{ $$ = $1; }
+|	ClassTypeList COMMA ClassType	{ $$ = create_node ( 4 ,"ClassTypeList", $1, $2, $3); } 
 ;
-
-catch_type:
-    type	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   catch_type OR type	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
 
-finally:
-    FINALLY block	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
+MethodBody:
+	Block 	{ $$ = $1; }
+|	SEMICOLON	{ $$ = $1; }
 ;
 
-/* Expressions */
 
-expression:
-   lambda_expression
-|  assignment_expression	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+StaticInitializer:
+	STATIC Block	{ $$ = create_node ( 3 ,"StaticInitializer", $1, $2); } 
 ;
 
-lambda_expression:
-    lambda_parameters ARROW lambda_body	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-;
 
-lambda_parameters:
-    IDENTIFIER	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   LPAREN lambda_parameter_list RPAREN	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   LPAREN RPAREN	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
+ConstructorDeclaration:
+	Modifiers ConstructorDeclarator Throws ConstructorBody	{ $$ = create_node ( 5 ,"ConstructorDeclaration", $1, $2, $3, $4); } 
+|	Modifiers ConstructorDeclarator ConstructorBody	{ $$ = create_node ( 4 ,"ConstructorDeclaration", $1, $2, $3); } 
+|	ConstructorDeclarator Throws ConstructorBody	{ $$ = create_node ( 4 ,"ConstructorDeclaration", $1, $2, $3); } 
+|	ConstructorDeclarator ConstructorBody		{ $$ = create_node ( 3 ,"ConstructorDeclaration", $1, $2); } 
 ;
 
-lambda_parameter_list:
-    lambda_parameter more_lambda_parameters	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
-|   IDENTIFIER more_identifiers	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
-|   IDENTIFIER	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+ConstructorDeclarator:
+	SimpleName LPAREN FormalParameterList RPAREN	{ $$ = create_node ( 5 ,"ConstructorDeclarator", $1, $2, $3, $4); } 
+|	SimpleName LPAREN RPAREN	{ $$ = create_node ( 4 ,"ConstructorDeclarator", $1, $2, $3); } 
 ;
 
-more_lambda_parameters:
-    more_lambda_parameters COMMA lambda_parameter	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|    	{ NODE *cell = create_node(""); cell->list = {}; $$ = cell; }
+ConstructorBody:
+	LMPARA ExplicitConstructorInvocation BlockStatements RMPARA	{ $$ = create_node ( 5 ,"ConstructorBody", $1, $2, $3, $4); } 
+|	LMPARA ExplicitConstructorInvocation RMPARA	{ $$ = create_node ( 4 ,"ConstructorBody", $1, $2, $3); } 
+|	LMPARA BlockStatements RMPARA	{ $$ = create_node ( 4 ,"ConstructorBody", $1, $2, $3); } 
+|	LMPARA RMPARA	{ $$ = create_node ( 3 ,"ConstructorBody", $1, $2); } 
 ;
 
-more_identifiers:
-    more_identifiers COMMA IDENTIFIER 	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   COMMA IDENTIFIER	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
-;
 
-lambda_parameter:
-    variable_modifiers local_variable_type variable_declarator_id	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   local_variable_type variable_declarator_id	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
-|   variable_arity_parameter	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+ExplicitConstructorInvocation:
+	THIS LPAREN ArgumentList RPAREN SEMICOLON	{ $$ = create_node ( 6 ,"ExplicitConstructorInvocation", $1, $2, $3, $4, $5); } 
+|	THIS LPAREN RPAREN SEMICOLON	{ $$ = create_node ( 5 ,"ExplicitConstructorInvocation", $1, $2, $3, $4); } 
+|	SUPER LPAREN ArgumentList RPAREN SEMICOLON	{ $$ = create_node ( 6 ,"ExplicitConstructorInvocation", $1, $2, $3, $4, $5); } 
+|	SUPER LPAREN RPAREN SEMICOLON	{ $$ = create_node ( 5 ,"ExplicitConstructorInvocation", $1, $2, $3, $4); } 
 ;
 
-variable_declarator_id:
-    IDENTIFIER dims	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
+InterfaceDeclaration:
+	Modifiers INTERFACE IDENTIFIER ExtendsInterfaces InterfaceBody	{ $$ = create_node ( 6 ,"InterfaceDeclaration", $1, $2, $3, $4, $5); } 
+|	Modifiers INTERFACE IDENTIFIER InterfaceBody	{ $$ = create_node ( 5 ,"InterfaceDeclaration", $1, $2, $3, $4); } 
+|	INTERFACE IDENTIFIER ExtendsInterfaces InterfaceBody	{ $$ = create_node ( 5 ,"InterfaceDeclaration", $1, $2, $3, $4); } 
+|	INTERFACE IDENTIFIER InterfaceBody	{ $$ = create_node ( 4 ,"InterfaceDeclaration", $1, $2, $3); } 
 ;
 
-dims:
-    dims dim	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
-|   dim	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+ExtendsInterfaces:
+	EXTENDS InterfaceType	{ $$ = create_node ( 3 ,"ExtendsInterfaces", $1, $2); } 
+|	ExtendsInterfaces COMMA InterfaceType	{ $$ = create_node ( 4 ,"ExtendsInterfaces", $1, $2, $3); } 
 ;
 
-dim:
-    LSPAR RSPAR	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
+InterfaceBody:
+	LMPARA InterfaceMemberDeclarations RMPARA	{ $$ = create_node ( 4 ,"InterfaceBody", $1, $2, $3); } 
+|	LMPARA RMPARA	{ $$ = create_node ( 3 ,"InterfaceBody", $1, $2); } 
 ;
 
-variable_arity_parameter:
-    variable_modifiers type variable_arity_parameter_id	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|    type variable_arity_parameter_id	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
+InterfaceMemberDeclarations:
+	InterfaceMemberDeclaration	{ $$ = $1; }
+|	InterfaceMemberDeclarations InterfaceMemberDeclaration	{ $$ = create_node ( 3 ,"InterfaceMemberDeclarations", $1, $2); } 
 ;
 
-variable_arity_parameter_id:
-    ELLIPSIS IDENTIFIER	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
+InterfaceMemberDeclaration:
+	ConstantDeclaration	{ $$ = $1; }
+|	AbstractMethodDeclaration	{ $$ = $1; }
 ;
 
-lambda_body:
-    expression	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   block	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+ConstantDeclaration:
+	FieldDeclaration	{ $$ = $1; }
 ;
 
-assignment_expression:
-    conditional_expression	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   assignment	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+AbstractMethodDeclaration:
+	MethodHeader SEMICOLON	{ $$ = create_node ( 3 ,"AbstractMethodDeclaration", $1, $2); } 
 ;
 
-assignment:
-    left_hand_side assignment_operator expression	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-;
 
-left_hand_side:
-    field_access	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   array_access	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+ArrayInitializer:
+	LMPARA VariableInitializers COMMA RMPARA	{ $$ = create_node ( 5 ,"ArrayInitializer", $1, $2, $3, $4); } 
+|	LMPARA VariableInitializers RMPARA	{ $$ = create_node ( 4 ,"ArrayInitializer", $1, $2, $3); } 
+|	LMPARA COMMA RMPARA	{ $$ = create_node ( 4 ,"ArrayInitializer", $1, $2, $3); } 
+|	LMPARA RMPARA	{ $$ = create_node ( 3 ,"ArrayInitializer", $1, $2); } 
 ;
 
-field_access:
-    primary DOT IDENTIFIER	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   SUPER DOT IDENTIFIER	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-/* |   module_or_package_or_expression_name  */
+VariableInitializers:
+	VariableInitializer	{ $$ = $1; }
+|	VariableInitializers COMMA VariableInitializer	{ $$ = create_node ( 4 ,"VariableInitializers", $1, $2, $3); } 
 ;
 
-array_access:
-    module_or_package_or_expression_name LSPAR expression RSPAR	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4}; $$ = cell; }
-|   primary_no_new_array LSPAR expression RSPAR	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4}; $$ = cell; }
-;
 
-assignment_operator:
-    EQUALS	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   TIMES_EQUALS	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   DIVIDE_EQUALS	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   MOD_EQUALS	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   PLUS_EQUALS	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   MINUS_EQUALS	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   LEFT_SHIFT_EQUALS	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   RIGHT_SHIFT_EQUALS	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   UNSIGNED_RIGHT_SHIFT_EQUALS	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   AND_EQUALS	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   XOR_EQUALS	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   OR_EQUALS	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+Block:
+	LMPARA BlockStatements RMPARA	{ $$ = create_node ( 4 ,"Block", $1, $2, $3); } 
+|	LMPARA RMPARA	{ $$ = create_node ( 3 ,"Block", $1, $2); } 
 ;
 
-conditional_expression:
-    conditional_or_expression	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   conditional_or_expression QUESTION expression COLON conditional_expression	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5}; $$ = cell; }
-|   conditional_or_expression QUESTION expression COLON lambda_expression	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5}; $$ = cell; }
+BlockStatements:
+	BlockStatement	{ $$ = $1; }
+|	BlockStatements BlockStatement	{ $$ = create_node ( 3 ,"BlockStatements", $1, $2); } 
 ;
 
-conditional_or_expression:
-    conditional_and_expression	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   conditional_or_expression OR conditional_and_expression	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
+BlockStatement:
+	LocalVariableDeclarationStatement	{ $$ = $1; }
+|	Statement	{ $$ = $1; }
 ;
 
-conditional_and_expression:
-    inclusive_or_expression	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   conditional_and_expression AND inclusive_or_expression	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
+LocalVariableDeclarationStatement:
+	LocalVariableDeclaration SEMICOLON	{ $$ = create_node ( 3 ,"LocalVariableDeclarationStatement", $1, $2); } 
 ;
 
-inclusive_or_expression:
-    exclusive_or_expression	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   inclusive_or_expression BITWISE_OR exclusive_or_expression	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
+LocalVariableDeclaration:
+	Type VariableDeclarators	{ $$ = create_node ( 3 ,"LocalVariableDeclaration", $1, $2); } 
+|	FINAL Type VariableDeclarators	{ $$ = create_node ( 4 ,"LocalVariableDeclaration", $1, $2, $3); }
 ;
 
-exclusive_or_expression:
-    and_expression	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   exclusive_or_expression XOR and_expression	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
+Statement:
+	StatementWithoutTrailingSubstatement	{ $$ = $1; }
+|	LabeledStatement	{ $$ = $1; }
+|	IfThenStatement	{ $$ = $1; }
+|	IfThenElseStatement	{ $$ = $1; }
+|	WhileStatement	{ $$ = $1; }
+|	ForStatement	{ $$ = $1; }
 ;
 
-and_expression:
-    equality_expression	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   and_expression BITWISE_AND equality_expression	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
+StatementNoShortIf:
+	StatementWithoutTrailingSubstatement	{ $$ = $1; }
+|	LabeledStatementNoShortIf	{ $$ = $1; }
+|	IfThenElseStatementNoShortIf	{ $$ = $1; }
+|	WhileStatementNoShortIf	{ $$ = $1; }
+|	ForStatementNoShortIf	{ $$ = $1; }
 ;
 
-equality_expression:
-    relational_expression	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   equality_expression EQUALS relational_expression	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   equality_expression NOT_EQUALS relational_expression	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
+StatementWithoutTrailingSubstatement:
+	Block	{ $$ = $1; }
+|	EmptyStatement	{ $$ = $1; }
+|	ExpressionStatement	{ $$ = $1; }
+|	BreakStatement	{ $$ = $1; }
+|	ContinueStatement	{ $$ = $1; }
+|	ReturnStatement	{ $$ = $1; }
+|	SynchronizedStatement	{ $$ = $1; }
+|	ThrowStatement	{ $$ = $1; }
+|	TryStatement	{ $$ = $1; }
 ;
 
-relational_expression:
-    shift_expression	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   relational_expression LT shift_expression	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   relational_expression GT shift_expression	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   relational_expression LE shift_expression	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   relational_expression GE shift_expression	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   relational_expression INSTANCEOF reference_type	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
+EmptyStatement:
+	SEMICOLON	{ $$ = $1; }
 ;
 
-shift_expression:
-    additive_expression	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   shift_expression LEFT_SHIFT additive_expression	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   shift_expression RIGHT_SHIFT additive_expression	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   shift_expression UNSIGNED_RIGHT_SHIFT additive_expression	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
+LabeledStatement:
+	IDENTIFIER COLON Statement	{ $$ = create_node ( 4 ,"LabeledStatement", $1, $2, $3); } 
 ;
 
-additive_expression:
-    multiplicative_expression	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   additive_expression PLUS multiplicative_expression	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   additive_expression MINUS multiplicative_expression	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
+LabeledStatementNoShortIf:
+	IDENTIFIER COLON StatementNoShortIf	{ $$ = create_node ( 4 ,"LabeledStatementNoShortIf", $1, $2, $3); } 
 ;
 
-multiplicative_expression:
-    unary_expression	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   multiplicative_expression TIMES unary_expression	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   multiplicative_expression DIVIDE unary_expression	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   multiplicative_expression MOD unary_expression	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
+ExpressionStatement:
+	StatementExpression SEMICOLON	{ $$ = create_node ( 3 ,"ExpressionStatement", $1, $2); } 
 ;
 
-unary_expression:
-    pre_increment_expression	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   pre_decrement_expression	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   PLUS unary_expression	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
-|   MINUS unary_expression	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
-|   unary_expression_not_plus_minus	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+StatementExpression:
+	Assignment	{ $$ = $1; }
+|	PreIncrementExpression	{ $$ = $1; }
+|	PreDecrementExpression	{ $$ = $1; }
+|	PostIncrementExpression	{ $$ = $1; }
+|	PostDecrementExpression	{ $$ = $1; }
+|	MethodInvocation	{ $$ = $1; }
+|	ClassInstanceCreationExpression	{ $$ = $1; }
 ;
 
-pre_increment_expression:
-    PLUS_PLUS unary_expression	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
+IfThenStatement:
+	IF LPAREN Expression RPAREN Statement	{ $$ = create_node ( 6 ,"IfThenStatement", $1, $2, $3, $4, $5); } 
 ;
 
-pre_decrement_expression:
-    MINUS_MINUS unary_expression	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
+IfThenElseStatement:
+	IF LPAREN Expression RPAREN StatementNoShortIf ELSE Statement	{ $$ = create_node ( 8 ,"IfThenElseStatement", $1, $2, $3, $4, $5, $6, $7); } 
 ;
 
-post_increment_expression:
-    postfix_expression PLUS_PLUS	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
+IfThenElseStatementNoShortIf:
+	IF LPAREN Expression RPAREN StatementNoShortIf ELSE StatementNoShortIf	{ $$ = create_node ( 8 ,"IfThenElseStatementNoShortIf", $1, $2, $3, $4, $5, $6, $7); } 
 ;
 
-post_decrement_expression:
-    postfix_expression MINUS_MINUS	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
+WhileStatement:
+	WHILE LPAREN Expression RPAREN Statement	{ $$ = create_node ( 6 ,"WhileStatement", $1, $2, $3, $4, $5); } 
 ;
 
-unary_expression_not_plus_minus:
-    postfix_expression	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   TILDE unary_expression	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
-|   NOT unary_expression	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
+WhileStatementNoShortIf:
+	WHILE LPAREN Expression RPAREN StatementNoShortIf	{ $$ = create_node ( 6 ,"WhileStatementNoShortIf", $1, $2, $3, $4, $5); } 
 ;
 
-postfix_expression:
-    primary  	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   post_increment_expression	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   post_decrement_expression	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+ForStatement:
+	FOR LPAREN ForInit SEMICOLON Expression SEMICOLON ForUpdate RPAREN Statement	{ $$ = create_node ( 10 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7, $8, $9); } 
+|	FOR LPAREN ForInit SEMICOLON SEMICOLON ForUpdate RPAREN Statement	{ $$ = create_node ( 9 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7, $8); } 
+|	FOR LPAREN SEMICOLON Expression SEMICOLON ForUpdate RPAREN Statement	{ $$ = create_node ( 9 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7, $8); } 
+|	FOR LPAREN SEMICOLON SEMICOLON ForUpdate RPAREN Statement	{ $$ = create_node ( 8 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7); } 
+|	FOR LPAREN ForInit SEMICOLON Expression SEMICOLON RPAREN Statement	{ $$ = create_node ( 9 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7, $8); } 
+|	FOR LPAREN ForInit SEMICOLON SEMICOLON RPAREN Statement	{ $$ = create_node ( 8 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7); } 
+|	FOR LPAREN SEMICOLON Expression SEMICOLON RPAREN Statement	{ $$ = create_node ( 8 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7); } 
+|	FOR LPAREN SEMICOLON SEMICOLON RPAREN Statement	{ $$ = create_node ( 7 ,"ForStatement", $1, $2, $3, $4, $5, $6); } 
 ;
 
-primary:
-    primary_no_new_array	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   array_creation_expression	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+ForStatementNoShortIf:
+	FOR LPAREN ForInit SEMICOLON Expression SEMICOLON ForUpdate RPAREN StatementNoShortIf	{ $$ = create_node ( 10 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6, $7, $8, $9); } 
+|	FOR LPAREN ForInit SEMICOLON SEMICOLON ForUpdate RPAREN StatementNoShortIf	{ $$ = create_node ( 9 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6, $7, $8); } 
+|	FOR LPAREN SEMICOLON Expression SEMICOLON ForUpdate RPAREN StatementNoShortIf	{ $$ = create_node ( 9 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6, $7, $8); } 
+|	FOR LPAREN SEMICOLON SEMICOLON ForUpdate RPAREN StatementNoShortIf	{ $$ = create_node ( 8 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6, $7); } 
+|	FOR LPAREN ForInit SEMICOLON Expression SEMICOLON RPAREN StatementNoShortIf	{ $$ = create_node ( 9 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6, $7, $8); } 
+|	FOR LPAREN ForInit SEMICOLON SEMICOLON RPAREN StatementNoShortIf	{ $$ = create_node ( 8 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6, $7); } 
+|	FOR LPAREN SEMICOLON Expression SEMICOLON RPAREN StatementNoShortIf	{ $$ = create_node ( 8 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6, $7); } 
+|	FOR LPAREN SEMICOLON SEMICOLON RPAREN StatementNoShortIf	{ $$ = create_node ( 7 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6); } 
 ;
 
-array_creation_expression:
-    NEW array_creation_folllow	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
+ForInit:
+	StatementExpressionList	{ $$ = $1; }
+|	LocalVariableDeclaration	{ $$ = $1; }
 ;
-array_creation_folllow:
-    primitive_type array_creation_type_follow	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
-|   class_type array_creation_type_follow	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
-;
 
-array_creation_type_follow:
-    dimexprs dims	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
-|   dimexprs 	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   dims array_initializer	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
+ForUpdate:
+	StatementExpressionList	{ $$ = $1; }
 ;
 
-dimexprs:
-    dimexprs dimexpr	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
-|   dimexpr	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+StatementExpressionList:
+	StatementExpression	{ $$ = $1; }
+|	StatementExpressionList COMMA StatementExpression	{ $$ = create_node ( 4 ,"StatementExpressionList", $1, $2, $3); } 
 ;
 
-dimexpr:
-    LSPAR expression RSPAR	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
+BreakStatement:
+	BREAK IDENTIFIER SEMICOLON	{ $$ = create_node ( 4 ,"BreakStatement", $1, $2, $3); } 
+|	BREAK SEMICOLON	{ $$ = create_node ( 3 ,"BreakStatement", $1, $2); } 
 ;
 
-primary_no_new_array:
-    LITERAL	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   class_literal	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   THIS	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   module_or_package_or_expression_name DOT THIS	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   LPAREN expression RPAREN	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   left_hand_side    { NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   method_invocation	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   method_reference	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+ContinueStatement:
+	CONTINUE IDENTIFIER SEMICOLON	{ $$ = create_node ( 4 ,"ContinueStatement", $1, $2, $3); } 
+|	CONTINUE SEMICOLON	{ $$ = create_node ( 3 ,"ContinueStatement", $1, $2); } 
 ;
 
-class_literal:
-    module_or_package_or_expression_name dims DOT CLASS	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4}; $$ = cell; }
-|   primitive_type DOT CLASS	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   primitive_type dims DOT CLASS	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4}; $$ = cell; }
-|   module_or_package_or_expression_name DOT CLASS	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   VOID DOT CLASS	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
+ReturnStatement:
+	RETURN Expression SEMICOLON	{ $$ = create_node ( 4 ,"ReturnStatement", $1, $2, $3); } 
+|	RETURN SEMICOLON	{ $$ = create_node ( 3 ,"ReturnStatement", $1, $2); } 
 ;
 
-type:
-    primitive_type	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   reference_type	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+ThrowStatement:
+	THROW Expression SEMICOLON	{ $$ = create_node ( 4 ,"ThrowStatement", $1, $2, $3); } 
 ;
 
-numeric_type:
-    integral_type	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   floating_point_type	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+SynchronizedStatement:
+	SYNCHRONIZED LPAREN Expression RPAREN Block	{ $$ = create_node ( 6 ,"SynchronizedStatement", $1, $2, $3, $4, $5); } 
 ;
 
-integral_type:
-    BYTE 	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   SHORT	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   INT	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   LONG	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+TryStatement:
+	TRY Block Catches	{ $$ = create_node ( 4 ,"TryStatement", $1, $2, $3); } 
+|	TRY Block Catches Finally	{ $$ = create_node ( 5 ,"TryStatement", $1, $2, $3, $4); } 
+|	TRY Block Finally	{ $$ = create_node ( 4 ,"TryStatement", $1, $2, $3); } 
 ;
 
-floating_point_type:
-    FLOAT	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   DOUBLE	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-;
 
-/* Class Declaration */
-class_declaration :
-    normal_class_declaration	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+Catches:
+	CatchClause{ $$ = $1; }
+|	Catches CatchClause	{ $$ = create_node ( 3 ,"Catches", $1, $2); } 
 ;
 
-normal_class_declaration:
-    class_modifiers CLASS type_identifier type_parameters class_extends class_body	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6}; $$ = cell; }
-|   class_modifiers CLASS type_identifier type_parameters class_body	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5}; $$ = cell; }
-|   class_modifiers CLASS type_identifier class_extends class_body	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5}; $$ = cell; }
-|   class_modifiers CLASS type_identifier class_body	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4}; $$ = cell; }
+CatchClause:
+	CATCH LPAREN FormalParameter RPAREN Block	{ $$ = create_node ( 6 ,"CatchClause", $1, $2, $3, $4, $5); } 
 ;
 
-class_modifiers:
-    class_modifiers modifier	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
-|   modifier	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+Finally:
+	FINALLY Block	{ $$ = create_node ( 3 ,"Finally", $1, $2); } 
 ;
 
-modifier:
-    PUBLIC 	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   PRIVATE	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   ABSTRACT	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   STATIC	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   FINAL	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   STRICTFP	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   SYNCHRONIZED	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   NATIVE	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   PROTECTED	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   TRANSIENT	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   VOLATILE	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+Primary:
+	PrimaryNoNewArray	{ $$ = $1; }
+|	ArrayCreationExpression	{ $$ = $1; }
 ;
 
-type_parameters:
-    LANGULAR type_parameter_list RANGULAR	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
+PrimaryNoNewArray:
+	LITERAL	{ $$ = $1; }
+|	THIS	{ $$ = $1; }
+|	LPAREN Expression RPAREN	{ $$ = create_node ( 4 ,"PrimaryNoNewArray", $1, $2, $3); } 
+|	ClassInstanceCreationExpression	{ $$ = $1; }
+|	FieldAccess	{ $$ = $1; }
+|	MethodInvocation	{ $$ = $1; }
+|	ArrayAccess	{ $$ = $1; }
 ;
 
-type_parameter_list:
-    type_parameter_list COMMA type_parameter	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   type_parameter	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+ClassInstanceCreationExpression:
+	NEW ClassType LPAREN ArgumentList RPAREN	{ $$ = create_node ( 6 ,"ClassInstanceCreationExpression", $1, $2, $3, $4, $5); } 
+|	NEW ClassType LPAREN RPAREN	{ $$ = create_node ( 5 ,"ClassInstanceCreationExpression", $1, $2, $3, $4); } 
 ;
 
-type_parameter:
-    type_identifier type_bound	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
-|   type_identifier 	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+ArgumentList:
+	Expression	{ $$ = $1; }
+|	ArgumentList COMMA Expression	{ $$ = create_node ( 4 ,"ArgumentList", $1, $2, $3); } 
 ;
 
-type_bound:
-    EXTENDS type_variable_or_class_or_interface_type_list	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
+ArrayCreationExpression:
+	NEW PrimitiveType DimExprs Dims	{ $$ = create_node ( 5 ,"ArrayCreationExpression", $1, $2, $3, $4); } 
+|	NEW PrimitiveType DimExprs	{ $$ = create_node ( 4 ,"ArrayCreationExpression", $1, $2, $3); } 
+|	NEW ClassOrInterfaceType DimExprs Dims	{ $$ = create_node ( 5 ,"ArrayCreationExpression", $1, $2, $3, $4); } 
+|	NEW ClassOrInterfaceType DimExprs	{ $$ = create_node ( 4 ,"ArrayCreationExpression", $1, $2, $3); } 
 ;
 
-type_variable_or_class_or_interface_type_list:
-    class_type	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-;   
-
-class_type:
-    class_type type_arguments	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
-|   module_or_package_or_expression_name	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+DimExprs:
+	DimExpr	{ $$ = $1; }
+|	DimExprs DimExpr	{ $$ = create_node ( 3 ,"DimExprs", $1, $2); } 
 ;
 
-class_extends:
-    EXTENDS class_type	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
+DimExpr:
+	LSPAR Expression RSPAR	{ $$ = create_node ( 4 ,"DimExpr", $1, $2, $3); } 
 ;
 
-class_body:
-    LMPARA class_content RMPARA	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   LMPARA RMPARA	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
+Dims:
+	LSPAR RSPAR	{ $$ = create_node ( 3 ,"Dims", $1, $2); } 
+|	Dims LSPAR RSPAR	{ $$ = create_node ( 4 ,"Dims", $1, $2, $3); } 
 ;
 
-class_content:
-    class_content class_body_declaration	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
-|   class_body_declaration    	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+FieldAccess:
+	Primary DOT IDENTIFIER	{ $$ = create_node ( 4 ,"FieldAccess", $1, $2, $3); } 
+|	SUPER DOT IDENTIFIER	{ $$ = create_node ( 4 ,"FieldAccess", $1, $2, $3); } 
 ;
 
-class_body_declaration:
-    class_member_declaration	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   instance_initializer	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   static_initializer	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   constructor_declaration	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+MethodInvocation:
+	Name LPAREN ArgumentList RPAREN	{ $$ = create_node ( 5 ,"MethodInvocation", $1, $2, $3, $4); } 
+|	Name LPAREN RPAREN	{ $$ = create_node ( 4 ,"MethodInvocation", $1, $2, $3); } 
+|	Primary DOT IDENTIFIER LPAREN ArgumentList RPAREN	{ $$ = create_node ( 7 ,"MethodInvocation", $1, $2, $3, $4, $5, $6); } 
+|	Primary DOT IDENTIFIER LPAREN RPAREN	{ $$ = create_node ( 6 ,"MethodInvocation", $1, $2, $3, $4, $5); } 
+|	SUPER DOT IDENTIFIER LPAREN ArgumentList RPAREN	{ $$ = create_node ( 7 ,"MethodInvocation", $1, $2, $3, $4, $5, $6); } 
+|	SUPER DOT IDENTIFIER LPAREN RPAREN	{ $$ = create_node ( 6 ,"MethodInvocation", $1, $2, $3, $4, $5); } 
 ;
 
-class_member_declaration:
-    field_declaration	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   method_declaration	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   SEMICOLON	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-;
 
-field_declaration:
-    modifier type variable_declarators_list SEMICOLON	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4}; $$ = cell; }
+ArrayAccess:
+	Name LSPAR Expression RSPAR	{ $$ = create_node ( 5 ,"ArrayAccess", $1, $2, $3, $4); } 
+|	PrimaryNoNewArray LSPAR Expression RSPAR	{ $$ = create_node ( 5 ,"ArrayAccess", $1, $2, $3, $4); } 
 ;
 
-method_declaration:
-    modifier method_header method_body	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
+PostfixExpression:
+	Primary	{ $$ = $1; }
+|	Name	{ $$ = $1; }
+|	PostIncrementExpression	{ $$ = $1; }
+|	PostDecrementExpression	{ $$ = $1; }
 ;
 
-method_header:
-    type method_declarator throws	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   VOID method_declarator throws	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   type_parameters type method_declarator throws	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4}; $$ = cell; }
-|   type_parameters VOID method_declarator throws	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4}; $$ = cell; }
-|   type method_declarator	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
-|   VOID method_declarator	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
-|   type_parameters type method_declarator	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   type_parameters VOID method_declarator	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
+PostIncrementExpression:
+	PostfixExpression PLUS_PLUS	{ $$ = create_node ( 2 ,$2->val, $1); } 
 ;
 
-throws:
-    THROWS exception_type_list	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
+PostDecrementExpression:
+	PostfixExpression MINUS_MINUS	{ $$ = create_node ( 2 ,$2->val, $1); } 
 ;
 
-exception_type_list:
-    exception_type_list COMMA exception_type	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   exception_type	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+UnaryExpression:
+	PreIncrementExpression	{ $$ = $1; }
+|	PreDecrementExpression	{ $$ = $1; }
+|	PLUS UnaryExpression	{ $$ = create_node ( 2 ,$1->val, $2); } 
+|	MINUS UnaryExpression	{ $$ = create_node ( 2 ,$1->val, $2); } 
+|	UnaryExpressionNotPlusMinus	{ $$ = $1; }
 ;
 
-exception_type:
-    class_type	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+PreIncrementExpression:
+	PLUS_PLUS UnaryExpression	{ $$ = create_node ( 2 ,$1->val, $2); } 
 ;
 
-method_body:
-    block	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   SEMICOLON	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+PreDecrementExpression:
+	MINUS_MINUS UnaryExpression	{ $$ = create_node ( 2 ,$1->val, $2); } 
 ;
 
-
-method_declarator:
-    IDENTIFIER LPAREN reciever_parameter COMMA formal_parameter_list RPAREN dims	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6, $7}; $$ = cell; }
-|   IDENTIFIER LPAREN formal_parameter_list RPAREN dims	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5}; $$ = cell; }
-|   IDENTIFIER LPAREN reciever_parameter COMMA RPAREN dims	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6}; $$ = cell; }
-|   IDENTIFIER LPAREN reciever_parameter COMMA formal_parameter_list RPAREN 	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6}; $$ = cell; }
-|   IDENTIFIER LPAREN formal_parameter_list RPAREN 	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4}; $$ = cell; }
-|   IDENTIFIER LPAREN reciever_parameter COMMA RPAREN 	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5}; $$ = cell; }
-|   IDENTIFIER LPAREN RPAREN dims	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4}; $$ = cell; }
-|   IDENTIFIER LPAREN RPAREN	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
+UnaryExpressionNotPlusMinus:
+	PostfixExpression	{ $$ = $1; }
+|	TILDE UnaryExpression	{ $$ = create_node ( 2 ,$1->val, $2); } 
+|	NOT UnaryExpression	{ $$ = create_node ( 2 ,$1->val , $2); } 
+|	CastExpression	{ $$ = $1; }
 ;
 
-reciever_parameter:
-    type IDENTIFIER DOT THIS 	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4}; $$ = cell; }
-|   type THIS	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
+CastExpression:
+	LPAREN PrimitiveType Dims RPAREN UnaryExpression	{ $$ = create_node ( 6 ,"CastExpression", $1, $2, $3, $4, $5); } 
+|	LPAREN PrimitiveType RPAREN UnaryExpression	{ $$ = create_node ( 5 ,"CastExpression", $1, $2, $3, $4); } 
+|	LPAREN Expression RPAREN UnaryExpressionNotPlusMinus	{ $$ = create_node ( 5 ,"CastExpression", $1, $2, $3, $4); } 
+|	LPAREN Name Dims RPAREN UnaryExpressionNotPlusMinus	{ $$ = create_node ( 6 ,"CastExpression", $1, $2, $3, $4, $5); } 
 ;
 
-formal_parameter_list:
-    formal_parameter_list COMMA formal_parameter	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   formal_parameter	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+MultiplicativeExpression:
+	UnaryExpression	{ $$ = $1; }
+|	MultiplicativeExpression TIMES UnaryExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
+|	MultiplicativeExpression DIVIDE UnaryExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
+|	MultiplicativeExpression MOD UnaryExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
 ;
 
-formal_parameter:
-    variable_modifiers type variable_declarator_id	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|    type variable_declarator_id	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
-|   variable_arity_parameter	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+AdditiveExpression:
+	MultiplicativeExpression	{ $$ = $1; }
+|	AdditiveExpression PLUS MultiplicativeExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
+|	AdditiveExpression MINUS MultiplicativeExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
 ;
 
-instance_initializer:
-    block	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+ShiftExpression:
+	AdditiveExpression	{ $$ = $1; }
+|	ShiftExpression LEFT_SHIFT AdditiveExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
+|	ShiftExpression RIGHT_SHIFT AdditiveExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
+|	ShiftExpression UNSIGNED_RIGHT_SHIFT AdditiveExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
 ;
 
-static_initializer:
-    STATIC block	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
+RelationalExpression:
+	ShiftExpression	{ $$ = $1; }
+|	RelationalExpression LT ShiftExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
+|	RelationalExpression GT ShiftExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
+|	RelationalExpression LE ShiftExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
+|	RelationalExpression GE ShiftExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
+|	RelationalExpression INSTANCEOF ReferenceType	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
 ;
 
-constructor_declaration:
-    constructor_modifiers constructor_declarator throws constructor_body	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4}; $$ = cell; }
-|   constructor_modifiers constructor_declarator constructor_body	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   constructor_declarator throws constructor_body	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   constructor_declarator constructor_body	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
+EqualityExpression:
+	RelationalExpression	{ $$ = $1; }
+|	EqualityExpression EQUALS_EQUALS RelationalExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
+|	EqualityExpression NOT_EQUALS RelationalExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
 ;
-
-constructor_modifiers:
-    constructor_modifiers modifier	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
-|   modifier	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+AndExpression:
+	EqualityExpression	{ $$ = $1; }
+|	AndExpression BITWISE_AND EqualityExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
 ;
 
-constructor_declarator:
-    type_parameters simple_type_name LPAREN reciever_parameter formal_parameter_list RPAREN	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6}; $$ = cell; }
+ExclusiveOrExpression:
+	AndExpression	{ $$ = $1; }
+|	ExclusiveOrExpression XOR AndExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
 ;
 
-simple_type_name:
-    type_identifier	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+InclusiveOrExpression:
+	ExclusiveOrExpression	{ $$ = $1; }
+|	InclusiveOrExpression BITWISE_OR ExclusiveOrExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
 ;
 
-constructor_body:
-    LMPARA explicit_constructor_invocation block_statements RMPARA	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4}; $$ = cell; }
-|   LMPARA explicit_constructor_invocation RMPARA	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   LMPARA block_statements RMPARA	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   LMPARA RMPARA	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
+ConditionalAndExpression:
+	InclusiveOrExpression	{ $$ = $1; }
+|	ConditionalAndExpression AND InclusiveOrExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
 ;
 
-explicit_constructor_invocation:
-    type_arguments THIS LPAREN argument_list RPAREN SEMICOLON	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6}; $$ = cell; }
-|   THIS LPAREN argument_list RPAREN SEMICOLON	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5}; $$ = cell; }
-|   type_arguments THIS LPAREN RPAREN SEMICOLON	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5}; $$ = cell; }
-|   THIS LPAREN RPAREN SEMICOLON	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4}; $$ = cell; }
-|   type_arguments SUPER LPAREN argument_list RPAREN SEMICOLON	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6}; $$ = cell; }
-|   type_arguments SUPER LPAREN  RPAREN SEMICOLON	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5}; $$ = cell; }
-|   SUPER LPAREN argument_list RPAREN SEMICOLON	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5}; $$ = cell; }
-|   SUPER LPAREN RPAREN SEMICOLON	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4}; $$ = cell; }
-|   module_or_package_or_expression_name DOT type_arguments SUPER LPAREN argument_list RPAREN SEMICOLON	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6, $7, $8}; $$ = cell; }
-|   module_or_package_or_expression_name DOT  SUPER LPAREN argument_list RPAREN SEMICOLON	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6, $7}; $$ = cell; }
-|   module_or_package_or_expression_name DOT type_arguments SUPER LPAREN RPAREN SEMICOLON	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6, $7}; $$ = cell; }
-|   module_or_package_or_expression_name DOT  SUPER LPAREN RPAREN SEMICOLON	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6}; $$ = cell; }
-|   primary DOT type_arguments SUPER LPAREN argument_list RPAREN SEMICOLON	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6, $7, $8}; $$ = cell; }
-|   primary DOT  SUPER LPAREN argument_list RPAREN SEMICOLON	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6, $7}; $$ = cell; }
-|   primary DOT type_arguments SUPER LPAREN  RPAREN SEMICOLON	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6, $7}; $$ = cell; }
-|   primary DOT  SUPER LPAREN  RPAREN SEMICOLON	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4, $5, $6}; $$ = cell; }
+ConditionalOrExpression:
+	ConditionalAndExpression	{ $$ = $1; }
+|	ConditionalOrExpression OR ConditionalAndExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
 ;
 
-reference_type:
-    class_type	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   array_type	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+ConditionalExpression:
+	ConditionalOrExpression	{ $$ = $1; }
+|	ConditionalOrExpression QUESTION Expression COLON ConditionalExpression	{ $$ = create_node ( 6 ,"ConditionalExpression", $1, $2, $3, $4, $5); } 
 ;
 
-array_type:
-    primitive_type dims	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
-|   class_type dims	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
+AssignmentExpression:
+	ConditionalExpression	{ $$ = $1; }
+|	Assignment	{ $$ = $1; }
 ;
 
-primitive_type: 
-    numeric_type	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   BOOLEAN	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+Assignment:
+	LeftHandSide AssignmentOperator AssignmentExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
 ;
 
-array_initializer: 
-    LMPARA variable_initializer_list COMMA RMPARA	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3, $4}; $$ = cell; }
-|   LMPARA COMMA RMPARA	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   LMPARA variable_initializer_list RMPARA	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   LMPARA  RMPARA	{ NODE *cell = create_node(""); cell->list = {$1, $2}; $$ = cell; }
+LeftHandSide:
+	Name	{ $$ = $1; }
+|	FieldAccess	{ $$ = $1; }
+|	ArrayAccess	{ $$ = $1; }
 ;
 
-variable_initializer_list: 
-    variable_initializer_list COMMA variable_initializer 	{ NODE *cell = create_node(""); cell->list = {$1, $2, $3}; $$ = cell; }
-|   variable_initializer	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+AssignmentOperator: 
+	EQUALS 	{ $$ = $1; }
+|	TIMES_EQUALS 	{ $$ = $1; }
+|	DIVIDE_EQUALS	{ $$ = $1; }
+|	MOD_EQUALS 	{ $$ = $1; }
+|	PLUS_EQUALS 	{ $$ = $1; }
+|	MINUS_EQUALS 	{ $$ = $1; }
+|	LEFT_SHIFT_EQUALS	{ $$ = $1; }
+|	RIGHT_SHIFT_EQUALS	{ $$ = $1; }
+|	UNSIGNED_RIGHT_SHIFT_EQUALS 	{ $$ = $1; }
+|	AND_EQUALS 	{ $$ = $1; }
+|	XOR_EQUALS 	{ $$ = $1; }
+|	OR_EQUALS	{ $$ = $1; }
 ;
 
-variable_initializer : 
-    expression	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
-|   array_initializer	{ NODE *cell = create_node(""); cell->list = {$1}; $$ = cell; }
+Expression:
+	AssignmentExpression	{ $$ = $1; }
 ;
 
 %%
 
 void MakeDOTFile(NODE*cell)
 {
-    fout << "\t" << cell->id << "\t\t[ style = solid label = \"" + cell->val + "\"  ];" << endl;
-    for(auto &child:cell->list)
+    if(!cell)
+        return;
+    string value = string(cell->val);
+    if(value.length()>2 && value[0]=='"' && value[value.length()-1]=='"')
     {
-        fout << "\t" << cell->id << " -> " << child->id << endl;
-        MakeDOTFile(child);
+        value = value.substr(1,value.length()-2);
+        value="\\\""+value+"\\\"";
+    }
+    fout << "\t" << cell->id << "\t\t[ style = solid label = \"" + value + "\"  ];" << endl;
+    for(int i=0;i<cell->children.size();i++)
+    {
+        if(!cell->children[i])
+            continue;
+        fout << "\t" << cell->id << " -> " << cell->children[i]->id << endl;
+        MakeDOTFile(cell->children[i]);
     }
 }
 
-int main(){
+int main(int argc, char* argv[]){
+
+	if(argc < 2 || argc > 4) {
+		cout << "Usage: ./main <input file> <output file> <debug>" << endl;
+		cout << "Example: ./main --input=input.java --output=output.dot --verbose" << endl;
+		cout<<endl;
+		cout << "For more help, run ./main --help" << endl;
+		return 0;
+	}
+
+	string input_file = "";
+	string output_file = "";
+
+	yydebug = 0;
+	bool debug = false;
+	bool noInputFile = true;
+
+	for(int i=1;i<argc;i++){
+		string arg = argv[i];
+		if(arg == "--help"){
+			cout << "--input : Add this flag for specifying a input file to the parser. This is a required flag." << endl;
+			cout << "Example: ./main --input=input.java" << endl;
+			cout<<endl;
+			cout << "--output Add this flag for specifying a output file to the parser which would contain the output i.e a AST in graphical form. This flag is optional. Default value is output.dot" << endl;
+			cout << "Example: ./main --input=input.java --output=result.dot" << endl;
+			cout<<endl;
+			cout << "--verbose Add this flag for switching on the debug mode in the parser. This flag is optional." << endl;
+			cout << "Example: ./main --input=input.java --output=result.dot --verbose" << endl;
+			return 0;
+		}
+		else if(arg.substr(0,8) == "--input="){
+			input_file = arg.substr(8);
+			noInputFile = false;
+		}
+		else if(arg.substr(0,9) == "--output="){
+			output_file = arg.substr(9);
+		}
+		else if(arg == "--verbose"){
+			debug = true;
+		}
+
+		else{
+			cout << "Invalid argument: " << arg << endl;
+			return 0;
+		}
+	}
+
+	if(input_file == "" || noInputFile){
+		cout << "Please specify an input file." << endl;
+		return 0;
+	}
+	if(output_file == ""){
+		output_file = "output.dot";
+	}
+	if(debug){
+		cout << "Input file: " << input_file << endl;
+		cout << "Output file: " << output_file << endl;
+		cout << "Debug: " << debug << endl;
+		yydebug = 1;
+	}
+
+	/*--------------------------------------------------------------*/
+
+	// Open the output file
+	fout.open(output_file.c_str(),ios::out);
+	// Get the DOT file template from the file
     ifstream infile("./DOT_Template.txt");
     string line;
     while (getline(infile, line))
         fout << line << endl;
-    yyparse();
-    MakeDOTFile(head);
+
+	/*--------------------------------------------------------------*/
+
+	//  Open the input file
+	/* FILE* fp = fopen(("../tests/"+input_file).c_str(), "r"); */
+	FILE* fp = fopen(input_file.c_str(), "r");
+
+	if(!fp){
+		cout << "Error opening file: " << input_file << endl;
+		return 0;
+	}
+	yyin = fp;
+
+	yyparse();
+
+	// Close the input file
+	fclose(fp);
+
+	/*--------------------------------------------------------------*/
+
+	// Create DOT file
+    MakeDOTFile(start_node);
     fout << "}";
+
+	// Close the output file
     fout.close();
+
+	
     return 0;
 }
