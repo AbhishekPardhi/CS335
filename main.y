@@ -250,6 +250,7 @@ FormalParameterList:
 
 FormalParameter:
 	Type VariableDeclaratorId	{ $$ = create_node ( 3 ,"FormalParameter", $1, $2); } 
+|	FINAL Type VariableDeclaratorId	{ $$ = create_node ( 4 ,"FormalParameter", $1, $2, $3); }
 ;
 
 Throws:
@@ -369,6 +370,7 @@ LocalVariableDeclarationStatement:
 
 LocalVariableDeclaration:
 	Type VariableDeclarators	{ $$ = create_node ( 3 ,"LocalVariableDeclaration", $1, $2); } 
+|	FINAL Type VariableDeclarators	{ $$ = create_node ( 4 ,"LocalVariableDeclaration", $1, $2, $3); }
 ;
 
 Statement:
