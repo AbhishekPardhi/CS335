@@ -97,11 +97,13 @@ QualifiedName:
 ;
 
 CompilationUnit:
-	PackageDeclaration ImportDeclarations TypeDeclarations	{ $$ = create_node ( 4 ,"CompilationUnit", $1, $2, $3); } 
+	PackageDeclaration ImportDeclarations TypeDeclarations	{ $$ = create_node ( 4 ,"CompilationUnit", $1, $2, $3); }
+|	ImportDeclarations PackageDeclaration TypeDeclarations	{ $$ = create_node ( 4 ,"CompilationUnit", $1, $2, $3); }
 |	ImportDeclarations TypeDeclarations	{ $$ = create_node ( 3 ,"CompilationUnit", $1, $2); } 
 |	PackageDeclaration TypeDeclarations	{ $$ = create_node ( 3 ,"CompilationUnit", $1, $2); } 
 |	TypeDeclarations	{ $$ = $1; }
 |	PackageDeclaration ImportDeclarations 	{ $$ = create_node ( 3 ,"CompilationUnit", $1, $2); } 
+|	ImportDeclarations PackageDeclaration 	{ $$ = create_node ( 3 ,"CompilationUnit", $1, $2); }
 |	ImportDeclarations 	{ $$ = $1; }
 |	PackageDeclaration 	{ $$ = $1; }
 |	{;}
