@@ -25,7 +25,7 @@ void A()
 void C()
 {
     int n;
-    int j = 77;
+    int j = 0;
     cin >> n;
     string s;
     for (int i = 0; i < n;i++)

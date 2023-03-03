@@ -17,7 +17,7 @@ void A()
     while(n--)
     {
         cin >> x;
-        cout << "case _" << Upper(x) << ":return " << Upper(x) << ";" << endl;
+        cout << "case " << Upper(x) << ":return " << Upper(x) << ";" << endl;
     }
 }
 
@@ -41,7 +41,7 @@ void C()
     while(n--)
     {
         cin >> x;
-        cout << "case _" << x << ":return " << x << ";" << endl;
+        cout << "case " << x << ":return " << x.substr(1,x.length()-1) << ";" << endl;
     }
 }
 
@@ -50,7 +50,7 @@ int main()
     // int n;
     // string x;
     // cin >> n;
-    // while(n--)
+    // while(n--)_BITWI
     // {
     //     cin >> x;
     //     cout << "case \"" << x << "\":return " << x << ";" << endl;
