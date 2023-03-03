@@ -770,7 +770,7 @@ int main(int argc, char* argv[]){
 	string input_file = "";
 	string output_file = "";
 
-	int yydebug = 0;
+	yydebug = 0;
 	bool debug = false;
 	bool noInputFile = true;
 
