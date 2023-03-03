@@ -4,4 +4,4 @@ compile: main.y main.l
 		g++ main.tab.c lex.yy.c -o main
 
 clean:	
-		rm -f main main.tab.c main.tab.h lex.yy.c main.output *.dot
+		rm -f main main.tab.c main.tab.h lex.yy.c main.output *.dot *.png
