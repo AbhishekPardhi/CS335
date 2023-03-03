@@ -755,7 +755,7 @@ void MakeDOTFile(NODE*cell)
 }
 
 int main(){
-    /* yydebug = 1; */
+    yydebug = 1;
     ifstream infile("./DOT_Template.txt");
     string line;
     while (getline(infile, line))

@@ -225,3 +225,7 @@ IDENTIFIERS                     {JAVA_LETTER}{JAVA_LETTER_OR_DIGIT}*
                             }
 %%
 
+int yywrap()
+{
+    return 1;
+}

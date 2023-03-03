@@ -2340,4 +2340,8 @@ void yyfree (void * ptr )
 #line 227 "main.l"
 
 
+int yywrap()
+{
+    return 1;
+}
 
