@@ -12,7 +12,7 @@
         return;
     }
     NODE *start_node;
-	ofstream fout("./result.dot");
+	fstream fout;
 	extern FILE *yyin;
 
 %}
@@ -820,6 +820,8 @@ int main(int argc, char* argv[]){
 
 	/*--------------------------------------------------------------*/
 
+	// Open the output file
+	fout.open(output_file.c_str(),ios::out);
 	// Get the DOT file template from the file
     ifstream infile("./DOT_Template.txt");
     string line;

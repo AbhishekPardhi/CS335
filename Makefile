@@ -5,4 +5,4 @@ compile: main.y main.l
 
 
 clean:	
-		rm -f main main.tab.c main.tab.h lex.yy.c main.output
+		rm -f main main.tab.c main.tab.h lex.yy.c main.output *.dot
