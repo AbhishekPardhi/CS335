@@ -814,7 +814,7 @@ char *yytext;
     #include "data.h"
     #include "data.cpp"
     #include "main.tab.h"
-    map<string, int >mp = {{"abstract", _ABSTRACT}, {"continue", _CONTINUE}, {"for", _FOR}, {"new", _NEW_KEYWORD}, {"switch", _SWITCH}, {"assert", _ASSERT}, {"default", _DEFAULT}, {"if", _IF}, {"package", _PACKAGE}, {"synchronized", _SYNCHRONIZED}, {"boolean", _BOOLEAN}, {"do", _DO}, {"goto", _GOTO}, {"private", _PRIVATE}, {"this", _THIS}, {"break", _BREAK}, {"double", _DOUBLE}, {"implements", _IMPLEMENTS}, {"protected", _PROTECTED}, {"throw", _THROW}, {"byte", _BYTE}, {"else", _ELSE}, {"import", _IMPORT}, {"public", _PUBLIC}, {"throws", _THROWS}, {"case", _CASE}, {"enum", _ENUM}, {"instanceof", _INSTANCEOF}, {"return", _RETURN}, {"transient", _TRANSIENT}, {"catch", _CATCH}, {"extends", _EXTENDS}, {"int", _INT}, {"short", _SHORT}, {"try", _TRY}, {"char", _CHAR}, {"final", _FINAL}, {"interface", _INTERFACE}, {"static", _STATIC}, {"void", _VOID}, {"class", _CLASS}, {"finally", _FINALLY}, {"long", _LONG}, {"strictfp", _STRICTFP}, {"volatile", _VOLATILE}, {"const", _CONST}, {"float", _FLOAT}, {"native", _NATIVE}, {"super", _SUPER}, {"while", _WHILE}, {"exports", _EXPORTS}, {"opens", _OPENS}, {"requires", _REQUIRES}, {"uses", _USES}, {"module", _MODULE}, {"permits", _PERMITS}, {"sealed", _SEALED}, {"var", _VAR}, {"non-sealed", _NON_SEALED}, {"provides", _PROVIDES}, {"to", _TO}, {"with", _WITH}, {"open", _OPEN}, {"record", _RECORD}, {"transitive", _TRANSITIVE}, {"yield", _YIELD}, {"(", _LPAREN}, {")", _RPAREN}, {"{", _LMPARA}, {"}", _RMPARA}, {"[", _LSPAR}, {"]", _RSPAR}, {";", _SEMICOLON}, {",", _COMMA}, {".", _DOT}, {"...", _ELLIPSIS}, {"@", _AT}, {"=", _EQUALS}, {">", _GT}, {"<", _LT}, {"!", _NOT}, {"~", _TILDE}, {"?", _QUESTION}, {":", _COLON}, {"==", _EQUALS}, {"<=", _LE}, {">=", _GE}, {"!=", _NOT_EQUALS}, {"&&", _AND}, {"||", _OR}, {"++", _PLUS_PLUS}, {"--", _MINUS_MINUS}, {"+", _PLUS}, {"-", _MINUS}, {"*", _TIMES}, {"/", _DIVIDE}, {"^", _XOR}, {"%", _MOD}, {"<<", _LEFT_SHIFT}, {">>", _RIGHT_SHIFT}, {">>>", _UNSIGNED_RIGHT_SHIFT}, {"+=", _PLUS_EQUALS}, {"-=", _MINUS_EQUALS}, {"*=", _TIMES_EQUALS}, {"/=", _DIVIDE_EQUALS}, {"&=", _AND_EQUALS}, {"|=", _OR_EQUALS}, {"^=", _XOR_EQUALS}, {"%=", _MOD_EQUALS}, {"<<=", _LEFT_SHIFT_EQUALS}, {">>=", _RIGHT_SHIFT_EQUALS}, {">>>=", _UNSIGNED_RIGHT_SHIFT_EQUALS}}; 
+    map<string, int >mp = { {"continue", _CONTINUE}, {"for", _FOR}, {"new", _NEW_KEYWORD}, {"if", _IF}, {"package", _PACKAGE}, {"synchronized", _SYNCHRONIZED}, {"boolean", _BOOLEAN}, {"private", _PRIVATE}, {"this", _THIS}, {"break", _BREAK}, {"double", _DOUBLE}, {"implements", _IMPLEMENTS}, {"throw", _THROW}, {"byte", _BYTE}, {"else", _ELSE}, {"import", _IMPORT}, {"public", _PUBLIC}, {"throws", _THROWS}, {"instanceof", _INSTANCEOF}, {"return", _RETURN}, {"catch", _CATCH}, {"extends", _EXTENDS}, {"int", _INT}, {"short", _SHORT}, {"try", _TRY}, {"char", _CHAR}, {"final", _FINAL}, {"interface", _INTERFACE}, {"static", _STATIC}, {"void", _VOID}, {"class", _CLASS}, {"finally", _FINALLY}, {"long", _LONG}, {"strictfp", _STRICTFP}, {"volatile", _VOLATILE}, {"const", _CONST}, {"float", _FLOAT}, {"native", _NATIVE}, {"super", _SUPER}, {"while", _WHILE}, {"exports", _EXPORTS}, {"opens", _OPENS}, {"requires", _REQUIRES}, {"uses", _USES}, {"module", _MODULE}, {"permits", _PERMITS}, {"sealed", _SEALED}, {"var", _VAR}, {"non-sealed", _NON_SEALED}, {"provides", _PROVIDES}, {"to", _TO}, {"with", _WITH}, {"open", _OPEN}, {"record", _RECORD}, {"transitive", _TRANSITIVE}, {"yield", _YIELD}, {"(", _LPAREN}, {")", _RPAREN}, {"{", _LMPARA}, {"}", _RMPARA}, {"[", _LSPAR}, {"]", _RSPAR}, {";", _SEMICOLON}, {",", _COMMA}, {".", _DOT}, {"...", _ELLIPSIS}, {"@", _AT}, {"=", _EQUALS}, {">", _GT}, {"<", _LT}, {"!", _NOT}, {"~", _TILDE}, {"?", _QUESTION}, {":", _COLON}, {"==", _EQUALS}, {"<=", _LE}, {">=", _GE}, {"!=", _NOT_EQUALS}, {"&&", _AND}, {"||", _OR}, {"++", _PLUS_PLUS}, {"--", _MINUS_MINUS}, {"+", _PLUS}, {"-", _MINUS}, {"*", _TIMES}, {"/", _DIVIDE}, {"^", _XOR}, {"%", _MOD}, {"<<", _LEFT_SHIFT}, {">>", _RIGHT_SHIFT}, {">>>", _UNSIGNED_RIGHT_SHIFT}, {"+=", _PLUS_EQUALS}, {"-=", _MINUS_EQUALS}, {"*=", _TIMES_EQUALS}, {"/=", _DIVIDE_EQUALS}, {"&=", _AND_EQUALS}, {"|=", _OR_EQUALS}, {"^=", _XOR_EQUALS}, {"%=", _MOD_EQUALS}, {"<<=", _LEFT_SHIFT_EQUALS}, {">>=", _RIGHT_SHIFT_EQUALS}, {">>>=", _UNSIGNED_RIGHT_SHIFT_EQUALS}}; 
 #define comment 1
 
 #line 821 "lex.yy.c"
@@ -1107,7 +1107,7 @@ case 7:
 YY_RULE_SETUP
 #line 116 "main.l"
 {   
-                                yylval.elem = create_node(strdup(yytext));
+                                yylval.elem = create_node(1, strdup(yytext));
                                 return LITERAL;
                             }
 	YY_BREAK
@@ -1115,7 +1115,7 @@ case 8:
 YY_RULE_SETUP
 #line 120 "main.l"
 {   
-                                yylval.elem = create_node(strdup(yytext));
+                                yylval.elem = create_node(1, strdup(yytext));
                                 switch(mp[strdup(yytext)])
                                 {
                                     case _CONTINUE:return CONTINUE;
@@ -1161,7 +1161,7 @@ case 9:
 YY_RULE_SETUP
 #line 162 "main.l"
 {   
-                                yylval.elem = create_node(strdup(yytext));
+                                yylval.elem = create_node(1, strdup(yytext));
                                 switch(mp[strdup(yytext)])
                                 {
                                     case _LPAREN:return LPAREN;
@@ -1180,7 +1180,7 @@ case 10:
 YY_RULE_SETUP
 #line 177 "main.l"
 {   
-                                yylval.elem = create_node(strdup(yytext));
+                                yylval.elem = create_node(1, strdup(yytext));
                                 switch(mp[strdup(yytext)])
                                 {
                                     case _BITWISE_AND:return BITWISE_AND;
@@ -1226,7 +1226,7 @@ case 11:
 YY_RULE_SETUP
 #line 219 "main.l"
 {   
-                                yylval.elem = create_node(strdup(yytext));
+                                yylval.elem = create_node(1, strdup(yytext));
                                 return IDENTIFIER;
                             }
 	YY_BREAK
