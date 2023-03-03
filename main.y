@@ -106,7 +106,7 @@ CompilationUnit:
 |	ImportDeclarations PackageDeclaration 	{ $$ = create_node ( 3 ,"CompilationUnit", $1, $2); }
 |	ImportDeclarations 	{ $$ = $1; }
 |	PackageDeclaration 	{ $$ = $1; }
-|	{;}
+|	{$$ = create_node(1,"EMPTY");}
 ;
 
 
