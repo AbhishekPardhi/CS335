@@ -756,14 +756,14 @@ void MakeDOTFile(NODE*cell)
     }
 }
 
-int main(){
-    yydebug = 1;
+int main(int argc, char** argv){
+	cout<<argc<<endl;
+    /* yydebug = 1; */
     ifstream infile("./DOT_Template.txt");
     string line;
     while (getline(infile, line))
         fout << line << endl;
     yyparse();
-    cout<<"done";
     MakeDOTFile(start_node);
     fout << "}";
     fout.close();
