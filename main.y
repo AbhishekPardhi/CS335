@@ -28,7 +28,7 @@
 // Grammer
 // Start
 Goal:
-	CompilationUnit	{ $$ = create_node ( 2 ,"Goal", $1); } 
+	CompilationUnit	{ $$ = create_node ( 2 ,"Goal", $1); start_node=$$; } 
 ;
 
 Type:
