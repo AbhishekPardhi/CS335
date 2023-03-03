@@ -13,6 +13,8 @@
     }
     NODE *start_node;
 	ofstream fout("./result.dot");
+	extern FILE *yyin;
+
 %}
 
 %union {
@@ -756,6 +758,7 @@ void MakeDOTFile(NODE*cell)
 }
 
 int main(int argc, char* argv[]){
+
 	if(argc < 2 || argc > 4) {
 		cout << "Usage: ./main <input file> <output file> <debug>" << endl;
 		cout << "Example: ./main --input=input.java --output=output.dot --verbose" << endl;
@@ -808,14 +811,38 @@ int main(int argc, char* argv[]){
 		yydebug = 1;
 	}
 
+	/*--------------------------------------------------------------*/
 
+	// Get the DOT file template from the file
     ifstream infile("./DOT_Template.txt");
     string line;
     while (getline(infile, line))
         fout << line << endl;
-    yyparse();
+
+	/*--------------------------------------------------------------*/
+
+	//  Open the input file
+	FILE* fp = fopen(input_file.c_str(), "r");
+	if(!fp){
+		cout << "Error opening file: " << input_file << endl;
+		return 0;
+	}
+	yyin = fp;
+
+	yyparse();
+
+	// Close the input file
+	fclose(fp);
+
+	/*--------------------------------------------------------------*/
+
+	// Create DOT file
     MakeDOTFile(start_node);
     fout << "}";
+
+	// Close the output file
     fout.close();
+
+	
     return 0;
 }

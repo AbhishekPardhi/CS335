@@ -1,5 +1,5 @@
 compile: main.y main.l
-		bison -d main.y
+		bison -t -d -v main.y
 		flex main.l
 		g++ main.tab.c lex.yy.c -o main
 
