@@ -5,5 +5,5 @@ digraph G{
     fontsize  = 30
     labelloc  = t
     
-    node   [ shape = rect fontname="Cascadia code" ]
+    node   [ fontname="Cascadia code" ]
 

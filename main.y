@@ -1,28 +1,19 @@
 %{
     /* Declaration */
     #include <bits/stdc++.h>
+    #include "data.h"
+    // #include "data.cpp"
     using namespace std;
     int yylex();
     extern int yylineno;
     void yyerror(const char *s) {
-        printf("Error: %s at line %d\n", s, yylineno);
+        printf("\nError: %s at line %d\n", s, yylineno);
         exit(0);
         return;
     }
+    NODE *start_node;
     ofstream fout("./result.dot");
-    typedef struct node{
-        int id;
-        string val;
-        vector<struct node *> list;
-    }NODE;
-
-    NODE* create_node(string val)
-    {
-        NODE *element = (NODE *)calloc(1, sizeof(NODE));
-        element->id = num++;
-        element->val;
-        return element;
-    }
+    // #define YYSTYPE NODE
 %}
 
 %union {
@@ -745,21 +736,33 @@ Expression:
 
 void MakeDOTFile(NODE*cell)
 {
-    fout << "\t" << cell->id << "\t\t[ style = solid label = \"" + cell->val + "\"  ];" << endl;
-    for(auto &child:cell->list)
+    if(!cell)
+        return;
+    string value = string(cell->val);
+    if(value.length()>2 && value[0]=='"' && value[value.length()-1]=='"')
     {
-        fout << "\t" << cell->id << " -> " << child->id << endl;
-        MakeDOTFile(child);
+        value = value.substr(1,value.length()-2);
+        value="\\\""+value+"\\\"";
+    }
+    fout << "\t" << cell->id << "\t\t[ style = solid label = \"" + value + "\"  ];" << endl;
+    for(int i=0;i<cell->children.size();i++)
+    {
+        if(!cell->children[i])
+            continue;
+        fout << "\t" << cell->id << " -> " << cell->children[i]->id << endl;
+        MakeDOTFile(cell->children[i]);
     }
 }
 
 int main(){
+    /* yydebug = 1; */
     ifstream infile("./DOT_Template.txt");
     string line;
     while (getline(infile, line))
         fout << line << endl;
     yyparse();
-    MakeDOTFile(head);
+    cout<<"done";
+    MakeDOTFile(start_node);
     fout << "}";
     fout.close();
     return 0;
