@@ -209,6 +209,8 @@ IDENTIFIERS                     {JAVA_LETTER}{JAVA_LETTER_OR_DIGIT}*
                                 yylval.elem = create_node(strdup(yytext));
                                 switch(mp[strdup(yytext)])
                                 {
+                                    case _BITWISE_AND:return BITWISE_AND;
+                                    case _BITWISE_OR:return BITWISE_OR;
                                     case _GT:return GT;
                                     case _LT:return LT;
                                     case _NOT:return NOT;
@@ -254,48 +256,3 @@ IDENTIFIERS                     {JAVA_LETTER}{JAVA_LETTER_OR_DIGIT}*
                             }
 %%
 
-
-case _BITWISE_AND:return BITWISE_AND;
-case _BITWISE_OR:return BITWISE_OR;
-case _COMMA:return COMMA;
-case _FINALLY:return FINALLY;
-case _LPAREN:return LPAREN;
-case _RPAREN:return RPAREN;
-case _IDENTIFIER:return IDENTIFIER;
-case _EQUALS:return EQUALS;
-case _DOT:return DOT;
-case _CLASS:return CLASS;
-case _PUBLIC:return PUBLIC;
-case _PRIVATE:return PRIVATE;
-case _SEMICOLON:return SEMICOLON;
-case _COLON:return COLON;
-case _OR:return OR;
-case _RETURN:return RETURN;
-case _TRY:return TRY;
-case _SYNCHRONIZED:return SYNCHRONIZED;
-case _THROW:return THROW;
-case _BREAK:return BREAK;
-case _CONTINUE:return CONTINUE;
-case _CATCH:return CATCH;
-case _FINAL:return FINAL;
-case _IF:return IF;
-case _ELSE:return ELSE;
-case _WHILE:return WHILE;
-case _FOR:return FOR;
-case _LSPAR:return LSPAR;
-case _RSPAR:return RSPAR;
-case _TIMES_EQUALS:return TIMES_EQUALS;
-case _DIVIDE_EQUALS:return DIVIDE_EQUALS;
-case _MOD_EQUALS:return MOD_EQUALS;
-case _PLUS_EQUALS:return PLUS_EQUALS;
-case _MINUS_EQUALS:return MINUS_EQUALS;
-case _LEFT_SHIFT_EQUALS:return LEFT_SHIFT_EQUALS;
-case _RIGHT_SHIFT_EQUALS:return RIGHT_SHIFT_EQUALS;
-case _UNSIGNED_RIGHT_SHIFT_EQUALS:return UNSIGNED_RIGHT_SHIFT_EQUALS;
-case _AND_EQUALS:return AND_EQUALS;
-case _XOR_EQUALS:return XOR_EQUALS;
-case _OR_EQUALS:return OR_EQUALS;
-case _QUESTION:return QUESTION;
-case _NOT_EQUALS:return NOT_EQUALS;
-case _LT:return LT;
-case _GT:return GT;
