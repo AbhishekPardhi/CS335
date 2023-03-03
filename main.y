@@ -32,48 +32,48 @@ Goal:
 ;
 
 Type:
-	PrimitiveType	{ $$ = create_node ( 2 ,"Type", $1); } 
-|	ReferenceType	{ $$ = create_node ( 2 ,"Type", $1); } 
+	PrimitiveType	{ $$ = $1; }
+|	ReferenceType	{ $$ = $1; }
 ;
 
 PrimitiveType:
-	NumericType	{ $$ = create_node ( 2 ,"PrimitiveType", $1); } 
-|	BOOLEAN	{ $$ = create_node ( 2 ,"PrimitiveType", $1); } 
+	NumericType	{ $$ = $1; }
+|	BOOLEAN	{ $$ = $1; }
 ;
 
 NumericType:
-	IntegralType	{ $$ = create_node ( 2 ,"NumericType", $1); } 
-|	FloatingPointType	{ $$ = create_node ( 2 ,"NumericType", $1); } 
+	IntegralType	{ $$ = $1; }
+|	FloatingPointType	{ $$ = $1; }
 ;
 
 IntegralType:
-	BYTE 	{ $$ = create_node ( 2 ,"IntegralType", $1); } 
-|	SHORT 	{ $$ = create_node ( 2 ,"IntegralType", $1); } 
-|	INT 	{ $$ = create_node ( 2 ,"IntegralType", $1); } 
-|	LONG 	{ $$ = create_node ( 2 ,"IntegralType", $1); } 
-|	CHAR	{ $$ = create_node ( 2 ,"IntegralType", $1); } 
+	BYTE 	{ $$ = $1; }
+|	SHORT 	{ $$ = $1; }
+|	INT 	{ $$ = $1; }
+|	LONG 	{ $$ = $1; }
+|	CHAR	{ $$ = $1; }
 ;
 
 FloatingPointType:
-	FLOAT 	{ $$ = create_node ( 2 ,"FloatingPointType", $1); } 
-|	DOUBLE	{ $$ = create_node ( 2 ,"FloatingPointType", $1); } 
+	FLOAT 	{ $$ = $1; }
+|	DOUBLE	{ $$ = $1; }
 ;
 
 ReferenceType:
-	ClassOrInterfaceType	{ $$ = create_node ( 2 ,"ReferenceType", $1); } 
-|	ArrayType	{ $$ = create_node ( 2 ,"ReferenceType", $1); } 
+	ClassOrInterfaceType	{ $$ = $1; }
+|	ArrayType	{ $$ = $1; }
 ;
 
 ClassOrInterfaceType:
-	Name	{ $$ = create_node ( 2 ,"ClassOrInterfaceType", $1); } 
+	Name	{ $$ = $1; }
 ;
 
 ClassType:
-	ClassOrInterfaceType	{ $$ = create_node ( 2 ,"ClassType", $1); } 
+	ClassOrInterfaceType	{ $$ = $1; }
 ;
 
 InterfaceType:
-	ClassOrInterfaceType	{ $$ = create_node ( 2 ,"InterfaceType", $1); } 
+	ClassOrInterfaceType	{ $$ = $1; }
 ;
 
 ArrayType:
@@ -84,12 +84,12 @@ ArrayType:
 
 
 Name:
-	SimpleName	{ $$ = create_node ( 2 ,"Name", $1); } 
-|	QualifiedName	{ $$ = create_node ( 2 ,"Name", $1); } 
+	SimpleName	{ $$ = $1; }
+|	QualifiedName	{ $$ = $1; }
 ;
 
 SimpleName:
-	IDENTIFIER	{ $$ = create_node ( 2 ,"SimpleName", $1); } 
+	IDENTIFIER	{ $$ = $1; }
 ;
 
 QualifiedName:
@@ -100,21 +100,21 @@ CompilationUnit:
 	PackageDeclaration ImportDeclarations TypeDeclarations	{ $$ = create_node ( 4 ,"CompilationUnit", $1, $2, $3); } 
 |	ImportDeclarations TypeDeclarations	{ $$ = create_node ( 3 ,"CompilationUnit", $1, $2); } 
 |	PackageDeclaration TypeDeclarations	{ $$ = create_node ( 3 ,"CompilationUnit", $1, $2); } 
-|	TypeDeclarations	{ $$ = create_node ( 2 ,"CompilationUnit", $1); } 
+|	TypeDeclarations	{ $$ = $1; }
 |	PackageDeclaration ImportDeclarations 	{ $$ = create_node ( 3 ,"CompilationUnit", $1, $2); } 
-|	ImportDeclarations 	{ $$ = create_node ( 2 ,"CompilationUnit", $1); } 
-|	PackageDeclaration 	{ $$ = create_node ( 2 ,"CompilationUnit", $1); } 
+|	ImportDeclarations 	{ $$ = $1; }
+|	PackageDeclaration 	{ $$ = $1; }
 |	{;}
 ;
 
 
 ImportDeclarations:
-	ImportDeclaration	{ $$ = create_node ( 2 ,"ImportDeclarations", $1); } 
+	ImportDeclaration	{ $$ = $1; }
 |	ImportDeclarations ImportDeclaration	{ $$ = create_node ( 3 ,"ImportDeclarations", $1, $2); } 
 ;
 
 TypeDeclarations:
-	TypeDeclaration	{ $$ = create_node ( 2 ,"TypeDeclarations", $1); } 
+	TypeDeclaration	{ $$ = $1; }
 |	TypeDeclarations TypeDeclaration	{ $$ = create_node ( 3 ,"TypeDeclarations", $1, $2); } 
 ;
 
@@ -123,8 +123,8 @@ PackageDeclaration:
 ;
 
 ImportDeclaration:
-	SingleTypeImportDeclaration	{ $$ = create_node ( 2 ,"ImportDeclaration", $1); } 
-|	TypeImportOnDemandDeclaration	{ $$ = create_node ( 2 ,"ImportDeclaration", $1); } 
+	SingleTypeImportDeclaration	{ $$ = $1; }
+|	TypeImportOnDemandDeclaration	{ $$ = $1; }
 ;
 
 SingleTypeImportDeclaration:
@@ -137,21 +137,21 @@ TypeImportOnDemandDeclaration:
 
 
 TypeDeclaration:
-	ClassDeclaration	{ $$ = create_node ( 2 ,"TypeDeclaration", $1); } 
-|	InterfaceDeclaration	{ $$ = create_node ( 2 ,"TypeDeclaration", $1); } 
-|	SEMICOLON	{ $$ = create_node ( 2 ,"TypeDeclaration", $1); } 
+	ClassDeclaration	{ $$ = $1; }
+|	InterfaceDeclaration	{ $$ = $1; }
+|	SEMICOLON	{ $$ = $1; }
 ;
 
 Modifiers:
-	Modifier	{ $$ = create_node ( 2 ,"Modifiers", $1); } 
+	Modifier	{ $$ = $1; }
 |	Modifiers Modifier	{ $$ = create_node ( 3 ,"Modifiers", $1, $2); } 
 ;
 
 Modifier:
-	PUBLIC	{ $$ = create_node ( 2 ,"Modifier", $1); } 
-|	PRIVATE	{ $$ = create_node ( 2 ,"Modifier", $1); } 
-|	STATIC	{ $$ = create_node ( 2 ,"Modifier", $1); } 
-|	FINAL	{ $$ = create_node ( 2 ,"Modifier", $1); } 
+	PUBLIC	{ $$ = $1; }
+|	PRIVATE	{ $$ = $1; }
+|	STATIC	{ $$ = $1; }
+|	FINAL	{ $$ = $1; }
 ;
 
 ClassDeclaration:
@@ -172,7 +172,7 @@ Interfaces:
 ;
 
 InterfaceTypeList:
-	InterfaceType	{ $$ = create_node ( 2 ,"InterfaceTypeList", $1); } 
+	InterfaceType	{ $$ = $1; }
 |	InterfaceTypeList COMMA InterfaceType	{ $$ = create_node ( 4 ,"InterfaceTypeList", $1, $2, $3); } 
 ;
 
@@ -182,19 +182,19 @@ ClassBody:
 ;
 
 ClassBodyDeclarations:
-	ClassBodyDeclaration	{ $$ = create_node ( 2 ,"ClassBodyDeclarations", $1); } 
+	ClassBodyDeclaration	{ $$ = $1; }
 |	ClassBodyDeclarations ClassBodyDeclaration	{ $$ = create_node ( 3 ,"ClassBodyDeclarations", $1, $2); } 
 ;
 
 ClassBodyDeclaration:
-	ClassMemberDeclaration	{ $$ = create_node ( 2 ,"ClassBodyDeclaration", $1); } 
-|	StaticInitializer	{ $$ = create_node ( 2 ,"ClassBodyDeclaration", $1); } 
-|	ConstructorDeclaration	{ $$ = create_node ( 2 ,"ClassBodyDeclaration", $1); } 
+	ClassMemberDeclaration	{ $$ = $1; }
+|	StaticInitializer	{ $$ = $1; }
+|	ConstructorDeclaration	{ $$ = $1; }
 ;
 
 ClassMemberDeclaration:
-	FieldDeclaration	{ $$ = create_node ( 2 ,"ClassMemberDeclaration", $1); } 
-|	MethodDeclaration	{ $$ = create_node ( 2 ,"ClassMemberDeclaration", $1); } 
+	FieldDeclaration	{ $$ = $1; }
+|	MethodDeclaration	{ $$ = $1; }
 ;
 
 FieldDeclaration:
@@ -203,23 +203,23 @@ FieldDeclaration:
 ;
 
 VariableDeclarators:
-	VariableDeclarator	{ $$ = create_node ( 2 ,"VariableDeclarators", $1); } 
+	VariableDeclarator	{ $$ = $1; }
 |	VariableDeclarators COMMA VariableDeclarator	{ $$ = create_node ( 4 ,"VariableDeclarators", $1, $2, $3); } 
 ;
 
 VariableDeclarator:
-	VariableDeclaratorId	{ $$ = create_node ( 2 ,"VariableDeclarator", $1); } 
-|	VariableDeclaratorId EQUALS VariableInitializer	{ $$ = create_node ( 4 ,"VariableDeclarator", $1, $2, $3); } 
+	VariableDeclaratorId	{ $$ = $1; }
+|	VariableDeclaratorId EQUALS VariableInitializer	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
 ;
 
 VariableDeclaratorId:
-	IDENTIFIER	{ $$ = create_node ( 2 ,"VariableDeclaratorId", $1); } 
+	IDENTIFIER	{ $$ = $1; }
 |	VariableDeclaratorId LSPAR RSPAR	{ $$ = create_node ( 4 ,"VariableDeclaratorId", $1, $2, $3); } 
 ;
 
 VariableInitializer:
-	Expression	{ $$ = create_node ( 2 ,"VariableInitializer", $1); } 
-|	ArrayInitializer	{ $$ = create_node ( 2 ,"VariableInitializer", $1); } 
+	Expression	{ $$ = $1; }
+|	ArrayInitializer	{ $$ = $1; }
 ;
 
 MethodDeclaration:
@@ -245,7 +245,7 @@ MethodDeclarator:
 ;
 
 FormalParameterList:
-	FormalParameter	{ $$ = create_node ( 2 ,"FormalParameterList", $1); } 
+	FormalParameter	{ $$ = $1; }
 |	FormalParameterList COMMA FormalParameter	{ $$ = create_node ( 4 ,"FormalParameterList", $1, $2, $3); } 
 ;
 
@@ -259,13 +259,13 @@ Throws:
 ;
 
 ClassTypeList:
-	ClassType	{ $$ = create_node ( 2 ,"ClassTypeList", $1); } 
+	ClassType	{ $$ = $1; }
 |	ClassTypeList COMMA ClassType	{ $$ = create_node ( 4 ,"ClassTypeList", $1, $2, $3); } 
 ;
 
 MethodBody:
-	Block 	{ $$ = create_node ( 2 ,"MethodBody", $1); } 
-|	SEMICOLON	{ $$ = create_node ( 2 ,"MethodBody", $1); } 
+	Block 	{ $$ = $1; }
+|	SEMICOLON	{ $$ = $1; }
 ;
 
 
@@ -319,17 +319,17 @@ InterfaceBody:
 ;
 
 InterfaceMemberDeclarations:
-	InterfaceMemberDeclaration	{ $$ = create_node ( 2 ,"InterfaceMemberDeclarations", $1); } 
+	InterfaceMemberDeclaration	{ $$ = $1; }
 |	InterfaceMemberDeclarations InterfaceMemberDeclaration	{ $$ = create_node ( 3 ,"InterfaceMemberDeclarations", $1, $2); } 
 ;
 
 InterfaceMemberDeclaration:
-	ConstantDeclaration	{ $$ = create_node ( 2 ,"InterfaceMemberDeclaration", $1); } 
-|	AbstractMethodDeclaration	{ $$ = create_node ( 2 ,"InterfaceMemberDeclaration", $1); } 
+	ConstantDeclaration	{ $$ = $1; }
+|	AbstractMethodDeclaration	{ $$ = $1; }
 ;
 
 ConstantDeclaration:
-	FieldDeclaration	{ $$ = create_node ( 2 ,"ConstantDeclaration", $1); } 
+	FieldDeclaration	{ $$ = $1; }
 ;
 
 AbstractMethodDeclaration:
@@ -345,7 +345,7 @@ ArrayInitializer:
 ;
 
 VariableInitializers:
-	VariableInitializer	{ $$ = create_node ( 2 ,"VariableInitializers", $1); } 
+	VariableInitializer	{ $$ = $1; }
 |	VariableInitializers COMMA VariableInitializer	{ $$ = create_node ( 4 ,"VariableInitializers", $1, $2, $3); } 
 ;
 
@@ -356,13 +356,13 @@ Block:
 ;
 
 BlockStatements:
-	BlockStatement	{ $$ = create_node ( 2 ,"BlockStatements", $1); } 
+	BlockStatement	{ $$ = $1; }
 |	BlockStatements BlockStatement	{ $$ = create_node ( 3 ,"BlockStatements", $1, $2); } 
 ;
 
 BlockStatement:
-	LocalVariableDeclarationStatement	{ $$ = create_node ( 2 ,"BlockStatement", $1); } 
-|	Statement	{ $$ = create_node ( 2 ,"BlockStatement", $1); } 
+	LocalVariableDeclarationStatement	{ $$ = $1; }
+|	Statement	{ $$ = $1; }
 ;
 
 LocalVariableDeclarationStatement:
@@ -375,36 +375,36 @@ LocalVariableDeclaration:
 ;
 
 Statement:
-	StatementWithoutTrailingSubstatement	{ $$ = create_node ( 2 ,"Statement", $1); } 
-|	LabeledStatement	{ $$ = create_node ( 2 ,"Statement", $1); } 
-|	IfThenStatement	{ $$ = create_node ( 2 ,"Statement", $1); } 
-|	IfThenElseStatement	{ $$ = create_node ( 2 ,"Statement", $1); } 
-|	WhileStatement	{ $$ = create_node ( 2 ,"Statement", $1); } 
-|	ForStatement	{ $$ = create_node ( 2 ,"Statement", $1); } 
+	StatementWithoutTrailingSubstatement	{ $$ = $1; }
+|	LabeledStatement	{ $$ = $1; }
+|	IfThenStatement	{ $$ = $1; }
+|	IfThenElseStatement	{ $$ = $1; }
+|	WhileStatement	{ $$ = $1; }
+|	ForStatement	{ $$ = $1; }
 ;
 
 StatementNoShortIf:
-	StatementWithoutTrailingSubstatement	{ $$ = create_node ( 2 ,"StatementNoShortIf", $1); } 
-|	LabeledStatementNoShortIf	{ $$ = create_node ( 2 ,"StatementNoShortIf", $1); } 
-|	IfThenElseStatementNoShortIf	{ $$ = create_node ( 2 ,"StatementNoShortIf", $1); } 
-|	WhileStatementNoShortIf	{ $$ = create_node ( 2 ,"StatementNoShortIf", $1); } 
-|	ForStatementNoShortIf	{ $$ = create_node ( 2 ,"StatementNoShortIf", $1); } 
+	StatementWithoutTrailingSubstatement	{ $$ = $1; }
+|	LabeledStatementNoShortIf	{ $$ = $1; }
+|	IfThenElseStatementNoShortIf	{ $$ = $1; }
+|	WhileStatementNoShortIf	{ $$ = $1; }
+|	ForStatementNoShortIf	{ $$ = $1; }
 ;
 
 StatementWithoutTrailingSubstatement:
-	Block	{ $$ = create_node ( 2 ,"StatementWithoutTrailingSubstatement", $1); } 
-|	EmptyStatement	{ $$ = create_node ( 2 ,"StatementWithoutTrailingSubstatement", $1); } 
-|	ExpressionStatement	{ $$ = create_node ( 2 ,"StatementWithoutTrailingSubstatement", $1); } 
-|	BreakStatement	{ $$ = create_node ( 2 ,"StatementWithoutTrailingSubstatement", $1); } 
-|	ContinueStatement	{ $$ = create_node ( 2 ,"StatementWithoutTrailingSubstatement", $1); } 
-|	ReturnStatement	{ $$ = create_node ( 2 ,"StatementWithoutTrailingSubstatement", $1); } 
-|	SynchronizedStatement	{ $$ = create_node ( 2 ,"StatementWithoutTrailingSubstatement", $1); } 
-|	ThrowStatement	{ $$ = create_node ( 2 ,"StatementWithoutTrailingSubstatement", $1); } 
-|	TryStatement	{ $$ = create_node ( 2 ,"StatementWithoutTrailingSubstatement", $1); } 
+	Block	{ $$ = $1; }
+|	EmptyStatement	{ $$ = $1; }
+|	ExpressionStatement	{ $$ = $1; }
+|	BreakStatement	{ $$ = $1; }
+|	ContinueStatement	{ $$ = $1; }
+|	ReturnStatement	{ $$ = $1; }
+|	SynchronizedStatement	{ $$ = $1; }
+|	ThrowStatement	{ $$ = $1; }
+|	TryStatement	{ $$ = $1; }
 ;
 
 EmptyStatement:
-	SEMICOLON	{ $$ = create_node ( 2 ,"EmptyStatement", $1); } 
+	SEMICOLON	{ $$ = $1; }
 ;
 
 LabeledStatement:
@@ -420,13 +420,13 @@ ExpressionStatement:
 ;
 
 StatementExpression:
-	Assignment	{ $$ = create_node ( 2 ,"StatementExpression", $1); } 
-|	PreIncrementExpression	{ $$ = create_node ( 2 ,"StatementExpression", $1); } 
-|	PreDecrementExpression	{ $$ = create_node ( 2 ,"StatementExpression", $1); } 
-|	PostIncrementExpression	{ $$ = create_node ( 2 ,"StatementExpression", $1); } 
-|	PostDecrementExpression	{ $$ = create_node ( 2 ,"StatementExpression", $1); } 
-|	MethodInvocation	{ $$ = create_node ( 2 ,"StatementExpression", $1); } 
-|	ClassInstanceCreationExpression	{ $$ = create_node ( 2 ,"StatementExpression", $1); } 
+	Assignment	{ $$ = $1; }
+|	PreIncrementExpression	{ $$ = $1; }
+|	PreDecrementExpression	{ $$ = $1; }
+|	PostIncrementExpression	{ $$ = $1; }
+|	PostDecrementExpression	{ $$ = $1; }
+|	MethodInvocation	{ $$ = $1; }
+|	ClassInstanceCreationExpression	{ $$ = $1; }
 ;
 
 IfThenStatement:
@@ -472,16 +472,16 @@ ForStatementNoShortIf:
 ;
 
 ForInit:
-	StatementExpressionList	{ $$ = create_node ( 2 ,"ForInit", $1); } 
-|	LocalVariableDeclaration	{ $$ = create_node ( 2 ,"ForInit", $1); } 
+	StatementExpressionList	{ $$ = $1; }
+|	LocalVariableDeclaration	{ $$ = $1; }
 ;
 
 ForUpdate:
-	StatementExpressionList	{ $$ = create_node ( 2 ,"ForUpdate", $1); } 
+	StatementExpressionList	{ $$ = $1; }
 ;
 
 StatementExpressionList:
-	StatementExpression	{ $$ = create_node ( 2 ,"StatementExpressionList", $1); } 
+	StatementExpression	{ $$ = $1; }
 |	StatementExpressionList COMMA StatementExpression	{ $$ = create_node ( 4 ,"StatementExpressionList", $1, $2, $3); } 
 ;
 
@@ -516,7 +516,7 @@ TryStatement:
 
 
 Catches:
-	CatchClause	{ $$ = create_node ( 2 ,"Catches", $1); } 
+	CatchClause{ $$ = $1; }
 |	Catches CatchClause	{ $$ = create_node ( 3 ,"Catches", $1, $2); } 
 ;
 
@@ -529,18 +529,18 @@ Finally:
 ;
 
 Primary:
-	PrimaryNoNewArray	{ $$ = create_node ( 2 ,"Primary", $1); } 
-|	ArrayCreationExpression	{ $$ = create_node ( 2 ,"Primary", $1); } 
+	PrimaryNoNewArray	{ $$ = $1; }
+|	ArrayCreationExpression	{ $$ = $1; }
 ;
 
 PrimaryNoNewArray:
-	LITERAL	{ $$ = create_node ( 2 ,"PrimaryNoNewArray", $1); } 
-|	THIS	{ $$ = create_node ( 2 ,"PrimaryNoNewArray", $1); } 
+	LITERAL	{ $$ = $1; }
+|	THIS	{ $$ = $1; }
 |	LPAREN Expression RPAREN	{ $$ = create_node ( 4 ,"PrimaryNoNewArray", $1, $2, $3); } 
-|	ClassInstanceCreationExpression	{ $$ = create_node ( 2 ,"PrimaryNoNewArray", $1); } 
-|	FieldAccess	{ $$ = create_node ( 2 ,"PrimaryNoNewArray", $1); } 
-|	MethodInvocation	{ $$ = create_node ( 2 ,"PrimaryNoNewArray", $1); } 
-|	ArrayAccess	{ $$ = create_node ( 2 ,"PrimaryNoNewArray", $1); } 
+|	ClassInstanceCreationExpression	{ $$ = $1; }
+|	FieldAccess	{ $$ = $1; }
+|	MethodInvocation	{ $$ = $1; }
+|	ArrayAccess	{ $$ = $1; }
 ;
 
 ClassInstanceCreationExpression:
@@ -549,7 +549,7 @@ ClassInstanceCreationExpression:
 ;
 
 ArgumentList:
-	Expression	{ $$ = create_node ( 2 ,"ArgumentList", $1); } 
+	Expression	{ $$ = $1; }
 |	ArgumentList COMMA Expression	{ $$ = create_node ( 4 ,"ArgumentList", $1, $2, $3); } 
 ;
 
@@ -561,7 +561,7 @@ ArrayCreationExpression:
 ;
 
 DimExprs:
-	DimExpr	{ $$ = create_node ( 2 ,"DimExprs", $1); } 
+	DimExpr	{ $$ = $1; }
 |	DimExprs DimExpr	{ $$ = create_node ( 3 ,"DimExprs", $1, $2); } 
 ;
 
@@ -595,41 +595,41 @@ ArrayAccess:
 ;
 
 PostfixExpression:
-	Primary	{ $$ = create_node ( 2 ,"PostfixExpression", $1); } 
-|	Name	{ $$ = create_node ( 2 ,"PostfixExpression", $1); } 
-|	PostIncrementExpression	{ $$ = create_node ( 2 ,"PostfixExpression", $1); } 
-|	PostDecrementExpression	{ $$ = create_node ( 2 ,"PostfixExpression", $1); } 
+	Primary	{ $$ = $1; }
+|	Name	{ $$ = $1; }
+|	PostIncrementExpression	{ $$ = $1; }
+|	PostDecrementExpression	{ $$ = $1; }
 ;
 
 PostIncrementExpression:
-	PostfixExpression PLUS_PLUS	{ $$ = create_node ( 3 ,"PostIncrementExpression", $1, $2); } 
+	PostfixExpression PLUS_PLUS	{ $$ = create_node ( 2 ,$2->val, $1); } 
 ;
 
 PostDecrementExpression:
-	PostfixExpression MINUS_MINUS	{ $$ = create_node ( 3 ,"PostDecrementExpression", $1, $2); } 
+	PostfixExpression MINUS_MINUS	{ $$ = create_node ( 2 ,$2->val, $1); } 
 ;
 
 UnaryExpression:
-	PreIncrementExpression	{ $$ = create_node ( 2 ,"UnaryExpression", $1); } 
-|	PreDecrementExpression	{ $$ = create_node ( 2 ,"UnaryExpression", $1); } 
-|	PLUS UnaryExpression	{ $$ = create_node ( 3 ,"UnaryExpression", $1, $2); } 
-|	MINUS UnaryExpression	{ $$ = create_node ( 3 ,"UnaryExpression", $1, $2); } 
-|	UnaryExpressionNotPlusMinus	{ $$ = create_node ( 2 ,"UnaryExpression", $1); } 
+	PreIncrementExpression	{ $$ = $1; }
+|	PreDecrementExpression	{ $$ = $1; }
+|	PLUS UnaryExpression	{ $$ = create_node ( 2 ,$1->val, $2); } 
+|	MINUS UnaryExpression	{ $$ = create_node ( 2 ,$1->val, $2); } 
+|	UnaryExpressionNotPlusMinus	{ $$ = $1; }
 ;
 
 PreIncrementExpression:
-	PLUS_PLUS UnaryExpression	{ $$ = create_node ( 3 ,"PreIncrementExpression", $1, $2); } 
+	PLUS_PLUS UnaryExpression	{ $$ = create_node ( 2 ,$1->val, $2); } 
 ;
 
 PreDecrementExpression:
-	MINUS_MINUS UnaryExpression	{ $$ = create_node ( 3 ,"PreDecrementExpression", $1, $2); } 
+	MINUS_MINUS UnaryExpression	{ $$ = create_node ( 2 ,$1->val, $2); } 
 ;
 
 UnaryExpressionNotPlusMinus:
-	PostfixExpression	{ $$ = create_node ( 2 ,"UnaryExpressionNotPlusMinus", $1); } 
-|	TILDE UnaryExpression	{ $$ = create_node ( 3 ,"UnaryExpressionNotPlusMinus", $1, $2); } 
-|	NOT UnaryExpression	{ $$ = create_node ( 3 ,"UnaryExpressionNotPlusMinus", $1, $2); } 
-|	CastExpression	{ $$ = create_node ( 2 ,"UnaryExpressionNotPlusMinus", $1); } 
+	PostfixExpression	{ $$ = $1; }
+|	TILDE UnaryExpression	{ $$ = create_node ( 2 ,$1->val, $2); } 
+|	NOT UnaryExpression	{ $$ = create_node ( 2 ,$1->val , $2); } 
+|	CastExpression	{ $$ = $1; }
 ;
 
 CastExpression:
@@ -640,99 +640,101 @@ CastExpression:
 ;
 
 MultiplicativeExpression:
-	UnaryExpression	{ $$ = create_node ( 2 ,"MultiplicativeExpression", $1); } 
-|	MultiplicativeExpression TIMES UnaryExpression	{ $$ = create_node ( 4 ,"MultiplicativeExpression", $1, $2, $3); } 
-|	MultiplicativeExpression DIVIDE UnaryExpression	{ $$ = create_node ( 4 ,"MultiplicativeExpression", $1, $2, $3); } 
-|	MultiplicativeExpression MOD UnaryExpression	{ $$ = create_node ( 4 ,"MultiplicativeExpression", $1, $2, $3); } 
+	UnaryExpression	{ $$ = $1; }
+|	MultiplicativeExpression TIMES UnaryExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
+|	MultiplicativeExpression DIVIDE UnaryExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
+|	MultiplicativeExpression MOD UnaryExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
 ;
 
 AdditiveExpression:
-	MultiplicativeExpression	{ $$ = create_node ( 2 ,"AdditiveExpression", $1); } 
-|	AdditiveExpression PLUS MultiplicativeExpression	{ $$ = create_node ( 4 ,"AdditiveExpression", $1, $2, $3); } 
-|	AdditiveExpression MINUS MultiplicativeExpression	{ $$ = create_node ( 4 ,"AdditiveExpression", $1, $2, $3); } 
+	MultiplicativeExpression	{ $$ = $1; }
+|	AdditiveExpression PLUS MultiplicativeExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
+|	AdditiveExpression MINUS MultiplicativeExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
 ;
 
 ShiftExpression:
-	AdditiveExpression	{ $$ = create_node ( 2 ,"ShiftExpression", $1); } 
-|	ShiftExpression LEFT_SHIFT AdditiveExpression	{ $$ = create_node ( 4 ,"ShiftExpression", $1, $2, $3); } 
-|	ShiftExpression RIGHT_SHIFT AdditiveExpression	{ $$ = create_node ( 4 ,"ShiftExpression", $1, $2, $3); } 
-|	ShiftExpression UNSIGNED_RIGHT_SHIFT AdditiveExpression	{ $$ = create_node ( 4 ,"ShiftExpression", $1, $2, $3); } 
+	AdditiveExpression	{ $$ = $1; }
+|	ShiftExpression LEFT_SHIFT AdditiveExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
+|	ShiftExpression RIGHT_SHIFT AdditiveExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
+|	ShiftExpression UNSIGNED_RIGHT_SHIFT AdditiveExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
 ;
 
 RelationalExpression:
-	ShiftExpression	{ $$ = create_node ( 2 ,"RelationalExpression", $1); } 
-|	RelationalExpression LT ShiftExpression	{ $$ = create_node ( 4 ,"RelationalExpression", $1, $2, $3); } 
-|	RelationalExpression GT ShiftExpression	{ $$ = create_node ( 4 ,"RelationalExpression", $1, $2, $3); } 
-|	RelationalExpression LE ShiftExpression	{ $$ = create_node ( 4 ,"RelationalExpression", $1, $2, $3); } 
-|	RelationalExpression GE ShiftExpression	{ $$ = create_node ( 4 ,"RelationalExpression", $1, $2, $3); } 
-|	RelationalExpression INSTANCEOF ReferenceType	{ $$ = create_node ( 4 ,"RelationalExpression", $1, $2, $3); } 
+	ShiftExpression	{ $$ = $1; }
+|	RelationalExpression LT ShiftExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
+|	RelationalExpression GT ShiftExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
+|	RelationalExpression LE ShiftExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
+|	RelationalExpression GE ShiftExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
+|	RelationalExpression INSTANCEOF ReferenceType	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
 ;
 
 EqualityExpression:
-	RelationalExpression	{ $$ = create_node ( 2 ,"EqualityExpression", $1); } 
-|	EqualityExpression EQUALS_EQUALS RelationalExpression	{ $$ = create_node ( 4 ,"EqualityExpression", $1, $2, $3); } 
-|	EqualityExpression NOT_EQUALS RelationalExpression	{ $$ = create_node ( 4 ,"EqualityExpression", $1, $2, $3); } 
+	RelationalExpression	{ $$ = $1; }
+|	EqualityExpression EQUALS_EQUALS RelationalExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
+|	EqualityExpression NOT_EQUALS RelationalExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
 ;
 AndExpression:
-	EqualityExpression	{ $$ = create_node ( 2 ,"AndExpression", $1); } 
-|	AndExpression BITWISE_AND EqualityExpression	{ $$ = create_node ( 4 ,"AndExpression", $1, $2, $3); } 
+	EqualityExpression	{ $$ = $1; }
+|	AndExpression BITWISE_AND EqualityExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
 ;
 
 ExclusiveOrExpression:
-	AndExpression	{ $$ = create_node ( 2 ,"ExclusiveOrExpression", $1); } 
-|	ExclusiveOrExpression XOR AndExpression	{ $$ = create_node ( 4 ,"ExclusiveOrExpression", $1, $2, $3); } 
+	AndExpression	{ $$ = $1; }
+|	ExclusiveOrExpression XOR AndExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
 ;
 
 InclusiveOrExpression:
-	ExclusiveOrExpression	{ $$ = create_node ( 2 ,"InclusiveOrExpression", $1); } 
-|	InclusiveOrExpression BITWISE_OR ExclusiveOrExpression	{ $$ = create_node ( 4 ,"InclusiveOrExpression", $1, $2, $3); } 
+	ExclusiveOrExpression	{ $$ = $1; }
+|	InclusiveOrExpression BITWISE_OR ExclusiveOrExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
 ;
 
 ConditionalAndExpression:
-	InclusiveOrExpression	{ $$ = create_node ( 2 ,"ConditionalAndExpression", $1); } 
-|	ConditionalAndExpression AND InclusiveOrExpression	{ $$ = create_node ( 4 ,"ConditionalAndExpression", $1, $2, $3); } 
+	InclusiveOrExpression	{ $$ = $1; }
+|	ConditionalAndExpression AND InclusiveOrExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
 ;
 
 ConditionalOrExpression:
-	ConditionalAndExpression	{ $$ = create_node ( 2 ,"ConditionalOrExpression", $1); } 
-|	ConditionalOrExpression OR ConditionalAndExpression	{ $$ = create_node ( 4 ,"ConditionalOrExpression", $1, $2, $3); } 
+	ConditionalAndExpression	{ $$ = $1; }
+|	ConditionalOrExpression OR ConditionalAndExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
 ;
 
 ConditionalExpression:
-	ConditionalOrExpression	{ $$ = create_node ( 2 ,"ConditionalExpression", $1); } 
+	ConditionalOrExpression	{ $$ = $1; }
 |	ConditionalOrExpression QUESTION Expression COLON ConditionalExpression	{ $$ = create_node ( 6 ,"ConditionalExpression", $1, $2, $3, $4, $5); } 
 ;
 
 AssignmentExpression:
-	ConditionalExpression	{ $$ = create_node ( 2 ,"AssignmentExpression", $1); } 
-|	Assignment	{ $$ = create_node ( 2 ,"AssignmentExpression", $1); } 
+	ConditionalExpression	{ $$ = $1; }
+|	Assignment	{ $$ = $1; }
 ;
 
 Assignment:
-	LeftHandSide AssignmentOperator AssignmentExpression	{ $$ = create_node ( 4 ,"Assignment", $1, $2, $3); } 
+	LeftHandSide AssignmentOperator AssignmentExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
 ;
 
 LeftHandSide:
-	Name	{ $$ = create_node ( 2 ,"LeftHandSide", $1); } 
-|	FieldAccess	{ $$ = create_node ( 2 ,"LeftHandSide", $1); } 
-|	ArrayAccess	{ $$ = create_node ( 2 ,"LeftHandSide", $1); } 
+	Name	{ $$ = $1; }
+|	FieldAccess	{ $$ = $1; }
+|	ArrayAccess	{ $$ = $1; }
 ;
 
 AssignmentOperator: 
-	EQUALS 	{ $$ = create_node ( 2 ,"AssignmentOperator", $1); } 
-|	TIMES_EQUALS 	{ $$ = create_node ( 2 ,"AssignmentOperator", $1); } 
-|	DIVIDE_EQUALS	{ $$ = create_node ( 2 ,"AssignmentOperator", $1); } 
-|	MOD_EQUALS 	{ $$ = create_node ( 2 ,"AssignmentOperator", $1); } 
-|	PLUS_EQUALS 	{ $$ = create_node ( 2 ,"AssignmentOperator", $1); } 
-|	MINUS_EQUALS 	{ $$ = create_node ( 2 ,"AssignmentOperator", $1); } 
-|	LEFT_SHIFT_EQUALS RIGHT_SHIFT_EQUALS UNSIGNED_RIGHT_SHIFT_EQUALS 	{ $$ = create_node ( 4 ,"AssignmentOperator", $1, $2, $3); } 
-|	AND_EQUALS 	{ $$ = create_node ( 2 ,"AssignmentOperator", $1); } 
-|	XOR_EQUALS 	{ $$ = create_node ( 2 ,"AssignmentOperator", $1); } 
-|	OR_EQUALS	{ $$ = create_node ( 2 ,"AssignmentOperator", $1); } 
+	EQUALS 	{ $$ = $1; }
+|	TIMES_EQUALS 	{ $$ = $1; }
+|	DIVIDE_EQUALS	{ $$ = $1; }
+|	MOD_EQUALS 	{ $$ = $1; }
+|	PLUS_EQUALS 	{ $$ = $1; }
+|	MINUS_EQUALS 	{ $$ = $1; }
+|	LEFT_SHIFT_EQUALS	{ $$ = $1; }
+|	RIGHT_SHIFT_EQUALS	{ $$ = $1; }
+|	UNSIGNED_RIGHT_SHIFT_EQUALS 	{ $$ = $1; }
+|	AND_EQUALS 	{ $$ = $1; }
+|	XOR_EQUALS 	{ $$ = $1; }
+|	OR_EQUALS	{ $$ = $1; }
 ;
 
 Expression:
-	AssignmentExpression	{ $$ = create_node ( 2 ,"Expression", $1); } 
+	AssignmentExpression	{ $$ = $1; }
 ;
 
 %%
