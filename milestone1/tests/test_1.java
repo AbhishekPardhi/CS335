@@ -1,4 +1,5 @@
-import java.util.*;
+/* BUBBLE SORT */
+
 public class BubbleSort {
     public static void main(final String[] args) {
         int n = 10, c, d, swap;

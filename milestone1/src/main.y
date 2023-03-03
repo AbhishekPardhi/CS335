@@ -835,8 +835,7 @@ int main(int argc, char* argv[]){
 	/*--------------------------------------------------------------*/
 
 	//  Open the input file
-	/* FILE* fp = fopen(("../tests/"+input_file).c_str(), "r"); */
-	FILE* fp = fopen(input_file.c_str(), "r");
+	FILE* fp = fopen(("../tests/"+input_file).c_str(), "r");
 
 	if(!fp){
 		cout << "Error opening file: " << input_file << endl;
