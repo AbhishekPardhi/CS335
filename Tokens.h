@@ -83,5 +83,3 @@
 #define _PACKAGE 82
 #define _INTERFACE 83
 #define _EQUALS_EQUALS 84
-#define _EQUALS_EQUALS 85
-#define _EQUALS_EQUALS 86
