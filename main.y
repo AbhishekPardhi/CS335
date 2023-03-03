@@ -769,6 +769,7 @@ int main(int argc, char* argv[]){
 
 	string input_file = "";
 	string output_file = "";
+
 	int yydebug = 0;
 	bool debug = false;
 	bool noInputFile = true;
@@ -776,8 +777,14 @@ int main(int argc, char* argv[]){
 	for(int i=1;i<argc;i++){
 		string arg = argv[i];
 		if(arg == "--help"){
-			cout << "Usage: ./main <input file> <output file> <debug>" << endl;
-			cout << "Example: ./main --input=input.java --output=output.dot --verbose" << endl;
+			cout << "--input : Add this flag for specifying a input file to the parser. This is a required flag." << endl;
+			cout << "Example: ./main --input=input.java" << endl;
+			cout<<endl;
+			cout << "--output Add this flag for specifying a output file to the parser which would contain the output i.e a AST in graphical form. This flag is optional. Default value is output.dot" << endl;
+			cout << "Example: ./main --input=input.java --output=result.dot" << endl;
+			cout<<endl;
+			cout << "--verbose Add this flag for switching on the debug mode in the parser. This flag is optional." << endl;
+			cout << "Example: ./main --input=input.java --output=result.dot --verbose" << endl;
 			return 0;
 		}
 		else if(arg.substr(0,8) == "--input="){
