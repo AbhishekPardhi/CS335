@@ -77,7 +77,7 @@
 #define _UNSIGNED_RIGHT_SHIFT 76
 #define _LITERAL 77
 #define _THROWS 78
-#define _NEW 79
+#define _NEW_KEYWORD 79
 #define _IMPORT 80
 #define _ASTERISK 81
 #define _PACKAGE 82
