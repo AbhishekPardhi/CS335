@@ -77,9 +77,9 @@ InterfaceType:
 ;
 
 ArrayType:
-	PrimitiveType LSPAR RSPAR 	{ $$ = create_node ( 4 ,"ArrayType", $1, $2, $3); } 
-|	Name LSPAR RSPAR	{ $$ = create_node ( 4 ,"ArrayType", $1, $2, $3); } 
-|	ArrayType LSPAR RSPAR	{ $$ = create_node ( 4 ,"ArrayType", $1, $2, $3); } 
+	PrimitiveType LSPAR RSPAR 	{ $$ = create_node ( 4 ,"Array_Type", $1, $2, $3); } 
+|	Name LSPAR RSPAR	{ $$ = create_node ( 4 ,"Array_Type", $1, $2, $3); } 
+|	ArrayType LSPAR RSPAR	{ $$ = create_node ( 4 ,"Array_Type", $1, $2, $3); } 
 ;
 
 
@@ -93,17 +93,17 @@ SimpleName:
 ;
 
 QualifiedName:
-	Name DOT IDENTIFIER	{ $$ = create_node ( 4 ,"QualifiedName", $1, $2, $3); } 
+	Name DOT IDENTIFIER	{ $$ = create_node ( 4 ,"Qualified_Name", $1, $2, $3); } 
 ;
 
 CompilationUnit:
-	PackageDeclaration ImportDeclarations TypeDeclarations	{ $$ = create_node ( 4 ,"CompilationUnit", $1, $2, $3); }
-|	ImportDeclarations PackageDeclaration TypeDeclarations	{ $$ = create_node ( 4 ,"CompilationUnit", $1, $2, $3); }
-|	ImportDeclarations TypeDeclarations	{ $$ = create_node ( 3 ,"CompilationUnit", $1, $2); } 
-|	PackageDeclaration TypeDeclarations	{ $$ = create_node ( 3 ,"CompilationUnit", $1, $2); } 
+	PackageDeclaration ImportDeclarations TypeDeclarations	{ $$ = create_node ( 4 ,"Compilation_Unit", $1, $2, $3); }
+|	ImportDeclarations PackageDeclaration TypeDeclarations	{ $$ = create_node ( 4 ,"Compilation_Unit", $1, $2, $3); }
+|	ImportDeclarations TypeDeclarations	{ $$ = create_node ( 3 ,"Compilation_Unit", $1, $2); } 
+|	PackageDeclaration TypeDeclarations	{ $$ = create_node ( 3 ,"Compilation_Unit", $1, $2); } 
 |	TypeDeclarations	{ $$ = $1; }
-|	PackageDeclaration ImportDeclarations 	{ $$ = create_node ( 3 ,"CompilationUnit", $1, $2); } 
-|	ImportDeclarations PackageDeclaration 	{ $$ = create_node ( 3 ,"CompilationUnit", $1, $2); }
+|	PackageDeclaration ImportDeclarations 	{ $$ = create_node ( 3 ,"Compilation_Unit", $1, $2); } 
+|	ImportDeclarations PackageDeclaration 	{ $$ = create_node ( 3 ,"Compilation_Unit", $1, $2); }
 |	ImportDeclarations 	{ $$ = $1; }
 |	PackageDeclaration 	{ $$ = $1; }
 |	{$$ = create_node(1,"EMPTY");}
@@ -111,17 +111,17 @@ CompilationUnit:
 
 
 ImportDeclarations:
-	ImportDeclaration	{ $$ = $1; }
-|	ImportDeclarations ImportDeclaration	{ $$ = create_node ( 3 ,"ImportDeclarations", $1, $2); } 
+	ImportDeclaration	{ $$ = create_node(2,"Import_Declarations",$1) ; }
+|	ImportDeclarations ImportDeclaration	{ $1->children.push_back($2); $$ =$1 ;} 
 ;
 
 TypeDeclarations:
-	TypeDeclaration	{ $$ = $1; }
-|	TypeDeclarations TypeDeclaration	{ $$ = create_node ( 3 ,"TypeDeclarations", $1, $2); } 
+	TypeDeclaration	{ $$ = create_node(2,"Type_Declarations",$1) ; }
+|	TypeDeclarations TypeDeclaration	{ $1->children.push_back($2); $$ =$1 ; } 
 ;
 
 PackageDeclaration:
-	PACKAGE Name SEMICOLON	{ $$ = create_node ( 4 ,"PackageDeclaration", $1, $2, $3); } 
+	PACKAGE Name SEMICOLON	{ $$ = create_node ( 4 ,"Package_Declaration", $1, $2, $3); } 
 ;
 
 ImportDeclaration:
@@ -130,11 +130,11 @@ ImportDeclaration:
 ;
 
 SingleTypeImportDeclaration:
-	IMPORT Name SEMICOLON	{ $$ = create_node ( 4 ,"SingleTypeImportDeclaration", $1, $2, $3); } 
+	IMPORT Name SEMICOLON	{ $$ = create_node ( 4 ,"Single_Type_Import_Declaration", $1, $2, $3); } 
 ;
 
 TypeImportOnDemandDeclaration:
-	IMPORT Name DOT TIMES SEMICOLON	{ $$ = create_node ( 6 ,"TypeImportOnDemandDeclaration", $1, $2, $3, $4, $5); } 
+	IMPORT Name DOT TIMES SEMICOLON	{ $$ = create_node ( 6 ,"Type_Import_On_Demand_Declaration", $1, $2, $3, $4, $5); } 
 ;
 
 
@@ -145,8 +145,8 @@ TypeDeclaration:
 ;
 
 Modifiers:
-	Modifier	{ $$ = $1; }
-|	Modifiers Modifier	{ $$ = create_node ( 3 ,"Modifiers", $1, $2); } 
+	Modifier	{ $$ = create_node(2,"Modifiers",$1) ; }
+|	Modifiers Modifier	{ $1->children.push_back($2); $$ =$1 ; } 
 ;
 
 Modifier:
@@ -157,12 +157,12 @@ Modifier:
 ;
 
 ClassDeclaration:
-	Modifiers CLASS IDENTIFIER Super Interfaces ClassBody	{ $$ = create_node ( 7 ,"ClassDeclaration", $1, $2, $3, $4, $5, $6); } 
-|	CLASS IDENTIFIER Interfaces ClassBody	{ $$ = create_node ( 5 ,"ClassDeclaration", $1, $2, $3, $4); } 
-|	Modifiers CLASS IDENTIFIER Super ClassBody	{ $$ = create_node ( 6 ,"ClassDeclaration", $1, $2, $3, $4, $5); } 
-|	Modifiers CLASS IDENTIFIER Interfaces ClassBody	{ $$ = create_node ( 6 ,"ClassDeclaration", $1, $2, $3, $4, $5); } 
-|	CLASS IDENTIFIER ClassBody	{ $$ = create_node ( 4 ,"ClassDeclaration", $1, $2, $3); } 
-|	Modifiers CLASS IDENTIFIER ClassBody	{ $$ = create_node ( 5 ,"ClassDeclaration", $1, $2, $3, $4); } 
+	Modifiers CLASS IDENTIFIER Super Interfaces ClassBody	{ $$ = create_node ( 7 ,"Class_Declaration", $1, $2, $3, $4, $5, $6); } 
+|	CLASS IDENTIFIER Interfaces ClassBody	{ $$ = create_node ( 5 ,"Class_Declaration", $1, $2, $3, $4); } 
+|	Modifiers CLASS IDENTIFIER Super ClassBody	{ $$ = create_node ( 6 ,"Class_Declaration", $1, $2, $3, $4, $5); } 
+|	Modifiers CLASS IDENTIFIER Interfaces ClassBody	{ $$ = create_node ( 6 ,"Class_Declaration", $1, $2, $3, $4, $5); } 
+|	CLASS IDENTIFIER ClassBody	{ $$ = create_node ( 4 ,"Class_Declaration", $1, $2, $3); } 
+|	Modifiers CLASS IDENTIFIER ClassBody	{ $$ = create_node ( 5 ,"Class_Declaration", $1, $2, $3, $4); } 
 ;
 
 Super:
@@ -174,8 +174,8 @@ Interfaces:
 ;
 
 InterfaceTypeList:
-	InterfaceType	{ $$ = $1; }
-|	InterfaceTypeList COMMA InterfaceType	{ $$ = create_node ( 4 ,"InterfaceTypeList", $1, $2, $3); } 
+	InterfaceType	{ $$ = create_node(2,"Interface_Type_List",$1) ; }
+|	InterfaceTypeList COMMA InterfaceType	{ $1->children.push_back($2);$1->children.push_back($3); $$ =$1 ;} 
 ;
 
 ClassBody:
@@ -184,8 +184,8 @@ ClassBody:
 ;
 
 ClassBodyDeclarations:
-	ClassBodyDeclaration	{ $$ = $1; }
-|	ClassBodyDeclarations ClassBodyDeclaration	{ $$ = create_node ( 3 ,"ClassBodyDeclarations", $1, $2); } 
+	ClassBodyDeclaration	{$$ = create_node(2,"Class_Body_Declarations",$1) ; }
+|	ClassBodyDeclarations ClassBodyDeclaration	{ $1->children.push_back($2); $$ =$1 ; } 
 ;
 
 ClassBodyDeclaration:
@@ -205,8 +205,8 @@ FieldDeclaration:
 ;
 
 VariableDeclarators:
-	VariableDeclarator	{ $$ = $1; }
-|	VariableDeclarators COMMA VariableDeclarator	{ $$ = create_node ( 4 ,"VariableDeclarators", $1, $2, $3); } 
+	VariableDeclarator	{ $$ = create_node(2,"Variable_declarators",$1) ; }
+|	VariableDeclarators COMMA VariableDeclarator	{ $1->children.push_back($2);$1->children.push_back($3); $$ =$1 ;} 
 ;
 
 VariableDeclarator:
@@ -215,8 +215,8 @@ VariableDeclarator:
 ;
 
 VariableDeclaratorId:
-	IDENTIFIER	{ $$ = $1; }
-|	VariableDeclaratorId LSPAR RSPAR	{ $$ = create_node ( 4 ,"VariableDeclaratorId", $1, $2, $3); } 
+	IDENTIFIER	{ $$ = create_node(2,"Varaible_Declarator_Id",$1) ; }
+|	VariableDeclaratorId LSPAR RSPAR	{ $1->children.push_back($2);$1->children.push_back($3); $$ =$1 ; } 
 ;
 
 VariableInitializer:
@@ -247,8 +247,8 @@ MethodDeclarator:
 ;
 
 FormalParameterList:
-	FormalParameter	{ $$ = $1; }
-|	FormalParameterList COMMA FormalParameter	{ $$ = create_node ( 4 ,"FormalParameterList", $1, $2, $3); } 
+	FormalParameter	{ $$ = create_node(2,"Formal_Parameter_List",$1) ; }
+|	FormalParameterList COMMA FormalParameter	{ $1->children.push_back($2);$1->children.push_back($3); $$ =$1 ;} 
 ;
 
 FormalParameter:
@@ -261,8 +261,8 @@ Throws:
 ;
 
 ClassTypeList:
-	ClassType	{ $$ = $1; }
-|	ClassTypeList COMMA ClassType	{ $$ = create_node ( 4 ,"ClassTypeList", $1, $2, $3); } 
+	ClassType	{ $$ = create_node(2,"Class_Type_List",$1) ; }
+|	ClassTypeList COMMA ClassType	{ $1->children.push_back($2);$1->children.push_back($3); $$ =$1 ;} 
 ;
 
 MethodBody:
@@ -311,8 +311,8 @@ InterfaceDeclaration:
 ;
 
 ExtendsInterfaces:
-	EXTENDS InterfaceType	{ $$ = create_node ( 3 ,"ExtendsInterfaces", $1, $2); } 
-|	ExtendsInterfaces COMMA InterfaceType	{ $$ = create_node ( 4 ,"ExtendsInterfaces", $1, $2, $3); } 
+	EXTENDS InterfaceType	{ $$ = create_node(3,"Extends_Interfaces",$1,$2) ; } 
+|	ExtendsInterfaces COMMA InterfaceType	{ $1->children.push_back($2);$1->children.push_back($3); $$ =$1 ; } 
 ;
 
 InterfaceBody:
@@ -321,8 +321,8 @@ InterfaceBody:
 ;
 
 InterfaceMemberDeclarations:
-	InterfaceMemberDeclaration	{ $$ = $1; }
-|	InterfaceMemberDeclarations InterfaceMemberDeclaration	{ $$ = create_node ( 3 ,"InterfaceMemberDeclarations", $1, $2); } 
+	InterfaceMemberDeclaration	{$$ = create_node(2,"Interface_Member_Decalarations",$1) ; }
+|	InterfaceMemberDeclarations InterfaceMemberDeclaration	{ $1->children.push_back($2); $$ =$1 ; } 
 ;
 
 InterfaceMemberDeclaration:
@@ -347,8 +347,8 @@ ArrayInitializer:
 ;
 
 VariableInitializers:
-	VariableInitializer	{ $$ = $1; }
-|	VariableInitializers COMMA VariableInitializer	{ $$ = create_node ( 4 ,"VariableInitializers", $1, $2, $3); } 
+	VariableInitializer	{ $$ = create_node(2,"Variable_Initializers",$1) ; }
+|	VariableInitializers COMMA VariableInitializer	{$1->children.push_back($2);$1->children.push_back($3); $$ =$1 ; } 
 ;
 
 
@@ -358,8 +358,8 @@ Block:
 ;
 
 BlockStatements:
-	BlockStatement	{ $$ = $1; }
-|	BlockStatements BlockStatement	{ $$ = create_node ( 3 ,"BlockStatements", $1, $2); } 
+	BlockStatement	{ $$ = create_node(2,"Block_Statements",$1) ; }
+|	BlockStatements BlockStatement	{$1->children.push_back($2); $$ =$1 ;} 
 ;
 
 BlockStatement:
@@ -483,8 +483,8 @@ ForUpdate:
 ;
 
 StatementExpressionList:
-	StatementExpression	{ $$ = $1; }
-|	StatementExpressionList COMMA StatementExpression	{ $$ = create_node ( 4 ,"StatementExpressionList", $1, $2, $3); } 
+	StatementExpression	{ $$ = create_node(2,"Statement_Expression_List",$1) ; }
+|	StatementExpressionList COMMA StatementExpression	{ $1->children.push_back($2);$1->children.push_back($3); $$ =$1 ; } 
 ;
 
 BreakStatement:
@@ -518,8 +518,8 @@ TryStatement:
 
 
 Catches:
-	CatchClause{ $$ = $1; }
-|	Catches CatchClause	{ $$ = create_node ( 3 ,"Catches", $1, $2); } 
+	CatchClause{$$ = create_node(2,"Catches",$1) ; }
+|	Catches CatchClause	{ $1->children.push_back($2); $$ =$1 ;} 
 ;
 
 CatchClause:
@@ -551,8 +551,8 @@ ClassInstanceCreationExpression:
 ;
 
 ArgumentList:
-	Expression	{ $$ = $1; }
-|	ArgumentList COMMA Expression	{ $$ = create_node ( 4 ,"ArgumentList", $1, $2, $3); } 
+	Expression	{ $$ = create_node(2,"Argument_List",$1) ; }
+|	ArgumentList COMMA Expression	{ $1->children.push_back($2);$1->children.push_back($3); $$ =$1 ;} 
 ;
 
 ArrayCreationExpression:
@@ -563,17 +563,17 @@ ArrayCreationExpression:
 ;
 
 DimExprs:
-	DimExpr	{ $$ = $1; }
-|	DimExprs DimExpr	{ $$ = create_node ( 3 ,"DimExprs", $1, $2); } 
+	DimExpr	{ $$ = create_node(2,"Dim_Expers",$1) ; }
+|	DimExprs DimExpr	{$1->children.push_back($2); $$ =$1 ; } 
 ;
 
 DimExpr:
-	LSPAR Expression RSPAR	{ $$ = create_node ( 4 ,"DimExpr", $1, $2, $3); } 
+	LSPAR Expression RSPAR	{ $$ = create_node ( 4 ,"Dim_Expr", $1, $2, $3); } 
 ;
 
 Dims:
-	LSPAR RSPAR	{ $$ = create_node ( 3 ,"Dims", $1, $2); } 
-|	Dims LSPAR RSPAR	{ $$ = create_node ( 4 ,"Dims", $1, $2, $3); } 
+	LSPAR RSPAR	{ $$ = create_node(3,"Dims",$1,$2) ; } 
+|	Dims LSPAR RSPAR	{ $1->children.push_back($2);$1->children.push_back($3); $$ =$1 ; } 
 ;
 
 FieldAccess:
