@@ -1,0 +1,235 @@
+digraph G{
+
+    label     = "AST"
+    fontname  = "Cascadia code"
+    fontsize  = 30
+    labelloc  = t
+    
+    node   [ fontname="Cascadia code" ]
+
+	122		[ style = solid label = "Goal"  ];
+	122 -> 121
+	121		[ style = solid label = "CompilationUnit"  ];
+	121 -> 20
+	20		[ style = solid label = "ImportDeclarations"  ];
+	20 -> 9
+	9		[ style = solid label = "SingleTypeImportDeclaration"  ];
+	9 -> 0
+	0		[ style = solid label = "import"  ];
+	9 -> 7
+	7		[ style = solid label = "QualifiedName"  ];
+	7 -> 4
+	4		[ style = solid label = "QualifiedName"  ];
+	4 -> 1
+	1		[ style = solid label = "java"  ];
+	4 -> 2
+	2		[ style = solid label = "."  ];
+	4 -> 3
+	3		[ style = solid label = "util"  ];
+	7 -> 5
+	5		[ style = solid label = "."  ];
+	7 -> 6
+	6		[ style = solid label = "Scanner"  ];
+	9 -> 8
+	8		[ style = solid label = ";"  ];
+	20 -> 19
+	19		[ style = solid label = "SingleTypeImportDeclaration"  ];
+	19 -> 10
+	10		[ style = solid label = "import"  ];
+	19 -> 17
+	17		[ style = solid label = "QualifiedName"  ];
+	17 -> 14
+	14		[ style = solid label = "QualifiedName"  ];
+	14 -> 11
+	11		[ style = solid label = "java"  ];
+	14 -> 12
+	12		[ style = solid label = "."  ];
+	14 -> 13
+	13		[ style = solid label = "util"  ];
+	17 -> 15
+	15		[ style = solid label = "."  ];
+	17 -> 16
+	16		[ style = solid label = "ArrayList"  ];
+	19 -> 18
+	18		[ style = solid label = ";"  ];
+	121 -> 24
+	24		[ style = solid label = "PackageDeclaration"  ];
+	24 -> 21
+	21		[ style = solid label = "package"  ];
+	24 -> 22
+	22		[ style = solid label = "CustomPackage"  ];
+	24 -> 23
+	23		[ style = solid label = ";"  ];
+	121 -> 120
+	120		[ style = solid label = "ClassDeclaration"  ];
+	120 -> 25
+	25		[ style = solid label = "public"  ];
+	120 -> 26
+	26		[ style = solid label = "class"  ];
+	120 -> 27
+	27		[ style = solid label = "ComputerScienceDepartment"  ];
+	120 -> 119
+	119		[ style = solid label = "ClassBody"  ];
+	119 -> 28
+	28		[ style = solid label = "{"  ];
+	119 -> 117
+	117		[ style = solid label = "ClassBodyDeclarations"  ];
+	117 -> 68
+	68		[ style = solid label = "ClassBodyDeclarations"  ];
+	68 -> 37
+	37		[ style = solid label = "ClassBodyDeclarations"  ];
+	37 -> 32
+	32		[ style = solid label = "FieldDeclaration"  ];
+	32 -> 29
+	29		[ style = solid label = "String"  ];
+	32 -> 30
+	30		[ style = solid label = "name"  ];
+	32 -> 31
+	31		[ style = solid label = ";"  ];
+	37 -> 36
+	36		[ style = solid label = "FieldDeclaration"  ];
+	36 -> 33
+	33		[ style = solid label = "int"  ];
+	36 -> 34
+	34		[ style = solid label = "marks"  ];
+	36 -> 35
+	35		[ style = solid label = ";"  ];
+	68 -> 67
+	67		[ style = solid label = "ConstructorDeclaration"  ];
+	67 -> 38
+	38		[ style = solid label = "public"  ];
+	67 -> 50
+	50		[ style = solid label = "ConstructorDeclarator"  ];
+	50 -> 39
+	39		[ style = solid label = "ComputerScienceDepartment"  ];
+	50 -> 40
+	40		[ style = solid label = "("  ];
+	50 -> 49
+	49		[ style = solid label = "FormalParameterList"  ];
+	49 -> 44
+	44		[ style = solid label = "FormalParameter"  ];
+	44 -> 41
+	41		[ style = solid label = "String"  ];
+	44 -> 42
+	42		[ style = solid label = "studentName"  ];
+	49 -> 43
+	43		[ style = solid label = ","  ];
+	49 -> 48
+	48		[ style = solid label = "FormalParameter"  ];
+	48 -> 45
+	45		[ style = solid label = "int"  ];
+	48 -> 46
+	46		[ style = solid label = "studentMarks"  ];
+	50 -> 47
+	47		[ style = solid label = ")"  ];
+	67 -> 66
+	66		[ style = solid label = "ConstructorBody"  ];
+	66 -> 51
+	51		[ style = solid label = "{"  ];
+	66 -> 64
+	64		[ style = solid label = "BlockStatements"  ];
+	64 -> 57
+	57		[ style = solid label = "ExpressionStatement"  ];
+	57 -> 56
+	56		[ style = solid label = "="  ];
+	56 -> 52
+	52		[ style = solid label = "name"  ];
+	56 -> 54
+	54		[ style = solid label = "studentName"  ];
+	57 -> 55
+	55		[ style = solid label = ";"  ];
+	64 -> 63
+	63		[ style = solid label = "ExpressionStatement"  ];
+	63 -> 62
+	62		[ style = solid label = "="  ];
+	62 -> 58
+	58		[ style = solid label = "marks"  ];
+	62 -> 60
+	60		[ style = solid label = "studentMarks"  ];
+	63 -> 61
+	61		[ style = solid label = ";"  ];
+	66 -> 65
+	65		[ style = solid label = "}"  ];
+	117 -> 116
+	116		[ style = solid label = "MethodDeclaration"  ];
+	116 -> 76
+	76		[ style = solid label = "MethodHeader"  ];
+	76 -> 69
+	69		[ style = solid label = "public"  ];
+	76 -> 70
+	70		[ style = solid label = "void"  ];
+	76 -> 74
+	74		[ style = solid label = "MethodDeclarator"  ];
+	74 -> 71
+	71		[ style = solid label = "display"  ];
+	74 -> 72
+	72		[ style = solid label = "("  ];
+	74 -> 73
+	73		[ style = solid label = ")"  ];
+	116 -> 115
+	115		[ style = solid label = "Block"  ];
+	115 -> 75
+	75		[ style = solid label = "{"  ];
+	115 -> 113
+	113		[ style = solid label = "ExpressionStatement"  ];
+	113 -> 111
+	111		[ style = solid label = "MethodInvocation"  ];
+	111 -> 83
+	83		[ style = solid label = "QualifiedName"  ];
+	83 -> 80
+	80		[ style = solid label = "QualifiedName"  ];
+	80 -> 77
+	77		[ style = solid label = "System"  ];
+	80 -> 78
+	78		[ style = solid label = "."  ];
+	80 -> 79
+	79		[ style = solid label = "out"  ];
+	83 -> 81
+	81		[ style = solid label = "."  ];
+	83 -> 82
+	82		[ style = solid label = "println"  ];
+	111 -> 84
+	84		[ style = solid label = "("  ];
+	111 -> 110
+	110		[ style = solid label = "+"  ];
+	110 -> 107
+	107		[ style = solid label = "+"  ];
+	107 -> 104
+	104		[ style = solid label = "+"  ];
+	104 -> 101
+	101		[ style = solid label = "+"  ];
+	101 -> 98
+	98		[ style = solid label = "+"  ];
+	98 -> 95
+	95		[ style = solid label = "+"  ];
+	95 -> 92
+	92		[ style = solid label = "+"  ];
+	92 -> 89
+	89		[ style = solid label = "+"  ];
+	89 -> 85
+	85		[ style = solid label = "\"Name: \""  ];
+	89 -> 87
+	87		[ style = solid label = "name"  ];
+	92 -> 90
+	90		[ style = solid label = "'\n'"  ];
+	95 -> 93
+	93		[ style = solid label = "\"Marks : \""  ];
+	98 -> 96
+	96		[ style = solid label = "marks"  ];
+	101 -> 99
+	99		[ style = solid label = "'\n'"  ];
+	104 -> 102
+	102		[ style = solid label = "\"Department: \""  ];
+	107 -> 105
+	105		[ style = solid label = "\"Computer Science\""  ];
+	110 -> 108
+	108		[ style = solid label = "'\n'"  ];
+	111 -> 109
+	109		[ style = solid label = ")"  ];
+	113 -> 112
+	112		[ style = solid label = ";"  ];
+	115 -> 114
+	114		[ style = solid label = "}"  ];
+	119 -> 118
+	118		[ style = solid label = "}"  ];
+}
