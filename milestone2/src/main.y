@@ -871,6 +871,10 @@ int main(int argc, char* argv[]){
 	// Close the output file
     fout.close();
 
+	// Printing the symbol table
+	fout.open("symbol_table.txt",ios::out);
+	printTable();
+	fout.close();
 	
     return 0;
 }
