@@ -2,6 +2,7 @@
     /* Declaration */
     #include <bits/stdc++.h>
     #include "data.h"
+	#include "symbol_table.cpp"
     // #include "data.cpp"
     using namespace std;
     int yylex();
@@ -14,6 +15,8 @@
     NODE *start_node;
 	fstream fout;
 	extern FILE *yyin;
+	// domain name of symbol table like function name , the correspinding symbol set and attributes
+	unordered_map<char*,st> symbol_tables;
 
 %}
 
@@ -759,6 +762,17 @@ void MakeDOTFile(NODE*cell)
         fout << "\t" << cell->id << " -> " << cell->children[i]->id << endl;
         MakeDOTFile(cell->children[i]);
     }
+}
+
+//print out the table 
+void printTable()
+{
+	for (auto table: symbol_tables)
+	{
+		cout << "Symbol Table :\t" << table.first << endl;
+		print_symbol_table(table.second);
+		cout << endl;
+	}
 }
 
 int main(int argc, char* argv[]){
