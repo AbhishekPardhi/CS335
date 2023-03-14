@@ -14,3 +14,11 @@ void print_symbol_table(st table){
         printf("%s\t%s\t%s\t%d\n",table.token[i],table.lexeme[i],table.type[i],table.line_num[i]);
     }
 }
+
+stl* make_st_node(string label, st* node, stl* prev){
+    stl* new_node = new stl;
+    new_node->label = label;
+    new_node->node = node;
+    new_node->prev = prev;
+    return new_node;
+}
