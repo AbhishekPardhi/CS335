@@ -16,8 +16,7 @@
 	fstream fout;
 	extern FILE *yyin;
 	// domain name of symbol table like function name , the correspinding symbol set and attributes
-	unordered_map<char*,st> symbol_tables;
-
+	vector<pair<char*,st>*> symbol_tables;
 %}
 
 %union {
@@ -219,7 +218,7 @@ VariableDeclarator:
 
 VariableDeclaratorId:
 	IDENTIFIER	{ $$ = create_node(2,"Varaible_Declarator_Id",$1) ; }
-|	VariableDeclaratorId LSPAR RSPAR	{ $1->children.push_back($2);$1->children.push_back($3); $$ =$1 ; } 
+|	VariableDeclaratorId LSPAR RSPAR	{ $1->children.push_back($2);$1->children.push_back($3); $$ =$1 ;} 
 ;
 
 VariableInitializer:
@@ -244,7 +243,7 @@ MethodHeader:
 
 
 MethodDeclarator:
-	IDENTIFIER LPAREN FormalParameterList RPAREN	{ $$ = create_node ( 5 ,"MethodDeclarator", $1, $2, $3, $4); } 
+	IDENTIFIER LPAREN FormalParameterList RPAREN	{ $$ = create_node ( 5 ,"MethodDeclarator", $1, $2, $3, $4);} 
 |	MethodDeclarator LSPAR RSPAR	{ $$ = create_node ( 4 ,"MethodDeclarator", $1, $2, $3); } 
 |	IDENTIFIER LPAREN RPAREN	{ $$ = create_node ( 4 ,"MethodDeclarator", $1, $2, $3); } 
 ;
@@ -277,7 +276,6 @@ MethodBody:
 StaticInitializer:
 	STATIC Block	{ $$ = create_node ( 3 ,"StaticInitializer", $1, $2); } 
 ;
-
 
 ConstructorDeclaration:
 	Modifiers ConstructorDeclarator Throws ConstructorBody	{ $$ = create_node ( 5 ,"ConstructorDeclaration", $1, $2, $3, $4); } 
@@ -744,6 +742,28 @@ Expression:
 
 %%
 
+void make_st_method(NODE* node)
+{
+	st table;
+	/* make_st_body(node->children[3], table); */
+
+}
+
+void make_st(NODE* node)
+{
+	if (node == NULL)
+		return;
+	else if (node->val=="MethodDeclaration")
+	{
+		make_st_method(node);
+	}
+	/* for (int i = 0; i < node->children.size(); i++)
+	{
+		make_st(node->children[i]);
+	} */
+	return;
+}
+
 void MakeDOTFile(NODE*cell)
 {
     if(!cell)
@@ -769,8 +789,8 @@ void printTable()
 {
 	for (auto table: symbol_tables)
 	{
-		cout << "Symbol Table :\t" << table.first << endl;
-		print_symbol_table(table.second);
+		cout << "Symbol Table :\t" << table->first << endl;
+		print_symbol_table(table->second);
 		cout << endl;
 	}
 }
@@ -871,6 +891,9 @@ int main(int argc, char* argv[]){
 	// Close the output file
     fout.close();
 
+	/*--------------------------------------------------------------*/
+	// make the symbol table from start node
+	make_st(start_node);
 	// Printing the symbol table
 	fout.open("symbol_table.txt",ios::out);
 	printTable();
