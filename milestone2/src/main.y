@@ -16,7 +16,12 @@
 	fstream fout;
 	extern FILE *yyin;
 	// domain name of symbol table like function name , the correspinding symbol set and attributes
-	vector<pair<char*,st>*> symbol_tables;
+	vector<pair<string,st>> symbol_tables;
+	stl* st_node= new stl;
+	st global_st;
+	symbol_tables.push_back(<"global",global_st>);
+	st_node= make_st_node("global",&global_st,NULL);
+
 %}
 
 %union {
@@ -789,8 +794,8 @@ void printTable()
 {
 	for (auto table: symbol_tables)
 	{
-		cout << "Symbol Table :\t" << table->first << endl;
-		print_symbol_table(table->second);
+		cout << "Symbol Table :\t" << table.first << endl;
+		print_symbol_table(table.ssecond);
 		cout << endl;
 	}
 }
