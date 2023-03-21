@@ -12,6 +12,4 @@ void insert_entry(ste* cur,string token,string lexeme,string type,int lineno,int
     new_entry->prev = cur;
     new_entry->next_scope = NULL;
     new_entry->prev_scope = NULL;
-    ;
-
 }

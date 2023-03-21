@@ -1,5 +1,7 @@
 #include<bits/stdc++.h>
+
 using namespace std;
+
 typedef struct symbol_table_entry{
     string token, lexeme, type;
     int lineno,dim;
