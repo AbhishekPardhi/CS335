@@ -7,6 +7,10 @@
     using namespace std;
     int yylex();
     extern int yylineno;
+	void searchAST(NODE *);
+	void branchMethodSymtable(NODE* );
+	void ParameterSymtable(NODE* );
+
     void yyerror(const char *s) {
         printf("\nError: %s at line %d\n", s, yylineno);
         exit(0);
@@ -19,9 +23,10 @@
 	unordered_map <string, ste*> tableMap;
 
 	ste* start_ste = new ste;		// point of error
-	// start_ste->type="global";
+	
 	
 	ste * current_ste = start_ste;
+	stack<ste*> branch;
 %}
 
 %union {
@@ -747,16 +752,54 @@ Expression:
 
 %%
 
+string get_type(NODE* node)
+{
+	string type="";
+	if (node->children.size() == 0)
+	{
+		string node_val = node->val;
+		return node_val;
+	}
+	else
+	{
+		for (auto child : node->children)
+		{
+			type =type + get_type(child);
+		}
+	}
+	return type;
+}
+
+int vardim(NODE* node)
+{
+	int len=node->children.size()-1;
+	return len/2;
+}
+
 void searchAST(NODE* node)
 {
 	if(node == NULL)
 		return;
-	if(node->val == "MethodDeclaration")
+	string temp=node->val;
+	if(temp == "MethodDeclaration" || temp =="ConstructorDeclaration")
 	{
+		cout<<temp;
 		ste * new_ste = new ste;
+		ste * branch_node = new ste;
+
+		current_ste->next=branch_node;
+		branch_node->prev=current_ste;
+
+		branch.push(branch_node);
+		current_ste=branch_node;
+
 		current_ste->next_scope=new_ste;
 		new_ste->prev_scope=current_ste;
-		branchMethodSymtable(new_ste,node);
+
+		current_ste=new_ste;
+		branchMethodSymtable(node);
+		current_ste=branch.top();
+		branch.pop();
 	}
 	for(int i = 0; i < node->children.size(); i++)
 	{
@@ -764,38 +807,89 @@ void searchAST(NODE* node)
 	}
 }
 
-void branchMethodSymtable(ste* branch_head,NODE* declaration_node)
+void branchMethodSymtable(NODE* declaration_node)
 {
+	string decl_node=declaration_node->val;
+	if(decl_node=="ConstructorDeclaration")
+	{
+		for (auto decl_child_node : declaration_node->children)
+		{
+			string decl_child_node_val=decl_child_node->val;
+			if (decl_child_node_val=="ConstructorDeclarator")
+			{
+				NODE* identifier_node=decl_child_node->children[0];
+				string id_node_val=identifier_node->val;
+				tableMap[id_node_val]=current_ste;
+
+				for (auto child_node : decl_child_node->children)
+				{
+					string child_node_val=child_node->val;
+					if (child_node_val == "Formal_Parameter_List")
+					{
+						for (auto param_node : child_node->children)
+						{
+							string param_node_val=param_node->val;
+							if (param_node_val=="FormalParameter")
+							{
+								ParameterSymtable(param_node);
+							}
+						}
+					}
+				}
+			}
+		}
+		return ;
+	}
 
 	NODE* header_node=declaration_node->children[0];
 	for (auto node : header_node->children)
 	{
-		if(node->val == "MethodDeclarator")
+		string node_val=node->val;
+		if(node_val == "MethodDeclarator")
 		{
 			NODE* identifier_node=node->children[0];
 			// add map entry for the function
-			tableMap[to_string(identifier_node->val)]=branch_head;
-		}
-		if (node->val == "Formal_Parameter_List")
-		{
-			for (auto param_node : node->children)
+			string id_node_val=identifier_node->val;
+			tableMap[id_node_val]=current_ste;
+		
+			for (auto child_node : node->children)
 			{
-				if (param_node->val=="FormalParameter")
+				string child_node_val=child_node->val;
+				if (child_node_val == "Formal_Parameter_List")
 				{
-					ParameterSymtable(branch_head,param_node);
+					for (auto param_node : child_node->children)
+					{
+						string param_node_val=param_node->val;
+						if (param_node_val=="FormalParameter")
+						{
+							ParameterSymtable(param_node);
+						}
+					}
 				}
 			}
 		}
 	}
-
 }
 
-void ParameterSymtable(ste* branch_head,NODE* node)
+void ParameterSymtable(NODE* param_node)
 {
 	int length=param_node->children.size();
-	string type=param_node->children[length-2]->val;
+	//store the type of the parameter
+	string type=get_type(param_node->children[length-2]);
+
+	//store the name of the parameter
 	NODE* var_node=param_node->children[length-1];
-	
+	int dim=vardim(var_node);
+	string lexeme= var_node->children[0]->val,token="IDENTIFIER";
+
+	current_ste->type=type;
+	current_ste->lexeme=lexeme;
+	current_ste->dim=dim;
+	current_ste->token=token;	
+	ste* new_current_ste= new ste;
+	current_ste->next=new_current_ste;
+	new_current_ste->prev=current_ste;
+	current_ste=new_current_ste;
 }
 
 void MakeDOTFile(NODE*cell)
@@ -821,6 +915,8 @@ void MakeDOTFile(NODE*cell)
 
 
 int main(int argc, char* argv[]){
+
+	
 
 	if(argc < 2 || argc > 4) {
 		cout << "Usage: ./main <input file> <output file> <debug>" << endl;
@@ -917,7 +1013,9 @@ int main(int argc, char* argv[]){
     fout.close();
 
 	/*--------------------------------------------------------------*/
-
+	start_ste->type="global";
+	searchAST(start_node);
+	print_ste(start_ste);
 	
     return 0;
 }
