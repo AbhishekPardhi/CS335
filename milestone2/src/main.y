@@ -842,6 +842,10 @@ void searchAST(NODE* node)
 	{
 		current_ste=branch.top();
 		branch.pop();
+		ste* new_ste = new ste;
+		current_ste->next=new_ste;
+		new_ste->prev=current_ste;
+		current_ste=new_ste;
 	}
 	else if(temp == "LocalVariableDeclaration")
 	{
