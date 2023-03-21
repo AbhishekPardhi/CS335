@@ -1,5 +1,7 @@
 /* Package and Import Statements */
 
+package CustomPackage;
+
 import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -9,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.ArrayList;
 
-package CustomPackage;
  
 // Public class
 public class ComputerScienceDepartment {
