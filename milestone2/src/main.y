@@ -11,6 +11,7 @@
 	void branchMethodSymtable(NODE* );
 	void ParameterSymtable(NODE* );
 	int vardim(NODE* );
+	void fieldSymTable(NODE *);
 	string get_type(NODE* );
 
     void yyerror(const char *s) {
@@ -851,6 +852,10 @@ void searchAST(NODE* node)
 	{
 		insert_variable(node);
 	}
+	else if (temp=="FieldDeclaration")
+	{
+		fieldSymTable(node);
+	}
 	else if(temp == "MethodDeclaration" || temp =="ConstructorDeclaration")
 	{
 		// new node for the new branch and the branch header in the previous branch junction
@@ -883,6 +888,42 @@ void searchAST(NODE* node)
 	{
 		searchAST(node->children[i]);
 	}
+}
+
+void fieldSymTable(NODE* node)
+{
+	int length= node->children.size();
+	string type = get_type(node->children[length-3]);
+	if (length==4){
+		NODE* var_dec_node=node->children[length-2];
+		for (auto var_id_child : var_dec_node->children)
+		{
+			string var_id_child_val=var_id_child->val;
+			if (var_id_child_val == "Variable_Declarator_Id")
+			{
+				insert_var_id(var_id_child,type);
+			}
+			else if (var_id_child_val == "=")
+			{
+				NODE* var_dec_id = var_id_child->children[0];
+				insert_var_id(var_dec_id,type);
+			}
+		}
+	}
+	else{
+		NODE* var_id_child=node->children[length-2];
+		string var_id_child_val=var_id_child->val;
+		if (var_id_child_val == "Variable_Declarator_Id")
+		{
+			insert_var_id(var_id_child,type);
+		}
+		else if (var_id_child_val == "=")
+		{
+			NODE* var_dec_id = var_id_child->children[0];
+			insert_var_id(var_dec_id,type);
+		}
+	}
+
 }
 
 void branchMethodSymtable(NODE* declaration_node)
@@ -957,18 +998,7 @@ void ParameterSymtable(NODE* param_node)
 
 	//store the name of the parameter
 	NODE* var_node=param_node->children[length-1];
-	int dim=vardim(var_node);
-	string lexeme= var_node->children[0]->val,token="IDENTIFIER";
-
-	current_ste->type=type;
-	current_ste->lexeme=lexeme;
-	current_ste->dim=dim;
-	current_ste->token=token;	
-	current_ste->lineno=yylineno;
-	ste* new_current_ste= new ste;
-	current_ste->next=new_current_ste;
-	new_current_ste->prev=current_ste;
-	current_ste=new_current_ste;
+	insert_var_id(var_node,type);
 }
 
 void MakeDOTFile(NODE*cell)
