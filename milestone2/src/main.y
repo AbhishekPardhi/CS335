@@ -1035,10 +1035,13 @@ void MakeDOTFile(NODE*cell)
 
 void printToCSV(){
 	ofstream fout;
-	fout.open("output.csv");
-	fout<<"Function name:,Lexeme,Type,Line Number,Token"<<endl;
 
 	for(auto it = tableMap.begin(); it != tableMap.end(); it++){
+		string filename = "./output/Function-" + it->first + ".csv";
+		fout.open(filename);
+		
+		fout<<"Function name:,Lexeme,Type,Line Number,Token"<<endl;
+
 		fout<<it->first<<",,,,"<<endl;
 		ste* current_ste = it->second;
 		while(current_ste->next!=NULL || current_ste->next_scope!=NULL){
@@ -1050,9 +1053,9 @@ void printToCSV(){
 			fout<<","<<current_ste->lexeme<<","<<current_ste->type<<","<<current_ste->lineno<<","<<current_ste->token<<endl;
 			current_ste = current_ste->next;
 		}
-
+		
+		fout.close();
 	}
-	fout.close();
 }
 
 int main(int argc, char* argv[]){
