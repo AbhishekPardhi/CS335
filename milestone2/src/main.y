@@ -1033,7 +1033,27 @@ void MakeDOTFile(NODE*cell)
     }
 }
 
+void printToCSV(){
+	ofstream fout;
+	fout.open("output.csv");
+	fout<<"Function name:,Lexeme,Type,Line Number,Token"<<endl;
 
+	for(auto it = tableMap.begin(); it != tableMap.end(); it++){
+		fout<<it->first<<",,,,"<<endl;
+		ste* current_ste = it->second;
+		while(current_ste->next!=NULL || current_ste->next_scope!=NULL){
+			if(current_ste->type=="branch_head"){
+				current_ste = current_ste->next_scope;
+				continue;
+			}
+
+			fout<<","<<current_ste->lexeme<<","<<current_ste->type<<","<<current_ste->lineno<<","<<current_ste->token<<endl;
+			current_ste = current_ste->next;
+		}
+
+	}
+	fout.close();
+}
 
 int main(int argc, char* argv[]){
 
@@ -1140,6 +1160,6 @@ int main(int argc, char* argv[]){
 	current_ste->prev=start_ste;
 	searchAST(start_node);
 	print_ste(start_ste);
-	
+	printToCSV();
     return 0;
 }

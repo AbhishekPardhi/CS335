@@ -1,0 +1,6 @@
+Function name:,Lexeme,Type,Line Number,Token
+main,,,,
+,args,String[],2,IDENTIFIER
+,a,int,3,IDENTIFIER
+,b,int,6,IDENTIFIER
+,c,char,7,IDENTIFIER
