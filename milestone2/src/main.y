@@ -114,12 +114,10 @@ QualifiedName:
 
 CompilationUnit:
 	PackageDeclaration ImportDeclarations TypeDeclarations	{ $$ = create_node ( 4 ,"Compilation_Unit", $1, $2, $3); }
-|	ImportDeclarations PackageDeclaration TypeDeclarations	{ $$ = create_node ( 4 ,"Compilation_Unit", $1, $2, $3); }
 |	ImportDeclarations TypeDeclarations	{ $$ = create_node ( 3 ,"Compilation_Unit", $1, $2); } 
 |	PackageDeclaration TypeDeclarations	{ $$ = create_node ( 3 ,"Compilation_Unit", $1, $2); } 
 |	TypeDeclarations	{ $$ = $1; }
 |	PackageDeclaration ImportDeclarations 	{ $$ = create_node ( 3 ,"Compilation_Unit", $1, $2); } 
-|	ImportDeclarations PackageDeclaration 	{ $$ = create_node ( 3 ,"Compilation_Unit", $1, $2); }
 |	ImportDeclarations 	{ $$ = $1; }
 |	PackageDeclaration 	{ $$ = $1; }
 |	{$$ = create_node(1,"EMPTY");}
