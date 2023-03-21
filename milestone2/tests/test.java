@@ -5,6 +5,7 @@ class someclass {
             System.out.println("a is 6");
             int b = 1;
             char c='a';
+            int b;
         } else {
             System.out.println("a is not 6");
         }

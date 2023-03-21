@@ -13,9 +13,10 @@
 	int vardim(NODE* );
 	void fieldSymTable(NODE *);
 	string get_type(NODE* );
+	int lineno;
 
     void yyerror(const char *s) {
-        printf("\nError: %s at line %d\n", s, yylineno);
+        printf("Error: %s at line %d\n", s, lineno);
         exit(0);
         return;
     }
@@ -758,18 +759,29 @@ Expression:
 void insert_var_id(NODE * node,string type)
 {
 	string var_name = node->children[0]->val;
+	lineno=node->children[0]->lineno;
 	int dim = vardim(node);
 	ste* new_ste= new ste;
 
-	current_ste->lexeme=var_name;
-	current_ste->type=type;
-	current_ste->dim=dim;
-	current_ste->token="IDENTIFIER";
-	current_ste->lineno=yylineno;
+	if (lookup(current_ste,var_name)==NULL){
+		current_ste->lexeme=var_name;
+		current_ste->type=type;
+		current_ste->dim=dim;
+		current_ste->token="IDENTIFIER";
+		current_ste->lineno=lineno;
 
-	current_ste->next=new_ste;
-	new_ste->prev=current_ste;
-	current_ste=new_ste;
+		current_ste->next=new_ste;
+		new_ste->prev=current_ste;
+		current_ste=new_ste;
+	}
+	else{
+		string e_message= "Variable "+var_name+ " redeclared";
+		char* e_message_ar= new char[e_message.size()+1];
+		strcpy(e_message_ar,e_message.c_str());
+
+		yyerror(e_message_ar);
+		exit(1);
+	}
 
 }
 

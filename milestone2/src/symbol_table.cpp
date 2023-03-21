@@ -33,3 +33,16 @@ void print_ste(ste* cur,int level=0)
     }
 
 }
+
+ste* lookup(ste* node, string lexeme)
+{
+    if (node->type=="global_head")
+        return NULL;
+    if (node->lexeme==lexeme)
+        return node;
+    if (node->prev_scope!=NULL)
+        return lookup(node->prev_scope,lexeme);
+    if (node->prev!=NULL)
+        return lookup(node->prev,lexeme);
+    return NULL;
+}

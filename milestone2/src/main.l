@@ -115,10 +115,12 @@ IDENTIFIERS                     {JAVA_LETTER}{JAVA_LETTER_OR_DIGIT}*
 
 {LITERALS}                  {   
                                 yylval.elem = create_node(1, strdup(yytext));
+                                yylval.elem->lineno=yylineno;
                                 return LITERAL;
                             }
 {KEYWORDS}                  {   
                                 yylval.elem = create_node(1, strdup(yytext));
+                                yylval.elem->lineno=yylineno;
                                 switch(mp[strdup(yytext)])
                                 {
                                     case _CONTINUE:return CONTINUE;
@@ -161,6 +163,7 @@ IDENTIFIERS                     {JAVA_LETTER}{JAVA_LETTER_OR_DIGIT}*
                             }
 {DELIMITERS}                {   
                                 yylval.elem = create_node(1, strdup(yytext));
+                                yylval.elem->lineno=yylineno;
                                 switch(mp[strdup(yytext)])
                                 {
                                     case _LPAREN:return LPAREN;
@@ -176,6 +179,7 @@ IDENTIFIERS                     {JAVA_LETTER}{JAVA_LETTER_OR_DIGIT}*
                             }
 {OPERATORS}                 {   
                                 yylval.elem = create_node(1, strdup(yytext));
+                                yylval.elem->lineno=yylineno;
                                 switch(mp[strdup(yytext)])
                                 {
                                     case _BITWISE_AND:return BITWISE_AND;
@@ -218,6 +222,7 @@ IDENTIFIERS                     {JAVA_LETTER}{JAVA_LETTER_OR_DIGIT}*
                             }
 {IDENTIFIERS}               {   
                                 yylval.elem = create_node(1, strdup(yytext));
+                                yylval.elem->lineno=yylineno;
                                 return IDENTIFIER;
                             }
 .                           {
