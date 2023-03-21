@@ -20,7 +20,7 @@ void print_ste(ste* cur,int level=0)
 {
     for (int i = 0; i < level; i++)
     {
-        cout<<"->";
+        cout<<"-> ";
     }
     cout<<cur->lexeme<<" "<<cur->type<<endl;
     if (cur->next_scope != NULL)

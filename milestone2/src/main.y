@@ -10,6 +10,8 @@
 	void searchAST(NODE *);
 	void branchMethodSymtable(NODE* );
 	void ParameterSymtable(NODE* );
+	int vardim(NODE* );
+	string get_type(NODE* );
 
     void yyerror(const char *s) {
         printf("\nError: %s at line %d\n", s, yylineno);
@@ -227,7 +229,7 @@ VariableDeclarator:
 ;
 
 VariableDeclaratorId:
-	IDENTIFIER	{ $$ = create_node(2,"Varaible_Declarator_Id",$1) ; }
+	IDENTIFIER	{ $$ = create_node(2,"Variable_Declarator_Id",$1) ; }
 |	VariableDeclaratorId LSPAR RSPAR	{ $1->children.push_back($2);$1->children.push_back($3); $$ =$1 ;} 
 ;
 
@@ -752,6 +754,46 @@ Expression:
 
 %%
 
+void insert_var_id(NODE * node,string type)
+{
+	string var_name = node->children[0]->val;
+	int dim = vardim(node);
+	ste* new_ste= new ste;
+
+	current_ste->lexeme=var_name;
+	current_ste->type=type;
+	current_ste->dim=dim;
+	current_ste->token="IDENTIFIER";
+	current_ste->lineno=yylineno;
+
+	current_ste->next=new_ste;
+	new_ste->prev=current_ste;
+	current_ste=new_ste;
+
+}
+
+void insert_variable(NODE * local_var_node)
+{
+	int length = local_var_node->children.size();
+	string type = get_type(local_var_node->children[length-2]);
+
+	NODE* var_dec_node=local_var_node->children[length-1];
+
+	for (auto var_id_child : var_dec_node->children)
+	{
+		string var_id_child_val=var_id_child->val;
+		if (var_id_child_val == "Variable_Declarator_Id")
+		{
+			insert_var_id(var_id_child,type);
+		}
+		else if (var_id_child_val == "=")
+		{
+			NODE* var_dec_id = var_id_child->children[0];
+			insert_var_id(var_dec_id,type);
+		}
+	}
+}
+
 string get_type(NODE* node)
 {
 	string type="";
@@ -780,27 +822,59 @@ void searchAST(NODE* node)
 {
 	if(node == NULL)
 		return;
+	
 	string temp=node->val;
-	if(temp == "MethodDeclaration" || temp =="ConstructorDeclaration")
+
+	if (temp=="{" || temp=="for")
 	{
-		cout<<temp;
 		ste * new_ste = new ste;
-		ste * branch_node = new ste;
+		
+		current_ste->type="branch_head";
 
-		current_ste->next=branch_node;
-		branch_node->prev=current_ste;
-
-		branch.push(branch_node);
-		current_ste=branch_node;
+		branch.push(current_ste);
 
 		current_ste->next_scope=new_ste;
 		new_ste->prev_scope=current_ste;
 
 		current_ste=new_ste;
-		branchMethodSymtable(node);
+	}
+	if (temp=="}")
+	{
 		current_ste=branch.top();
 		branch.pop();
 	}
+	else if(temp == "LocalVariableDeclaration")
+	{
+		insert_variable(node);
+	}
+	else if(temp == "MethodDeclaration" || temp =="ConstructorDeclaration")
+	{
+		// new node for the new branch and the branch header in the previous branch junction
+		ste * new_ste = new ste;
+		current_ste->type="branch_head";
+
+		//save the branch header in the stack to return back to it later
+		branch.push(current_ste);
+
+		current_ste->next_scope=new_ste;
+		new_ste->prev_scope=current_ste;
+
+		// move current scope onto the new scope
+		current_ste=new_ste;
+		branchMethodSymtable(node);
+
+		string child_val=node->children[1]->val;
+		if (child_val!=";")
+		{
+			vector<NODE*> child_nodes=node->children[1]->children;
+			for (int i=1;i<child_nodes.size();i++)
+			{
+				searchAST(child_nodes[i]);
+			}
+		}
+		return;
+	}
+
 	for(int i = 0; i < node->children.size(); i++)
 	{
 		searchAST(node->children[i]);
@@ -886,6 +960,7 @@ void ParameterSymtable(NODE* param_node)
 	current_ste->lexeme=lexeme;
 	current_ste->dim=dim;
 	current_ste->token=token;	
+	current_ste->lineno=yylineno;
 	ste* new_current_ste= new ste;
 	current_ste->next=new_current_ste;
 	new_current_ste->prev=current_ste;
@@ -1013,7 +1088,10 @@ int main(int argc, char* argv[]){
     fout.close();
 
 	/*--------------------------------------------------------------*/
-	start_ste->type="global";
+	start_ste->type="global_head";
+	current_ste= new ste;
+	start_ste->next=current_ste;
+	current_ste->prev=start_ste;
 	searchAST(start_node);
 	print_ste(start_ste);
 	
