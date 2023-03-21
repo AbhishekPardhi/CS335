@@ -15,13 +15,13 @@
     NODE *start_node;
 	fstream fout;
 	extern FILE *yyin;
-	// domain name of symbol table like function name , the correspinding symbol set and attributes
-	vector<pair<string,st>> symbol_tables;
-	stl* st_node= new stl;
-	st global_st;
-	symbol_tables.push_back(<"global",global_st>);
-	st_node= make_st_node("global",&global_st,NULL);
 
+	unordered_map <string, ste*> tableMap;
+
+	ste* start_ste = new ste;		// point of error
+	// start_ste->type="global";
+	
+	ste * current_ste = start_ste;
 %}
 
 %union {
@@ -747,26 +747,55 @@ Expression:
 
 %%
 
-void make_st_method(NODE* node)
+void searchAST(NODE* node)
 {
-	st table;
-	/* make_st_body(node->children[3], table); */
+	if(node == NULL)
+		return;
+	if(node->val == "MethodDeclaration")
+	{
+		ste * new_ste = new ste;
+		current_ste->next_scope=new_ste;
+		new_ste->prev_scope=current_ste;
+		branchMethodSymtable(new_ste,node);
+	}
+	for(int i = 0; i < node->children.size(); i++)
+	{
+		searchAST(node->children[i]);
+	}
+}
+
+void branchMethodSymtable(ste* branch_head,NODE* declaration_node)
+{
+
+	NODE* header_node=declaration_node->children[0];
+	for (auto node : header_node->children)
+	{
+		if(node->val == "MethodDeclarator")
+		{
+			NODE* identifier_node=node->children[0];
+			// add map entry for the function
+			tableMap[to_string(identifier_node->val)]=branch_head;
+		}
+		if (node->val == "Formal_Parameter_List")
+		{
+			for (auto param_node : node->children)
+			{
+				if (param_node->val=="FormalParameter")
+				{
+					ParameterSymtable(branch_head,param_node);
+				}
+			}
+		}
+	}
 
 }
 
-void make_st(NODE* node)
+void ParameterSymtable(ste* branch_head,NODE* node)
 {
-	if (node == NULL)
-		return;
-	else if (node->val=="MethodDeclaration")
-	{
-		make_st_method(node);
-	}
-	/* for (int i = 0; i < node->children.size(); i++)
-	{
-		make_st(node->children[i]);
-	} */
-	return;
+	int length=param_node->children.size();
+	string type=param_node->children[length-2]->val;
+	NODE* var_node=param_node->children[length-1];
+	
 }
 
 void MakeDOTFile(NODE*cell)
@@ -789,16 +818,7 @@ void MakeDOTFile(NODE*cell)
     }
 }
 
-//print out the table 
-void printTable()
-{
-	for (auto table: symbol_tables)
-	{
-		cout << "Symbol Table :\t" << table.first << endl;
-		print_symbol_table(table.ssecond);
-		cout << endl;
-	}
-}
+
 
 int main(int argc, char* argv[]){
 
@@ -897,12 +917,7 @@ int main(int argc, char* argv[]){
     fout.close();
 
 	/*--------------------------------------------------------------*/
-	// make the symbol table from start node
-	make_st(start_node);
-	// Printing the symbol table
-	fout.open("symbol_table.txt",ios::out);
-	printTable();
-	fout.close();
+
 	
     return 0;
 }

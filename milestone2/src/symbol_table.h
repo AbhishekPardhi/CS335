@@ -1,15 +1,10 @@
-#include<vector>
+#include<bits/stdc++.h>
 using namespace std;
-typedef struct symbol_table{
-    vector<char*> token;
-    vector<char*> lexeme;
-    vector<char*> type;
-    vector<int> line_num;
-    struct symbol_table* prev;
-} st ;
-
-typedef struct st_list{
-    string label;
-    st* node;
-    struct st_list* prev;
-} stl ;
+typedef struct symbol_table_entry{
+    string token, lexeme, type;
+    int lineno,dim;
+    struct symbol_table_entry* next;
+    struct symbol_table_entry* prev;
+    struct symbol_table_entry* next_scope;
+    struct symbol_table_entry* prev_scope;    
+} ste ;

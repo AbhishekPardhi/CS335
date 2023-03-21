@@ -1,24 +1,17 @@
 #include "symbol_table.h"
-#include <stdio.h>
-using namespace std;
 
-void insert_symbol(st table,char* token, char* lexeme, char* type, int line_num){
-    table.token.push_back(token);
-    table.lexeme.push_back(lexeme);
-    table.type.push_back(type);
-    table.line_num.push_back(line_num);
-}
+void insert_entry(ste* cur,string token,string lexeme,string type,int lineno,int dim)
+{
+    ste* new_entry = new ste;
+    new_entry->token = token;
+    new_entry->lexeme = lexeme;
+    new_entry->type = type;
+    new_entry->lineno = lineno;
+    new_entry->dim = dim;
+    new_entry->next = NULL;
+    new_entry->prev = cur;
+    new_entry->next_scope = NULL;
+    new_entry->prev_scope = NULL;
+    ;
 
-void print_symbol_table(st table){
-    for(int i=0;i<table.token.size();i++){
-        printf("%s\t%s\t%s\t%d\n",table.token[i],table.lexeme[i],table.type[i],table.line_num[i]);
-    }
-}
-
-stl* make_st_node(string label, st* node, stl* prev){
-    stl* new_node = new stl;
-    new_node->label = label;
-    new_node->node = node;
-    new_node->prev = prev;
-    return new_node;
 }
