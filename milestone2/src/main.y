@@ -107,7 +107,7 @@ Name:
 ;
 
 SimpleName:
-	IDENTIFIER	{ $$ = $1; }
+	IDENTIFIER	{ $$ = $1;  }
 ;
 
 QualifiedName:
@@ -231,7 +231,7 @@ VariableDeclarator:
 ;
 
 VariableDeclaratorId:
-	IDENTIFIER	{ $$ = create_node(2,"Variable_Declarator_Id",$1) ; }
+	IDENTIFIER	{ $$ = create_node(2,"Variable_Declarator_Id",$1) ;  $1->isvar=1;}
 |	VariableDeclaratorId LSPAR RSPAR	{ $1->children.push_back($2);$1->children.push_back($3); $$ =$1 ;} 
 ;
 
@@ -855,7 +855,7 @@ void searchAST(NODE* node)
 
 		current_ste=new_ste;
 	}
-	if(temp=="ForStatementNoShortIf" || temp=="ForStatement"){
+	else if(temp=="ForStatementNoShortIf" || temp=="ForStatement"){
 		int flag=0;
 		for ( auto  for_statement_child : node->children)
 		{	
@@ -868,7 +868,7 @@ void searchAST(NODE* node)
 
 		if(flag==2) forFlag=1;
 	}
-	if (temp=="}")
+	else if (temp=="}")
 	{
 		current_ste=branch.top();
 		branch.pop();
@@ -911,6 +911,22 @@ void searchAST(NODE* node)
 			}
 		}
 		return;
+	}
+	else if(node->isvar)
+	{
+		cout<<node->val;
+		string var_name=node->val;
+		ste* temp_ste=lookup(current_ste,var_name);
+		lineno=node->lineno;
+		if (temp_ste==NULL)
+		{
+			string e_message= "Variable "+var_name+ " not declared";
+			char* e_message_ar= new char[e_message.size()+1];
+			strcpy(e_message_ar,e_message.c_str());
+
+			yyerror(e_message_ar);
+			exit(1);
+		}
 	}
 
 	for(int i = 0; i < node->children.size(); i++)

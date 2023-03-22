@@ -7,6 +7,7 @@ using namespace std;
 typedef struct node{
     int id;
     int lineno;
+    bool isvar;
     char* val;
     vector<struct node*> children;
 }NODE;
