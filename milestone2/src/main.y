@@ -33,6 +33,7 @@
 	stack<ste*> branch;
 
 	int forFlag = 0;
+	vector<string> ass_op={"=","*=","/=","%=","+=","-=","<<=",">>=",">>>=","&=","^=","|=",">","<","==","<=",">="};
 %}
 
 %union {
@@ -756,6 +757,7 @@ Expression:
 
 %%
 
+
 void insert_var_id(NODE * node,string type)
 {
 	string var_name = node->children[0]->val;
@@ -960,8 +962,31 @@ string handle_expression(NODE* node)
 	if (child_val=="MethodInvocation")
 		return handle_function(node);
 	
-	
+	node->type=handle_expression(node->chilren[0]);
+	for (int i=1;i<node->children.size();i++)
+	{
+		string child_type= handle_expression(node->children[i]);
+		string result_type= typecast(child_type,node->type);
+		if (result_type=="Error")
+		{
+			string var_name=node->val;
+			string e_message= "Type mismatch for operands of tpye " + child_type +" and " +node->type+ " ";
+			lineno=node->lineno;
+			char* e_message_ar= new char[e_message.size()+1];
+			strcpy(e_message_ar,e_message.c_str());
 
+			yyerror(e_message_ar);
+			exit(1);
+		}
+	}
+	return node->type;
+}
+
+string typecast(string typ1,string typ2)
+{
+	if (tpy1==typ2)
+	return typ1;
+	return "Error";
 }
 
 
