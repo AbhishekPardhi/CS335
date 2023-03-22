@@ -17,6 +17,8 @@
 	string handle_function(NODE*);
 	string get_type(NODE* );
 	char * str_to_ch(string s);
+	string get_invocation_name(NODE* );
+
 	int lineno;
 	string cur_class;
 
