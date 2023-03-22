@@ -3,7 +3,6 @@ class someclass {
         int a = 1 + 2 + 3;
         a=5;
         if (a == 6) {
-            System.out.println("a is 6");
             int b = 1;
             char c='a';
             d=4;

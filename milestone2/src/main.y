@@ -18,8 +18,15 @@
 	string get_type(NODE* );
 	int lineno;
 
+	void yerror(string s)
+	{
+		cout<<s<<" at line number "<<lineno<<endl;
+		exit(1);
+	}
+
+
     void yyerror(const char *s) {
-        printf("Error: %s at line %d\n", s, lineno);
+        printf("Error: %s at line %d\n", s, yylineno);
         exit(0);
         return;
     }
@@ -780,12 +787,9 @@ void insert_var_id(NODE * node,string type)
 		current_ste=new_ste;
 	}
 	else{
-		string e_message= "Variable "+var_name+ " redeclared";
-		char* e_message_ar= new char[e_message.size()+1];
-		strcpy(e_message_ar,e_message.c_str());
+		string e_message= "Error: Variable "+var_name+ " redeclared";
+		yerror(e_message);
 
-		yyerror(e_message_ar);
-		exit(1);
 	}
 
 }
@@ -965,11 +969,8 @@ string handle_function(NODE* node){
 
 		if (lookup_ste==NULL)
 		{
-			string e_message= "Method " + name + " not declared before use ";
-			char* e_message_ar= new char[e_message.size()+1];
-			strcpy(e_message_ar,e_message.c_str());
-
-			yyerror(e_message_ar);
+			string e_message= "Error : Method " + name + " not declared before use ";
+			yerror(e_message);
 			exit(1);
 		}
 		else
@@ -986,11 +987,8 @@ string handle_function(NODE* node){
 
 		if (lookup_ste==NULL)
 		{	
-			string e_message= "Class " + name + " not declared before use ";
-			char* e_message_ar= new char[e_message.size()+1];
-			strcpy(e_message_ar,e_message.c_str());
-
-			yyerror(e_message_ar);
+			string e_message= "Error : Class " + name + " not declared before use ";
+			yerror(e_message);
 			exit(1);
 		}
 		else
@@ -1018,17 +1016,15 @@ string handle_expression(NODE* node)
 			if (lookup_ste==NULL)
 			{
 				string var_name=node->val;
-				string e_message= "Variable " + var_name + " not declared before use ";
+				string e_message= "Error : Variable " + var_name + " not declared before use ";
 				lineno=node->lineno;
-				char* e_message_ar= new char[e_message.size()+1];
-				strcpy(e_message_ar,e_message.c_str());
+				yerror(e_message);
+			}
 
-				yyerror(e_message_ar);
-				exit(1);
-			}	
 			return lookup_ste->type;		
 		}
-		return node_type;
+		/* return node_type; */
+		return "Sex";
 	}
 	string child_val=node->val;
 	if (child_val=="MethodInvocation")
@@ -1047,13 +1043,9 @@ string handle_expression(NODE* node)
 		if (result_type=="Error")
 		{
 			string var_name=node->val;
-			string e_message= "Type mismatch for operands of tpye " + child_type +" and " +node_type+ " ";
+			string e_message= "Error : Type mismatch for operands of tpye " + child_type +" and " +node_type+ " ";
 			lineno=node->lineno;
-			char* e_message_ar= new char[e_message.size()+1];
-			strcpy(e_message_ar,e_message.c_str());
-
-			yyerror(e_message_ar);
-			exit(1);
+			yerror(e_message);
 		}
 		char* result_chr = new char[result_type.size()+1];
 		strcpy(result_chr,result_type.c_str());
