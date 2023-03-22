@@ -1,3 +1,4 @@
--> Interface
--> Declared before use
--> type checking
+->functions with classname
+->class instance creations
+->fielddeclarations
+->typecasting
