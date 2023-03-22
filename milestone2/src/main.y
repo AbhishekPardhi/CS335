@@ -235,7 +235,7 @@ VariableDeclarator:
 ;
 
 VariableDeclaratorId:
-	IDENTIFIER	{ $$ = create_node(2,"Variable_Declarator_Id",$1) ;  $1->isvar=1;}
+	IDENTIFIER	{ $$ = create_node(2,"Variable_Declarator_Id",$1) ;}
 |	VariableDeclaratorId LSPAR RSPAR	{ $1->children.push_back($2);$1->children.push_back($3); $$ =$1 ;} 
 ;
 
@@ -1006,8 +1006,10 @@ string handle_function(NODE* node){
 string handle_expression(NODE* node)
 {
 	if (node->children.size()==0)
-	{
-		if (node->type=="")
+	{	
+		string node_type=node->type;
+		cout<<node_type<<endl;
+		if (node_type=="")
 		{
 			//case the leaf is not a literal
 			string node_val=node->val;
@@ -1026,11 +1028,7 @@ string handle_expression(NODE* node)
 			}	
 			return lookup_ste->type;		
 		}
-		else
-		{
-			/* return node->type; */
-			return "sex";
-		}
+		return node_type;
 	}
 	string child_val=node->val;
 	if (child_val=="MethodInvocation")
@@ -1044,11 +1042,12 @@ string handle_expression(NODE* node)
 	for (int i=1;i<node->children.size();i++)
 	{
 		string child_type= handle_expression(node->children[i]);
-		string result_type= typecast(child_type,node->type);
+		string node_type=node->type;
+		string result_type= typecast(child_type,node_type);
 		if (result_type=="Error")
 		{
 			string var_name=node->val;
-			string e_message= "Type mismatch for operands of tpye " + child_type +" and " +node->type+ " ";
+			string e_message= "Type mismatch for operands of tpye " + child_type +" and " +node_type+ " ";
 			lineno=node->lineno;
 			char* e_message_ar= new char[e_message.size()+1];
 			strcpy(e_message_ar,e_message.c_str());
@@ -1060,7 +1059,9 @@ string handle_expression(NODE* node)
 		strcpy(result_chr,result_type.c_str());
 		node->type=result_chr;
 	}
-	return node->type;
+
+	string node_type=node->type;
+	return node_type;
 }
 
 string typecast(string typ1,string typ2)
