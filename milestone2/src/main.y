@@ -16,6 +16,7 @@
 	string handle_expression(NODE*);
 	string handle_function(NODE*);
 	string get_type(NODE* );
+	char * str_to_ch(string s);
 	int lineno;
 
 	void yerror(string s)
@@ -27,8 +28,7 @@
 
     void yyerror(const char *s) {
         printf("Error: %s at line %d\n", s, yylineno);
-        exit(0);
-        return;
+        exit(1);
     }
     NODE *start_node;
 	fstream fout;
@@ -562,13 +562,13 @@ Primary:
 ;
 
 PrimaryNoNewArray:
-	NULL_LITERAL	{ $$ = $1; }
-|	CHAR_LITERAL	{ $$ = $1; }
-|	FLOAT_LITERAL	{ $$ = $1; }
-|	INTEGER_LITERAL	{ $$ = $1; }
-|	BOOLEAN_LITERAL	{ $$ = $1; }
-|	STRING_LITERAL	{ $$ = $1; }
-|	TEXTBLOCK_LITERAL	{ $$ = $1; }
+	NULL_LITERAL	{ $$ = $1; $1->type=str_to_ch("null");}
+|	CHAR_LITERAL	{ $$ = $1; $1->type=str_to_ch("char");}
+|	FLOAT_LITERAL	{ $$ = $1; $1->type=str_to_ch("float");}
+|	INTEGER_LITERAL	{ $$ = $1; $$->type=str_to_ch("int");}
+|	BOOLEAN_LITERAL	{ $$ = $1; $1->type=str_to_ch("boolean");}
+|	STRING_LITERAL	{ $$ = $1; $1->type=str_to_ch("string");}
+|	TEXTBLOCK_LITERAL	{ $$ = $1; $1->type=str_to_ch("text_block");}
 |	THIS	{ $$ = $1; }
 |	LPAREN Expression RPAREN	{ $$ = create_node ( 4 ,"PrimaryNoNewArray", $1, $2, $3); } 
 |	ClassInstanceCreationExpression	{ $$ = $1; }
@@ -935,8 +935,8 @@ void searchAST(NODE* node)
 		{	
 			handle_function(node->children[0]);
 		}
-		/* else
-			handle_expression(node->children[0]); */
+		else
+			handle_expression(node->children[0]);
 	}
 
 	for(int i = 0; i < node->children.size(); i++)
@@ -1012,7 +1012,6 @@ string handle_expression(NODE* node)
 	if (node->children.size()==0)
 	{	
 		string node_type=node->type;
-		cout<<node_type<<endl;
 		if (node_type=="")
 		{
 			//case the leaf is not a literal
@@ -1029,17 +1028,14 @@ string handle_expression(NODE* node)
 
 			return lookup_ste->type;		
 		}
-		/* return node_type; */
-		return "Sex";
+		return node_type;
 	}
 	string child_val=node->val;
 	if (child_val=="MethodInvocation")
 		return handle_function(node);
-	
-	string type_str = handle_expression(node->children[0]);
-	char * type = new char[type_str.length() + 1];
-	strcpy(type, type_str.c_str()); 
-	node->type=type;
+
+
+	node->type=str_to_ch(handle_expression(node->children[0]));
 
 	for (int i=1;i<node->children.size();i++)
 	{
@@ -1049,7 +1045,7 @@ string handle_expression(NODE* node)
 		if (result_type=="Error")
 		{
 			string var_name=node->val;
-			string e_message= "Error : Type mismatch for operands of tpye " + child_type +" and " +node_type+ " ";
+			string e_message= "Error : Type mismatch for operands of type " + child_type +" and " +node_type+ " ";
 			lineno=node->lineno;
 			yerror(e_message);
 		}
@@ -1104,6 +1100,13 @@ void fieldSymTable(NODE* node)
 		}
 	}
 
+}
+
+char* str_to_ch(string s)
+{
+	char* result_chr = new char[s.size()+1];
+	strcpy(result_chr,s.c_str());
+	return result_chr;
 }
 
 void branchMethodSymtable(NODE* declaration_node)
