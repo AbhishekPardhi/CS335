@@ -922,11 +922,12 @@ void searchAST(NODE* node)
 	{
 		string left_child_val=node->children[0]->val;
 		if (left_child_val=="MethodInvocation" || left_child_val== "ClassInstanceCreationExpression")
-		{
+		{	
+			cout<<"IN here :"<<endl;
 			handle_function(node->children[0]);
 		}
-		else
-			handle_expression(node->children[0]);
+		/* else
+			handle_expression(node->children[0]); */
 	}
 
 	for(int i = 0; i < node->children.size(); i++)
@@ -935,10 +936,74 @@ void searchAST(NODE* node)
 	}
 }
 
-string handle_function(NODE* node){
-	string type="";
+string get_invocation_name(NODE* node){
+	string name="";
+	if (node->children.size()==0)
+	{
+		string node_val=node->val;
+		lineno=node->lineno;
+		if(node_val=="(") return "";
+		return node_val;
+	}
+	else
+	{
+		for (auto child : node->children)
+		{	
+			string child_name = get_invocation_name(child);
+			if (child_name=="") break;
+			name = name + get_invocation_name(child);
+		}
+	}
+	return name;
+}
 
-	return type;
+string handle_function(NODE* node){
+
+	string node_val = node->val;
+	if(node_val == "MethodInvocation"){
+		string name = get_invocation_name(node);
+		ste* lookup_ste=lookup(current_ste,name);
+
+		if (lookup_ste==NULL)
+		{
+			string e_message= "Method " + name + " not declared before use ";
+			char* e_message_ar= new char[e_message.size()+1];
+			strcpy(e_message_ar,e_message.c_str());
+
+			yyerror(e_message_ar);
+			exit(1);
+		}
+		else
+		{
+			string type=lookup_ste->type;
+			return type;
+		}
+	}
+	
+	if(node_val=="ClassInstanceCreationExpression"){
+		string name = get_invocation_name(node->children[1]);
+		cout<<name<<endl;
+		ste* lookup_ste=lookup(current_ste,name);
+
+		if (lookup_ste==NULL)
+		{	
+			cout<<"Not found"<<endl;
+			string e_message= "Class " + name + " not declared before use ";
+			char* e_message_ar= new char[e_message.size()+1];
+			strcpy(e_message_ar,e_message.c_str());
+
+			yyerror(e_message_ar);
+			exit(1);
+		}
+		else
+		{	
+			cout<<"Found"<<endl;
+			string type=name;
+			return type;
+		}
+	}
+
+	return "";
 }
 
 string handle_expression(NODE* node)
