@@ -1,5 +1,5 @@
 compile: main.y main.l
-		mkdir output
+		[ ! -f output ] && mkdir output || true
 		bison -t -d -v main.y
 		flex main.l
 		g++ main.tab.c lex.yy.c -o main
