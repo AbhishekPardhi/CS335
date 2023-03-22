@@ -44,7 +44,7 @@
 	stack<ste*> branch;
 
 	int forFlag = 0;
-	vector<string> ass_op={"=","*=","/=","%=","+=","-=","<<=",">>=",">>>=","&=","^=","|=",">","<","==","<=",">="};
+	unordered_map <string,stme*> classMap;	
 %}
 
 %union {
@@ -775,10 +775,11 @@ Expression:
 %%
 
 
-void insert_var_id(NODE * node,string type)
+ste* insert_var_id(NODE * node,string type)
 {
 	string var_name = node->children[0]->val;
 	lineno=node->children[0]->lineno;
+	ste* return_ste;
 	int dim = vardim(node);
 	ste* new_ste= new ste;
 
@@ -788,7 +789,7 @@ void insert_var_id(NODE * node,string type)
 		current_ste->dim=dim;
 		current_ste->token="IDENTIFIER";
 		current_ste->lineno=lineno;
-
+		return_ste=current_ste;
 		current_ste->next=new_ste;
 		new_ste->prev=current_ste;
 		current_ste=new_ste;
@@ -798,7 +799,7 @@ void insert_var_id(NODE * node,string type)
 		yerror(e_message);
 
 	}
-
+	return return_ste;
 }
 
 void insert_variable(NODE * local_var_node)
@@ -957,8 +958,11 @@ void searchAST(NODE* node)
 
 	for(int i = 0; i < node->children.size(); i++)
 	{
-		if (node->children[i]->val=="class")
+		string child_node_val=node->children[i]->val;
+		if (child_node_val=="class"){
 			cur_class=node->children[i+1]->val;
+			classMap[cur_class]= new stme;
+		}
 		searchAST(node->children[i]);
 	}
 }
@@ -990,65 +994,90 @@ string handle_function(NODE* node){
 	if(node_val == "MethodInvocation"){
 		string name = get_invocation_name(node);
 
-		if (tableMap.find(name)==tableMap.end())
+		string class_scope;
+		int dot_index=name.find(".");
+		if (dot_index!=-1)
 		{
-			string e_message= "Error : Method " + name + " not declared before use ";
-			yerror(e_message);
+			ste* lookup_ste=lookup(current_ste,name.substr(0,dot_index));
+			if (lookup_ste!=NULL)
+				class_scope=lookup_ste->type;
+			else
+			{
+				string error_mesaage="Error : variable "+name.substr(0,dot_index)+" is not defined";
+			}
+			name=name.substr(dot_index+1);
 		}
 		else
-		{	
-			string type=tableMap[name]->return_type;
-			int num_params=tableMap[name]->num_params;
+		{
+			class_scope=cur_class;
+		}
 
-			int arg_flag=0;
-				
-			for(auto node_child: node->children){
-				string node_child_val = node_child->val;
+		//find name in classMap
+		stme* class_head=classMap[class_scope];
+		while (class_head!=NULL)
+		{
+			if (class_head->id==name)
+			{
+				string type=tableMap[name]->return_type;
+				int num_params=tableMap[name]->num_params;
 
-				if(node_child_val=="Argument_List"){
+				int arg_flag=0;
+					
+				for(auto node_child: node->children){
+					string node_child_val = node_child->val;
 
-					vector < string > types;
-					arg_flag=1;
-					for(auto node_child_child: node_child->children){
+					if(node_child_val=="Argument_List"){
 
-						string node_child_child_val = node_child_child->val;
-						if(node_child_child_val==",") continue;
+						vector < string > types;
+						arg_flag=1;
+						for(auto node_child_child: node_child->children){
 
-						string arg_type=handle_expression(node_child_child);
-						types.push_back(arg_type);
-					}
+							string node_child_child_val = node_child_child->val;
+							if(node_child_child_val==",") continue;
 
-					if(types.size()!=num_params){
-						string e_message= "Error : Method " + name + " called with wrong number of arguments ";
-						yerror(e_message);
-					}
-					else{
+							string arg_type=handle_expression(node_child_child);
+							types.push_back(arg_type);
+						}
 
-						ste* entry_ste=tableMap[name]->entry;
+						if(types.size()!=num_params){
+							string e_message= "Error : Method " + name + " called with wrong number of arguments ";
+							yerror(e_message);
+						}
+						else{
 
-						for(int i=0;i<num_params;i++){
-							if(types[i]!=entry_ste->type){
-								string e_message= "Error : Method " + name + " called with wrong type of arguments ";
-								yerror(e_message);
+							ste* entry_ste=tableMap[name]->entry;
+
+							for(int i=0;i<num_params;i++){
+								if(types[i]!=entry_ste->type){
+									string e_message= "Error : Method " + name + " called with wrong type of arguments ";
+									yerror(e_message);
+								}
 							}
 						}
 					}
+
 				}
 
-			}
+				if(arg_flag==0 && num_params!=0){
+					string e_message= "Error : Method " + name + " called with wrong number of arguments ";
+					yerror(e_message);
+				}
+				return type;
 
-			if(arg_flag==0 && num_params!=0){
-				string e_message= "Error : Method " + name + " called with wrong number of arguments ";
-				yerror(e_message);
 			}
-			return type;
+			class_head=class_head->next;
 		}
+
+
+		string e_message= "Error : Method " + name + " not declared before use ";
+		yerror(e_message);
+
 	}
 	
 	if(node_val=="ClassInstanceCreationExpression"){
 		string name = get_invocation_name(node->children[1]);
-		cout<<name<<endl;
 		ste* lookup_ste=lookup(current_ste,name);
+		cout<<"nooooooo";
 
 		if (lookup_ste==NULL)
 		{	
@@ -1133,12 +1162,25 @@ void fieldSymTable(NODE* node)
 			string var_id_child_val=var_id_child->val;
 			if (var_id_child_val == "Variable_Declarator_Id")
 			{
-				insert_var_id(var_id_child,type);
+				ste* entry=insert_var_id(var_id_child,type);
+				stme* field_entry=new stme;
+				field_entry->num_params=-1;
+				field_entry->entry=entry;
+				field_entry->next=classMap[cur_class];
+				classMap[cur_class]=field_entry;
+				classMap[cur_class]->id=entry->lexeme;
+				
 			}
 			else if (var_id_child_val == "=")
 			{
 				NODE* var_dec_id = var_id_child->children[0];
-				insert_var_id(var_dec_id,type);
+				ste* entry=insert_var_id(var_dec_id,type);
+				stme* field_entry=new stme;
+				field_entry->num_params=-1;
+				field_entry->entry=entry;
+				field_entry->next=classMap[cur_class];
+				classMap[cur_class]=field_entry;
+				classMap[cur_class]->id=entry->lexeme;
 			}
 		}
 	}
@@ -1147,12 +1189,24 @@ void fieldSymTable(NODE* node)
 		string var_id_child_val=var_id_child->val;
 		if (var_id_child_val == "Variable_Declarator_Id")
 		{
-			insert_var_id(var_id_child,type);
+			ste* entry=insert_var_id(var_id_child,type);
+			stme* field_entry=new stme;
+			field_entry->num_params=-1;
+			field_entry->entry=entry;
+			field_entry->next=classMap[cur_class];
+			classMap[cur_class]=field_entry;
+			classMap[cur_class]->id=entry->lexeme;
 		}
 		else if (var_id_child_val == "=")
 		{
 			NODE* var_dec_id = var_id_child->children[0];
-			insert_var_id(var_dec_id,type);
+			ste* entry=insert_var_id(var_dec_id,type);
+			stme* field_entry=new stme;
+			field_entry->num_params=-1;
+			field_entry->entry=entry;
+			field_entry->next=classMap[cur_class];
+			classMap[cur_class]=field_entry;
+			classMap[cur_class]->id=entry->lexeme;
 		}
 	}
 
@@ -1184,6 +1238,10 @@ void branchMethodSymtable(NODE* declaration_node)
 				table_entry->num_params=0;
 
 				tableMap[id_node_val]=table_entry;
+				table_entry->next=classMap[cur_class];
+				classMap[cur_class]=table_entry;
+				classMap[cur_class]->id=id_node_val;
+				
 
 				for (auto child_node : decl_child_node->children)
 				{
@@ -1243,6 +1301,9 @@ void branchMethodSymtable(NODE* declaration_node)
 			table_entry->num_params=0;
 
 			tableMap[id_node_val]=table_entry;
+			table_entry->next=classMap[cur_class];
+			classMap[cur_class]=table_entry;
+			classMap[cur_class]->id=id_node_val;
 		
 			for (auto child_node : node->children)
 			{

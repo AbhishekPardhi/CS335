@@ -13,6 +13,7 @@ typedef struct symbol_table_entry{
 
 typedef struct symbol_table_map_entry {
     ste* entry;
-    string return_type;
+    string return_type,id;
     int num_params;
+    struct symbol_table_map_entry * next;
 } stme;
