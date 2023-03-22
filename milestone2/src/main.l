@@ -152,7 +152,7 @@ IDENTIFIERS                     {JAVA_LETTER}{JAVA_LETTER_OR_DIGIT}*
                                 yylval.elem = create_node(1, strdup(yytext));
                                 yylval.elem->lineno=yylineno;
 
-                                return TEXT_BLOCK_LITERAL;
+                                return TEXTBLOCK_LITERAL;
                             }
 {KEYWORDS}                  {   
                                 yylval.elem = create_node(1, strdup(yytext));
