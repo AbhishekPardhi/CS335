@@ -113,9 +113,74 @@ IDENTIFIERS                     {JAVA_LETTER}{JAVA_LETTER_OR_DIGIT}*
 <comment>{COMMENT_INTER2}   {;}
 <comment>{COMMENT_END}      BEGIN(INITIAL);
 
-{LITERALS}                  {   
+{NULL_LITERAL}                  {   
                                 yylval.elem = create_node(1, strdup(yytext));
                                 yylval.elem->lineno=yylineno;
+                                
+                                string type_str = "null";
+                                char * type = new char[type_str.length() + 1];
+                                strcpy(type, type_str.c_str());
+                                yylval.elem->type = type;
+                                return LITERAL;
+                            }
+{CHAR_LITERAL}              {   
+                                yylval.elem = create_node(1, strdup(yytext));
+                                yylval.elem->lineno=yylineno;
+
+                                string type_str = "char";
+                                char * type = new char[type_str.length() + 1];
+                                strcpy(type, type_str.c_str());
+                                yylval.elem->type = type;
+                                return LITERAL;
+                            }
+{BOOLEAN_LITERAL}              {   
+                                yylval.elem = create_node(1, strdup(yytext));
+                                yylval.elem->lineno=yylineno;
+
+                                string type_str = "boolean";
+                                char * type = new char[type_str.length() + 1];
+                                strcpy(type, type_str.c_str());
+                                yylval.elem->type = type;
+                                return LITERAL;
+                            }
+{INTEGER_LITERAL}              {   
+                                yylval.elem = create_node(1, strdup(yytext));
+                                yylval.elem->lineno=yylineno;
+
+                                string type_str = "int";
+                                char * type = new char[type_str.length() + 1];
+                                strcpy(type, type_str.c_str());
+                                yylval.elem->type = type;
+                                return LITERAL;
+                            }
+{FLOAT_LITERAL}              {   
+                                yylval.elem = create_node(1, strdup(yytext));
+                                yylval.elem->lineno=yylineno;
+
+                                string type_str = "float";
+                                char * type = new char[type_str.length() + 1];
+                                strcpy(type, type_str.c_str());
+                                yylval.elem->type = type;
+                                return LITERAL;
+                            }
+{STRINGS_LITERAL}           {   
+                                yylval.elem = create_node(1, strdup(yytext));
+                                yylval.elem->lineno=yylineno;
+
+                                string type_str = "string";
+                                char * type = new char[type_str.length() + 1];
+                                strcpy(type, type_str.c_str());
+                                yylval.elem->type = type;
+                                return LITERAL;
+                            }
+{TEXT_BLOCK_LITERAL}        {   
+                                yylval.elem = create_node(1, strdup(yytext));
+                                yylval.elem->lineno=yylineno;
+
+                                string type_str = "textblock";
+                                char * type = new char[type_str.length() + 1];
+                                strcpy(type, type_str.c_str());
+                                yylval.elem->type = type;
                                 return LITERAL;
                             }
 {KEYWORDS}                  {   

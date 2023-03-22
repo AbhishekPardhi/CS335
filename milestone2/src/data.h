@@ -1,7 +1,7 @@
 #ifndef NODE_H
 #define NODE_H
 
-#include <vector>
+#include <bits/stdc++.h>
 using namespace std;
 
 typedef struct node{
@@ -9,6 +9,7 @@ typedef struct node{
     int lineno;
     bool isvar;
     char* val;
+    char* type;
     vector<struct node*> children;
 }NODE;
 
