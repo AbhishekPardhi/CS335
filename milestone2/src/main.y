@@ -1011,6 +1011,7 @@ string handle_expression(NODE* node)
 {
 	if (node->children.size()==0)
 	{	
+		lineno=node->lineno;
 		string node_type=node->type;
 		if (node_type=="")
 		{
@@ -1045,13 +1046,10 @@ string handle_expression(NODE* node)
 		if (result_type=="Error")
 		{
 			string var_name=node->val;
-			string e_message= "Error : Type mismatch for operands of type " + child_type +" and " +node_type+ " ";
-			lineno=node->lineno;
+			string e_message= "Error : Type mismatch for operator \'"+ var_name+ "\' with operands of type " + child_type +" and " +node_type;
 			yerror(e_message);
 		}
-		char* result_chr = new char[result_type.size()+1];
-		strcpy(result_chr,result_type.c_str());
-		node->type=result_chr;
+		node->type=str_to_ch(result_type);
 	}
 
 	string node_type=node->type;
