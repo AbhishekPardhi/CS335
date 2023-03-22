@@ -2,6 +2,7 @@
     /* Declaration */
     #include <bits/stdc++.h>
     #include "data.h"
+	// #include "instructions.h"
 	#include "symbol_table.cpp"
     // #include "data.cpp"
     using namespace std;
@@ -16,7 +17,15 @@
 	string handle_expression(NODE*);
 	string handle_function(NODE*);
 	string get_type(NODE* );
+	char* str_to_ch(string s);
+	vector<int> makelist(int i);
+	vector<int> merge(vector<int> p1,vector<int> p2);
+	void backpatch(vector<int> p,int i);
+	vector<string> instructions;
+	void create_ins(string s);
 	int lineno;
+	int tempCount;
+	int instCount;
 
     void yyerror(const char *s) {
         printf("Error: %s at line %d\n", s, lineno);
@@ -25,6 +34,7 @@
     }
     NODE *start_node;
 	fstream fout;
+	fstream code_out;
 	extern FILE *yyin;
 
 	unordered_map <string, stme*> tableMap;
@@ -111,7 +121,7 @@ Name:
 ;
 
 SimpleName:
-	IDENTIFIER	{ $$ = $1;  }
+	IDENTIFIER	{ $$ = $1; $$->addr = $$->val; }
 ;
 
 QualifiedName:
@@ -555,7 +565,7 @@ Primary:
 ;
 
 PrimaryNoNewArray:
-	LITERAL	{ $$ = $1; }
+	LITERAL	{ $$ = $1; $$->addr = $$->val; }
 |	THIS	{ $$ = $1; }
 |	LPAREN Expression RPAREN	{ $$ = create_node ( 4 ,"PrimaryNoNewArray", $1, $2, $3); } 
 |	ClassInstanceCreationExpression	{ $$ = $1; }
@@ -682,7 +692,20 @@ ShiftExpression:
 
 RelationalExpression:
 	ShiftExpression	{ $$ = $1; }
-|	RelationalExpression LT ShiftExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
+|	RelationalExpression LT ShiftExpression	{
+												$$ = create_node ( 3 ,$2->val, $1, $3); 
+												// $$->ins = instCount;
+												// $$->code.push_back(create_instruction($1->code+$3->code+"if"+string($1->addr)+"<"+string($3->addr)+"goto "));
+												// $$->code.push_back(create_instruction(goto ));
+												// $$->truelist = makelist($$->code[0]);
+												// $$->falselist = makelist($$->code[1]);
+
+												$$->ins = instCount+1;
+												$$->truelist = makelist(instCount+1);
+												$$->falselist = makelist(instCount+2);
+												create_ins("if "+string($1->addr)+" < "+string($3->addr)+" goto ");
+												create_ins("goto ");
+											} 
 |	RelationalExpression GT ShiftExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
 |	RelationalExpression LE ShiftExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
 |	RelationalExpression GE ShiftExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
@@ -716,7 +739,20 @@ ConditionalAndExpression:
 
 ConditionalOrExpression:
 	ConditionalAndExpression	{ $$ = $1; }
-|	ConditionalOrExpression OR ConditionalAndExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
+|	ConditionalOrExpression OR ConditionalAndExpression	{
+															$$ = create_node ( 3 ,$2->val, $1, $3);
+																											 
+															// $$->ins = instCount;
+															// $$->code.push_back(create_instruction($1->code+$3->code+"if"+string($1->addr)+"<"+string($3->addr)+"goto "));
+															// $$->code.push_back(create_instruction(goto ));
+															// $$->truelist = makelist($$->code[0]);
+															// $$->falselist = makelist($$->code[1]);
+
+															$$->ins = instCount+1;
+															backpatch($1->falselist,$3->ins);
+															$$->truelist = merge($1->truelist,$3->truelist);
+															$$->falselist = $3->falselist;
+														} 
 ;
 
 ConditionalExpression:
@@ -1003,64 +1039,59 @@ string handle_function(NODE* node){
 	return "";
 }
 
+void yerror(string s)
+{
+	cout<<s<<" at line number "<<lineno<<endl;
+	exit(1);
+}
+
 string handle_expression(NODE* node)
 {
-	if (node->children.size()==0)
-	{
-		if (node->type=="")
-		{
-			//case the leaf is not a literal
-			string node_val=node->val;
+    if (node->children.size()==0)
+    {    
+        lineno=node->lineno;
+        string node_type=node->type;
+        if (node_type=="")
+        {
+            //case the leaf is not a literal
+            string node_val=node->val;
 
-			ste* lookup_ste=lookup(current_ste,node_val);
-			if (lookup_ste==NULL)
-			{
-				string var_name=node->val;
-				string e_message= "Variable " + var_name + " not declared before use ";
-				lineno=node->lineno;
-				char* e_message_ar= new char[e_message.size()+1];
-				strcpy(e_message_ar,e_message.c_str());
+            ste* lookup_ste=lookup(current_ste,node_val);
+            if (lookup_ste==NULL)
+            {
+                string var_name=node->val;
+                string e_message= "Error : Variable " + var_name + " not declared before use ";
+                lineno=node->lineno;
+                yerror(e_message);
+            }
 
-				yyerror(e_message_ar);
-				exit(1);
-			}	
-			return lookup_ste->type;		
-		}
-		else
-		{
-			/* return node->type; */
-			return "sex";
-		}
-	}
-	string child_val=node->val;
-	if (child_val=="MethodInvocation")
-		return handle_function(node);
-	
-	string type_str = handle_expression(node->children[0]);
-	char * type = new char[type_str.length() + 1];
-	strcpy(type, type_str.c_str()); 
-	node->type=type;
+            return lookup_ste->type;        
+        }
+        return node_type;
+    }
+    string child_val=node->val;
+    if (child_val=="MethodInvocation")
+        return handle_function(node);
 
-	for (int i=1;i<node->children.size();i++)
-	{
-		string child_type= handle_expression(node->children[i]);
-		string result_type= typecast(child_type,node->type);
-		if (result_type=="Error")
-		{
-			string var_name=node->val;
-			string e_message= "Type mismatch for operands of tpye " + child_type +" and " +node->type+ " ";
-			lineno=node->lineno;
-			char* e_message_ar= new char[e_message.size()+1];
-			strcpy(e_message_ar,e_message.c_str());
 
-			yyerror(e_message_ar);
-			exit(1);
-		}
-		char* result_chr = new char[result_type.size()+1];
-		strcpy(result_chr,result_type.c_str());
-		node->type=result_chr;
-	}
-	return node->type;
+    node->type=str_to_ch(handle_expression(node->children[0]));
+
+    for (int i=1;i<node->children.size();i++)
+    {
+        string child_type= handle_expression(node->children[i]);
+        string node_type=node->type;
+        string result_type= typecast(child_type,node_type);
+        if (result_type=="Error")
+        {
+            string var_name=node->val;
+            string e_message= "Error : Type mismatch for operator \'"+ var_name+ "\' with operands of type " + child_type +" and " +node_type;
+            yerror(e_message);
+        }
+        node->type=str_to_ch(result_type);
+    }
+
+    string node_type=node->type;
+    return node_type;
 }
 
 string typecast(string typ1,string typ2)
@@ -1237,6 +1268,12 @@ void MakeDOTFile(NODE*cell)
     }
 }
 
+void MakeIRFile()
+{
+	for(int i=0;i<instructions.size();i++)
+		cout << i+1 << "\t" << instructions[i] << endl;
+}
+
 void printToCSV(){
 	ofstream fout;
 
@@ -1260,6 +1297,37 @@ void printToCSV(){
 		
 		fout.close();
 	}
+}
+
+char* str_to_ch(string s)
+{
+    char* result_chr = new char[s.size()+1];
+    strcpy(result_chr,s.c_str());
+    return result_chr;
+}
+
+vector<int> makelist(int i){
+	return vector<int>{i};
+}
+
+vector<int> merge(vector<int> p1, vector<int> p2){
+	vector<int> merged;
+    merged.reserve(p1.size() + p2.size());
+    merged.insert(merged.end(), p1.begin(), p1.end());
+    merged.insert(merged.end(), p2.begin(), p2.end());
+	return merged;
+}
+
+void backpatch(vector<int>p, int i)
+{
+	for(int j=0;j<p.size();j++)
+		instructions[p[j]-1]+=to_string(i);
+}
+
+void create_ins(string s)
+{
+	instructions.push_back(s);
+	instCount++;
 }
 
 int main(int argc, char* argv[]){
@@ -1329,6 +1397,7 @@ int main(int argc, char* argv[]){
 
 	// Open the output file
 	fout.open(output_file.c_str(),ios::out);
+	code_out.open("3AC.txt",ios::out);
 	// Get the DOT file template from the file
     ifstream infile("./DOT_Template.txt");
     string line;
@@ -1346,6 +1415,8 @@ int main(int argc, char* argv[]){
 	}
 	yyin = fp;
 
+	instCount=0;
+	tempCount=0;
 	yyparse();
 
 	// Close the input file
@@ -1361,6 +1432,15 @@ int main(int argc, char* argv[]){
     fout.close();
 
 	/*--------------------------------------------------------------*/
+
+	// Create 3AC file
+    MakeIRFile();
+
+	// Close the output file
+    code_out.close();
+
+	/*--------------------------------------------------------------*/
+
 	start_ste->type="global_head";
 	current_ste= new ste;
 	start_ste->next=current_ste;

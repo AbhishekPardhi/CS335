@@ -7,6 +7,7 @@ NODE* create_node(int n_args, ...)
 {
     NODE *element = (NODE *)calloc(1, sizeof(NODE));
     element->id=num++;
+    element->type="";
 
     NODE*child;
     va_list valist;
