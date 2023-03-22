@@ -923,7 +923,6 @@ void searchAST(NODE* node)
 		string left_child_val=node->children[0]->val;
 		if (left_child_val=="MethodInvocation" || left_child_val== "ClassInstanceCreationExpression")
 		{	
-			cout<<"IN here :"<<endl;
 			handle_function(node->children[0]);
 		}
 		/* else
@@ -987,7 +986,6 @@ string handle_function(NODE* node){
 
 		if (lookup_ste==NULL)
 		{	
-			cout<<"Not found"<<endl;
 			string e_message= "Class " + name + " not declared before use ";
 			char* e_message_ar= new char[e_message.size()+1];
 			strcpy(e_message_ar,e_message.c_str());
@@ -997,7 +995,6 @@ string handle_function(NODE* node){
 		}
 		else
 		{	
-			cout<<"Found"<<endl;
 			string type=name;
 			return type;
 		}
@@ -1031,7 +1028,8 @@ string handle_expression(NODE* node)
 		}
 		else
 		{
-			return node->type;
+			/* return node->type; */
+			return "sex";
 		}
 	}
 	string child_val=node->val;
@@ -1058,6 +1056,9 @@ string handle_expression(NODE* node)
 			yyerror(e_message_ar);
 			exit(1);
 		}
+		char* result_chr = new char[result_type.size()+1];
+		strcpy(result_chr,result_type.c_str());
+		node->type=result_chr;
 	}
 	return node->type;
 }
