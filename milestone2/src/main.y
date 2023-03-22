@@ -912,21 +912,16 @@ void searchAST(NODE* node)
 		}
 		return;
 	}
-	else if(node->isvar)
+	
+	else if(temp=="ExpressionStatement")
 	{
-		cout<<node->val;
-		string var_name=node->val;
-		ste* temp_ste=lookup(current_ste,var_name);
-		lineno=node->lineno;
-		if (temp_ste==NULL)
+		string left_child_val=node->children[0]->val;
+		if (left_child_val=="MethodInvocation" || left_child_val== "ClassInstanceCreationExpression")
 		{
-			string e_message= "Variable "+var_name+ " not declared";
-			char* e_message_ar= new char[e_message.size()+1];
-			strcpy(e_message_ar,e_message.c_str());
-
-			yyerror(e_message_ar);
-			exit(1);
+			handle_function(node->children[0]);
 		}
+		else
+			handle_expression(node->children[0]);
 	}
 
 	for(int i = 0; i < node->children.size(); i++)
@@ -934,6 +929,41 @@ void searchAST(NODE* node)
 		searchAST(node->children[i]);
 	}
 }
+
+string handle_expression(NODE* node)
+{
+	if (node->children.size()==0)
+	{
+		if (node->type=="")
+		{
+			//case the leaf is not a literal
+			ste* lookup_ste=lookup(node->val);
+			if (lookup_ste==NULL)
+			{
+				string var_name=node->val;
+				string e_message= "Variable " + var_name + " not declared before use ";
+				lineno=node->lineno;
+				char* e_message_ar= new char[e_message.size()+1];
+				strcpy(e_message_ar,e_message.c_str());
+
+				yyerror(e_message_ar);
+				exit(1);
+			}	
+			return lookup_ste->type;		
+		}
+		else
+		{
+			return node->type;
+		}
+	}
+	string child_val=node->val;
+	if (child_val=="MethodInvocation")
+		return handle_function(node);
+	
+	
+
+}
+
 
 void fieldSymTable(NODE* node)
 {
