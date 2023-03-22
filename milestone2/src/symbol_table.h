@@ -10,3 +10,9 @@ typedef struct symbol_table_entry{
     struct symbol_table_entry* next_scope;
     struct symbol_table_entry* prev_scope;    
 } ste ;
+
+typedef struct symbol_table_map_entry {
+    ste* entry;
+    string return_type;
+    int num_params;
+} stme;

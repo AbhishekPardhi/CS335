@@ -24,7 +24,7 @@
 	fstream fout;
 	extern FILE *yyin;
 
-	unordered_map <string, ste*> tableMap;
+	unordered_map <string, stme*> tableMap;
 
 	ste* start_ste = new ste;		// point of error
 	
@@ -932,6 +932,12 @@ void searchAST(NODE* node)
 	}
 }
 
+string handle_function(NODE* node){
+	string type="";
+
+	return type;
+}
+
 string handle_expression(NODE* node)
 {
 	if (node->children.size()==0)
@@ -1038,7 +1044,13 @@ void branchMethodSymtable(NODE* declaration_node)
 			{
 				NODE* identifier_node=decl_child_node->children[0];
 				string id_node_val=identifier_node->val;
-				tableMap[id_node_val]=current_ste;
+
+				stme* table_entry=new stme;
+				table_entry->entry=current_ste;
+				table_entry->return_type=id_node_val;
+				table_entry->num_params=0;
+
+				tableMap[id_node_val]=table_entry;
 
 				for (auto child_node : decl_child_node->children)
 				{
@@ -1049,7 +1061,8 @@ void branchMethodSymtable(NODE* declaration_node)
 						{
 							string param_node_val=param_node->val;
 							if (param_node_val=="FormalParameter")
-							{
+							{	
+								table_entry->num_params++;
 								ParameterSymtable(param_node);
 							}
 						}
@@ -1061,15 +1074,41 @@ void branchMethodSymtable(NODE* declaration_node)
 	}
 
 	NODE* header_node=declaration_node->children[0];
+	string type;
+
+	int idx=0;
+	for(auto child_node : header_node->children)
+	{	
+		idx+=1;
+		if(node_val == "MethodDeclarator")
+		{
+			idx-=1;;
+			break;
+		}
+	}
+
+	int index=0;
 	for (auto node : header_node->children)
-	{
+	{	
+		index+=1;
+
+		if(index==idx){
+			type=get_type(node);
+			continue;
+		}
 		string node_val=node->val;
 		if(node_val == "MethodDeclarator")
 		{
 			NODE* identifier_node=node->children[0];
 			// add map entry for the function
 			string id_node_val=identifier_node->val;
-			tableMap[id_node_val]=current_ste;
+			
+			stme* table_entry=new stme;
+			table_entry->entry=current_ste;
+			table_entry->return_type=type;
+			table_entry->num_params=0;
+
+			tableMap[id_node_val]=table_entry;
 		
 			for (auto child_node : node->children)
 			{
@@ -1080,7 +1119,8 @@ void branchMethodSymtable(NODE* declaration_node)
 					{
 						string param_node_val=param_node->val;
 						if (param_node_val=="FormalParameter")
-						{
+						{	
+							table_entry->num_params++;
 							ParameterSymtable(param_node);
 						}
 					}
@@ -1128,10 +1168,10 @@ void printToCSV(){
 		string filename = "./output/Function-" + it->first + ".csv";
 		fout.open(filename);
 		
-		fout<<"Function name:,Lexeme,Type,Line Number,Token"<<endl;
+		fout<<"Function name:,Return Type, Number of Parameters ,Lexeme,Type,Line Number,Token"<<endl;
 
-		fout<<it->first<<",,,,"<<endl;
-		ste* current_ste = it->second;
+		fout<<it->first<<","<<it->second->return_type<<","<<it->second->num_params<<",,,,"<<endl;
+		ste* current_ste = it->second->entry;
 		while(current_ste->next!=NULL || current_ste->next_scope!=NULL){
 			if(current_ste->type=="branch_head"){
 				current_ste = current_ste->next_scope;
