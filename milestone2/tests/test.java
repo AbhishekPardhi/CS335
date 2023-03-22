@@ -4,6 +4,7 @@ class someclass {
         int a = 1 + 2 + 3;
         int b;
         float d;
+        int x=b+d;
         char c;
         a=5;
         

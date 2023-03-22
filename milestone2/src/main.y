@@ -822,6 +822,13 @@ void insert_variable(NODE * local_var_node)
 		{
 			NODE* var_dec_id = var_id_child->children[0];
 			insert_var_id(var_dec_id,type);
+
+			string right_type=handle_expression(var_id_child->children[1]);
+			if (right_type!=type)
+			{
+				string e_message= "Error : Type mismatch for assignment of type " + right_type + " to variable of type " + type;
+				yerror(e_message);
+			}
 		}
 	}
 }
@@ -1078,10 +1085,9 @@ string handle_function(NODE* node){
 	
 	if(node_val=="ClassInstanceCreationExpression"){
 		string name = get_invocation_name(node->children[1]);
-		ste* lookup_ste=lookup(current_ste,name);
-		cout<<"nooooooo";
+		
 
-		if (lookup_ste==NULL)
+		if (classMap.find(name)==classMap.end())
 		{	
 			string e_message= "Error : Class " + name + " not declared before use ";
 			yerror(e_message);
@@ -1121,7 +1127,7 @@ string handle_expression(NODE* node)
 		return node_type;
 	}
 	string child_val=node->val;
-	if (child_val=="MethodInvocation")
+	if (child_val=="MethodInvocation" || child_val=="ClassInstanceCreationExpression")
 		return handle_function(node);
 
 
@@ -1183,6 +1189,12 @@ void fieldSymTable(NODE* node)
 				field_entry->next=classMap[cur_class];
 				classMap[cur_class]=field_entry;
 				classMap[cur_class]->id=entry->lexeme;
+				string right_type=handle_expression(var_id_child->children[1]);
+				if (right_type!=type)
+				{
+					string e_message= "Error : Type mismatch for assignment of type " + right_type + " to variable of type " + type;
+					yerror(e_message);
+				}
 			}
 		}
 	}
