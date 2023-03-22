@@ -989,17 +989,58 @@ string handle_function(NODE* node){
 	string node_val = node->val;
 	if(node_val == "MethodInvocation"){
 		string name = get_invocation_name(node);
-		ste* lookup_ste=lookup(current_ste,name);
 
-		if (lookup_ste==NULL)
+		if (tableMap.find(name)==tableMap.end())
 		{
 			string e_message= "Error : Method " + name + " not declared before use ";
 			yerror(e_message);
-			exit(1);
 		}
 		else
-		{
-			string type=lookup_ste->type;
+		{	
+			string type=tableMap[name]->return_type;
+			int num_params=tableMap[name]->num_params;
+
+			int arg_flag=0;
+				
+			for(auto node_child: node->children){
+				string node_child_val = node_child->val;
+
+				if(node_child_val=="Argument_List"){
+
+					vector < string > types;
+					arg_flag=1;
+					for(auto node_child_child: node_child->children){
+
+						string node_child_child_val = node_child_child->val;
+						if(node_child_child_val==",") continue;
+
+						string arg_type=handle_expression(node_child_child);
+						types.push_back(arg_type);
+					}
+
+					if(types.size()!=num_params){
+						string e_message= "Error : Method " + name + " called with wrong number of arguments ";
+						yerror(e_message);
+					}
+					else{
+
+						ste* entry_ste=tableMap[name]->entry;
+
+						for(int i=0;i<num_params;i++){
+							if(types[i]!=entry_ste->type){
+								string e_message= "Error : Method " + name + " called with wrong type of arguments ";
+								yerror(e_message);
+							}
+						}
+					}
+				}
+
+			}
+
+			if(arg_flag==0 && num_params!=0){
+				string e_message= "Error : Method " + name + " called with wrong number of arguments ";
+				yerror(e_message);
+			}
 			return type;
 		}
 	}
@@ -1013,7 +1054,6 @@ string handle_function(NODE* node){
 		{	
 			string e_message= "Error : Class " + name + " not declared before use ";
 			yerror(e_message);
-			exit(1);
 		}
 		else
 		{	

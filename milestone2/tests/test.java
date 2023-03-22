@@ -7,10 +7,12 @@ class someclass {
             int b = 1;
             b=4;
         } else {
-            c=8;
+            c='c';
         }
         //sample for loop
-        for (int i = 0; i < 10; i++)
-            f=67;
+        for (int i = 0; i < 10; i++);
+
+        String[] b={"a","b","c"};
+        main(c);
     }
 }
