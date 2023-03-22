@@ -12,6 +12,9 @@
 	void ParameterSymtable(NODE* );
 	int vardim(NODE* );
 	void fieldSymTable(NODE *);
+	string typecast(string , string);
+	string handle_expression(NODE*);
+	string handle_function(NODE*);
 	string get_type(NODE* );
 	int lineno;
 
@@ -945,7 +948,9 @@ string handle_expression(NODE* node)
 		if (node->type=="")
 		{
 			//case the leaf is not a literal
-			ste* lookup_ste=lookup(node->val);
+			string node_val=node->val;
+
+			ste* lookup_ste=lookup(current_ste,node_val);
 			if (lookup_ste==NULL)
 			{
 				string var_name=node->val;
@@ -968,7 +973,11 @@ string handle_expression(NODE* node)
 	if (child_val=="MethodInvocation")
 		return handle_function(node);
 	
-	node->type=handle_expression(node->chilren[0]);
+	string type_str = handle_expression(node->children[0]);
+	char * type = new char[type_str.length() + 1];
+	strcpy(type, type_str.c_str()); 
+	node->type=type;
+
 	for (int i=1;i<node->children.size();i++)
 	{
 		string child_type= handle_expression(node->children[i]);
@@ -990,7 +999,7 @@ string handle_expression(NODE* node)
 
 string typecast(string typ1,string typ2)
 {
-	if (tpy1==typ2)
+	if (typ1 == typ2)
 	return typ1;
 	return "Error";
 }
@@ -1080,6 +1089,7 @@ void branchMethodSymtable(NODE* declaration_node)
 	for(auto child_node : header_node->children)
 	{	
 		idx+=1;
+		string node_val=child_node->val;
 		if(node_val == "MethodDeclarator")
 		{
 			idx-=1;;
@@ -1178,7 +1188,7 @@ void printToCSV(){
 				continue;
 			}
 
-			fout<<","<<current_ste->lexeme<<","<<current_ste->type<<","<<current_ste->lineno<<","<<current_ste->token<<endl;
+			fout<<",,,"<<current_ste->lexeme<<","<<current_ste->type<<","<<current_ste->lineno<<","<<current_ste->token<<endl;
 			current_ste = current_ste->next;
 		}
 		
