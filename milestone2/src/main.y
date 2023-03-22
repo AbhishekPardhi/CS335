@@ -18,6 +18,7 @@
 	string get_type(NODE* );
 	char * str_to_ch(string s);
 	int lineno;
+	string cur_class;
 
 	void yerror(string s)
 	{
@@ -927,7 +928,22 @@ void searchAST(NODE* node)
 		}
 		return;
 	}
-	
+	else if (temp=="this")
+	{
+		string var_name = "this";
+		lineno=node->children[0]->lineno;
+		ste* new_ste= new ste;
+
+		current_ste->lexeme=var_name;
+		current_ste->type=cur_class;
+		current_ste->dim=0;
+		current_ste->token="IDENTIFIER";
+		current_ste->lineno=lineno;
+
+		current_ste->next=new_ste;
+		new_ste->prev=current_ste;
+		current_ste=new_ste;
+	}
 	else if(temp=="ExpressionStatement")
 	{
 		string left_child_val=node->children[0]->val;
@@ -941,6 +957,8 @@ void searchAST(NODE* node)
 
 	for(int i = 0; i < node->children.size(); i++)
 	{
+		if (node->children[i]->val=="class")
+			cur_class=node->children[i+1]->val;
 		searchAST(node->children[i]);
 	}
 }
