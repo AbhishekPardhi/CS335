@@ -31,6 +31,8 @@
 	
 	ste * current_ste = start_ste;
 	stack<ste*> branch;
+
+	int forFlag = 0;
 %}
 
 %union {
@@ -837,7 +839,11 @@ void searchAST(NODE* node)
 	string temp=node->val;
 
 	if (temp=="{" || temp=="for")
-	{
+	{	
+		if(temp=="{" && forFlag==1){
+			forFlag=0;
+			return;
+		}
 		ste * new_ste = new ste;
 		
 		current_ste->type="branch_head";
@@ -848,6 +854,19 @@ void searchAST(NODE* node)
 		new_ste->prev_scope=current_ste;
 
 		current_ste=new_ste;
+	}
+	if(temp=="ForStatementNoShortIf" || temp=="ForStatement"){
+		int flag=0;
+		for ( auto  for_statement_child : node->children)
+		{	
+			string for_statement_child_val = for_statement_child->val;
+			if (for_statement_child_val == "LocalVariableDeclaration" || for_statement_child_val == "Block")
+			{
+				flag+=1;
+			}
+		}
+
+		if(flag==2) forFlag=1;
 	}
 	if (temp=="}")
 	{
