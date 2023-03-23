@@ -781,6 +781,27 @@ Expression:
 %%
 
 
+string handle_cast_expression(NODE* node){
+	int num_children=node->children.size();
+	ste* lookup_ste=lookup(current_ste,node->children[num_children-1]->val);
+
+	string type="";
+	if(lookup_ste==NULL && node->children[num_children-1]->type==""){
+		string e_message="Error : Variable " + (string) node->children[num_children-1]->val + " not declared before use ";
+		lineno=node->lineno;
+		yerror(e_message);
+	}
+	else{
+		for(int i=0;i<num_children-1;i++){
+			string child_val=node->children[i]->val;
+			if(child_val=="(" || child_val==")")
+				continue;
+			else
+				type+=get_type(node->children[i]);
+		}
+	}
+	return type;
+}
 
 string handle_expression(NODE* node)
 {
@@ -823,7 +844,9 @@ string handle_expression(NODE* node)
 	if(child_val=="ArrayCreationExpression"){
 		return handle_array_creation_Expression(node);
 	}
-
+	if(child_val=="CastExpression"){
+		return handle_cast_expression(node);
+	}
 	node->type=str_to_ch(handle_expression(node->children[0]));
 
 	for (int i=1;i<node->children.size();i++)
