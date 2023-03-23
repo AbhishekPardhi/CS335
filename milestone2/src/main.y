@@ -19,7 +19,7 @@
 	string get_invocation_name(NODE* );
 	string handle_array_access(NODE*);
 	string handle_arrayinit(NODE* );
-
+	string handle_array_creation_Expression(NODE* );
 	int lineno;
 	string cur_class;
 
@@ -599,7 +599,7 @@ ArrayCreationExpression:
 ;
 
 DimExprs:
-	DimExpr	{ $$ = create_node(2,"Dim_Expers",$1) ; }
+	DimExpr	{ $$ = create_node(2,"Dim_Exprs",$1) ; }
 |	DimExprs DimExpr	{$1->children.push_back($2); $$ =$1 ; } 
 ;
 
@@ -816,7 +816,10 @@ string handle_expression(NODE* node)
 
 	if(child_val=="ArrayAccess"){
 		return handle_array_access(node);
-	}		
+	}
+	if(child_val=="ArrayCreationExpression"){
+		return handle_array_creation_Expression(node);
+	}
 
 	node->type=str_to_ch(handle_expression(node->children[0]));
 
@@ -1077,6 +1080,38 @@ string get_invocation_name(NODE* node){
 	return name;
 }
 
+string handle_array_creation_Expression(NODE* node){
+	string array_type=get_type(node->children[1]);
+
+	for(auto array_child: node->children){
+		string array_child_val = array_child->val;
+
+		if(array_child_val=="Dim_Exprs"){
+			for(auto dim_child: array_child->children){
+				string dim_child_val=dim_child->val;
+				if(dim_child_val=="Dim_Expr"){
+					array_type=array_type+"[]";
+				}
+				if (handle_expression(dim_child->children[1])!="int")
+				{
+					string error_message="Error : array index must be an integer";
+					yerror(error_message);
+				}
+			}
+		}
+		else if(array_child_val=="Dims"){
+			for(auto dim_child: array_child->children){
+				string dim_child_val=dim_child->val;
+				if(dim_child_val=="["){
+					array_type=array_type+"[]";
+				}
+			}
+		}
+
+	}
+	return array_type;
+}
+
 string handle_array_access(NODE* node){
 	
 	NODE* first_child=node->children[0];
@@ -1086,9 +1121,11 @@ string handle_array_access(NODE* node){
 	string last_two = type.substr(l-2,2);
 	string new_sub_type=type.substr(0,l-2);
 
+	string first_child_val=first_child->val;
+	cout<<type<<endl;
 	if (last_two!="[]" )
 	{
-		string error_message="Error : "+type+" is not an array";
+		string error_message="Error : "+first_child_val+" is not an array";
 		yerror(error_message);
 	}
 	if (handle_expression(node->children[2])!="int")
