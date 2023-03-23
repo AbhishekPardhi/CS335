@@ -1,0 +1,6 @@
+1	s = 10
+2	x = 150
+3	y = 150
+4	i = 150
+5	param +
+6	t0 = call _process

@@ -1,8 +1,6 @@
-Function name:,Lexeme,Type,Line Number,Token
-main,,,,
-,args,String[],4,IDENTIFIER
-,n,int,5,IDENTIFIER
-,c,int,5,IDENTIFIER
-,d,int,5,IDENTIFIER
-,swap,int,5,IDENTIFIER
-,array,int,7,IDENTIFIER
+Function name:,Return Type, Number of Parameters ,Lexeme,Type,Line Number,Token
+main,void,1,,,,
+,,,args,String[],2,IDENTIFIER
+,,,x,int,3,IDENTIFIER
+,,,y,int,4,IDENTIFIER
+,,,i,int,5,IDENTIFIER

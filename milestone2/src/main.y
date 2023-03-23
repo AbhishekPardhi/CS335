@@ -25,6 +25,7 @@
 	void create_ins(string s);
 	int lineno;
 	int tempCount;
+	string newTemp();
 	int instCount;
 
     void yyerror(const char *s) {
@@ -54,7 +55,7 @@
 }
 
 %token <elem>  BITWISE_AND BITWISE_OR COMMA FINALLY LPAREN RPAREN IDENTIFIER EQUALS DOT CLASS PUBLIC PRIVATE SEMICOLON COLON OR RETURN TRY SYNCHRONIZED THROW BREAK CONTINUE CATCH FINAL IF ELSE WHILE FOR LSPAR RSPAR TIMES_EQUALS DIVIDE_EQUALS MOD_EQUALS PLUS_EQUALS MINUS_EQUALS LEFT_SHIFT_EQUALS RIGHT_SHIFT_EQUALS UNSIGNED_RIGHT_SHIFT_EQUALS AND_EQUALS XOR_EQUALS OR_EQUALS QUESTION NOT_EQUALS LT GT LE GE INSTANCEOF AND XOR PLUS MINUS TIMES DIVIDE MOD PLUS_PLUS MINUS_MINUS TILDE THIS SUPER INT LONG SHORT BYTE CHAR IMPLEMENTS FLOAT DOUBLE BOOLEAN VOID NOT EXTENDS RMPARA LMPARA STATIC LEFT_SHIFT RIGHT_SHIFT UNSIGNED_RIGHT_SHIFT LITERAL THROWS NEW IMPORT PACKAGE INTERFACE EQUALS_EQUALS 
-%type <elem> Goal CompilationUnit Type PrimitiveType NumericType IntegralType FloatingPointType ReferenceType ClassOrInterfaceType ClassType InterfaceType ArrayType Name SimpleName QualifiedName ImportDeclarations TypeDeclarations PackageDeclaration ImportDeclaration TypeDeclaration Modifiers Modifier ClassDeclaration Super Interfaces ClassBody ClassBodyDeclarations ClassBodyDeclaration ClassMemberDeclaration FieldDeclaration VariableDeclarators VariableDeclarator VariableDeclaratorId VariableInitializer MethodDeclaration MethodHeader MethodDeclarator FormalParameterList Throws ClassTypeList MethodBody StaticInitializer ConstructorDeclaration ConstructorDeclarator ConstructorBody InterfaceDeclaration Expression ArrayInitializer FormalParameter Block SingleTypeImportDeclaration TypeImportOnDemandDeclaration AssignmentExpression ConditionalExpression Assignment ConditionalOrExpression LeftHandSide ConditionalAndExpression InclusiveOrExpression ExclusiveOrExpression AndExpression EqualityExpression RelationalExpression ShiftExpression AdditiveExpression MultiplicativeExpression UnaryExpression PreIncrementExpression PreDecrementExpression UnaryExpressionNotPlusMinus PostIncrementExpression PostDecrementExpression CastExpression Primary PrimaryNoNewArray ArrayCreationExpression ArrayAccess FieldAccess MethodInvocation ClassInstanceCreationExpression ArgumentList PostfixExpression InterfaceTypeList ExplicitConstructorInvocation InterfaceBody InterfaceMemberDeclarations InterfaceMemberDeclaration ConstantDeclaration AbstractMethodDeclaration ExtendsInterfaces AssignmentOperator Dims DimExprs DimExpr VariableInitializers BlockStatements BlockStatement LocalVariableDeclarationStatement Statement StatementNoShortIf StatementWithoutTrailingSubstatement IfThenStatement IfThenElseStatement IfThenElseStatementNoShortIf WhileStatement WhileStatementNoShortIf ForStatement ForStatementNoShortIf ForInit ForUpdate StatementExpression StatementExpressionList LocalVariableDeclaration EmptyStatement LabeledStatement ExpressionStatement BreakStatement ContinueStatement ReturnStatement ThrowStatement SynchronizedStatement TryStatement Catches CatchClause Finally LabeledStatementNoShortIf
+%type <elem> Goal CompilationUnit Type PrimitiveType NumericType IntegralType FloatingPointType ReferenceType ClassOrInterfaceType ClassType InterfaceType ArrayType Name SimpleName QualifiedName ImportDeclarations TypeDeclarations PackageDeclaration ImportDeclaration TypeDeclaration Modifiers Modifier ClassDeclaration Super Interfaces ClassBody ClassBodyDeclarations ClassBodyDeclaration ClassMemberDeclaration FieldDeclaration VariableDeclarators VariableDeclarator VariableDeclaratorId VariableInitializer MethodDeclaration MethodHeader MethodDeclarator FormalParameterList Throws ClassTypeList MethodBody StaticInitializer ConstructorDeclaration ConstructorDeclarator ConstructorBody InterfaceDeclaration Expression ArrayInitializer FormalParameter Block SingleTypeImportDeclaration TypeImportOnDemandDeclaration AssignmentExpression ConditionalExpression Assignment ConditionalOrExpression LeftHandSide ConditionalAndExpression InclusiveOrExpression ExclusiveOrExpression AndExpression EqualityExpression RelationalExpression ShiftExpression AdditiveExpression MultiplicativeExpression UnaryExpression PreIncrementExpression PreDecrementExpression UnaryExpressionNotPlusMinus PostIncrementExpression PostDecrementExpression CastExpression Primary PrimaryNoNewArray ArrayCreationExpression ArrayAccess FieldAccess MethodInvocation ClassInstanceCreationExpression ArgumentList PostfixExpression InterfaceTypeList ExplicitConstructorInvocation InterfaceBody InterfaceMemberDeclarations InterfaceMemberDeclaration ConstantDeclaration AbstractMethodDeclaration ExtendsInterfaces AssignmentOperator Dims DimExprs DimExpr VariableInitializers BlockStatements BlockStatement LocalVariableDeclarationStatement Statement StatementNoShortIf StatementWithoutTrailingSubstatement IfThenStatement IfThenElseStatement IfThenElseStatementNoShortIf WhileStatement WhileStatementNoShortIf ForStatement ForStatementNoShortIf ForInit ForUpdate StatementExpression StatementExpressionList LocalVariableDeclaration EmptyStatement LabeledStatement ExpressionStatement BreakStatement ContinueStatement ReturnStatement ThrowStatement SynchronizedStatement TryStatement Catches CatchClause Finally LabeledStatementNoShortIf Else
 
 %%
 // Grammer
@@ -66,6 +67,10 @@ Goal:
 Type:
 	PrimitiveType	{ $$ = $1; }
 |	ReferenceType	{ $$ = $1; }
+;
+
+Else:
+	ELSE { $$ = $1; create_ins("goto "); }
 ;
 
 PrimitiveType:
@@ -187,12 +192,26 @@ Modifier:
 ;
 
 ClassDeclaration:
-	Modifiers CLASS IDENTIFIER Super Interfaces ClassBody	{ $$ = create_node ( 7 ,"Class_Declaration", $1, $2, $3, $4, $5, $6); } 
-|	CLASS IDENTIFIER Interfaces ClassBody	{ $$ = create_node ( 5 ,"Class_Declaration", $1, $2, $3, $4); } 
-|	Modifiers CLASS IDENTIFIER Super ClassBody	{ $$ = create_node ( 6 ,"Class_Declaration", $1, $2, $3, $4, $5); } 
-|	Modifiers CLASS IDENTIFIER Interfaces ClassBody	{ $$ = create_node ( 6 ,"Class_Declaration", $1, $2, $3, $4, $5); } 
-|	CLASS IDENTIFIER ClassBody	{ $$ = create_node ( 4 ,"Class_Declaration", $1, $2, $3); } 
-|	Modifiers CLASS IDENTIFIER ClassBody	{ $$ = create_node ( 5 ,"Class_Declaration", $1, $2, $3, $4); } 
+	Modifiers CLASS IDENTIFIER Super Interfaces ClassBody	{
+																$$ = create_node ( 7 ,"Class_Declaration", $1, $2, $3, $4, $5, $6);
+															} 
+|	CLASS IDENTIFIER Interfaces ClassBody	{
+												$$ = create_node ( 5 ,"Class_Declaration", $1, $2, $3, $4);
+											}
+|	Modifiers CLASS IDENTIFIER Super ClassBody	{
+													$$ = create_node ( 6 ,"Class_Declaration", $1, $2, $3, $4, $5);
+												} 
+|	Modifiers CLASS IDENTIFIER Interfaces ClassBody	{
+														$$ = create_node ( 6 ,"Class_Declaration", $1, $2, $3, $4, $5);
+													} 
+|	CLASS IDENTIFIER ClassBody	{	
+									$$ = create_node ( 4 ,"Class_Declaration", $1, $2, $3);
+									// $$->ins = instCount+1;
+									// create_ins("")
+								}
+|	Modifiers CLASS IDENTIFIER ClassBody	{
+												$$ = create_node ( 5 ,"Class_Declaration", $1, $2, $3, $4);
+											}
 ;
 
 Super:
@@ -241,11 +260,15 @@ VariableDeclarators:
 
 VariableDeclarator:
 	VariableDeclaratorId	{ $$ = $1; }
-|	VariableDeclaratorId EQUALS VariableInitializer	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
+|	VariableDeclaratorId EQUALS VariableInitializer	{
+														$$ = create_node ( 3 ,$2->val, $1, $3);
+														$$->ins = instCount+1;
+														create_ins(string($1->addr)+" "+string($2->addr)+" "+string($3->addr));
+													}
 ;
 
 VariableDeclaratorId:
-	IDENTIFIER	{ $$ = create_node(2,"Variable_Declarator_Id",$1) ;  $1->isvar=1;}
+	IDENTIFIER	{ $$ = create_node(2,"Variable_Declarator_Id",$1) ;  $1->isvar=1; $$->addr = $1->addr; }
 |	VariableDeclaratorId LSPAR RSPAR	{ $1->children.push_back($2);$1->children.push_back($3); $$ =$1 ;} 
 ;
 
@@ -259,14 +282,32 @@ MethodDeclaration:
 ;
 
 MethodHeader:
-	Modifiers Type MethodDeclarator Throws	{ $$ = create_node ( 5 ,"MethodHeader", $1, $2, $3, $4); } 
-|	Modifiers Type MethodDeclarator	{ $$ = create_node ( 4 ,"MethodHeader", $1, $2, $3); } 
-|	Type MethodDeclarator Throws	{ $$ = create_node ( 4 ,"MethodHeader", $1, $2, $3); } 
-|	Type MethodDeclarator	{ $$ = create_node ( 3 ,"MethodHeader", $1, $2); } 
-|	Modifiers VOID MethodDeclarator Throws	{ $$ = create_node ( 5 ,"MethodHeader", $1, $2, $3, $4); } 
-|	Modifiers VOID MethodDeclarator	{ $$ = create_node ( 4 ,"MethodHeader", $1, $2, $3); } 
-|	VOID MethodDeclarator Throws	{ $$ = create_node ( 4 ,"MethodHeader", $1, $2, $3); } 
-|	VOID MethodDeclarator	{ $$ = create_node ( 3 ,"MethodHeader", $1, $2); } 
+	Modifiers Type MethodDeclarator Throws	{
+												$$ = create_node ( 5 ,"MethodHeader", $1, $2, $3, $4);
+											}
+|	Modifiers Type MethodDeclarator	{
+										$$ = create_node ( 4 ,"MethodHeader", $1, $2, $3);
+									}
+|	Type MethodDeclarator Throws	{
+										$$ = create_node ( 4 ,"MethodHeader", $1, $2, $3);
+									}
+|	Type MethodDeclarator	{
+								$$ = create_node ( 3 ,"MethodHeader", $1, $2);
+							}
+|	Modifiers VOID MethodDeclarator Throws	{
+												$$ = create_node ( 5 ,"MethodHeader", $1, $2, $3, $4)
+											}
+|	Modifiers VOID MethodDeclarator	{
+										$$ = create_node ( 4 ,"MethodHeader", $1, $2, $3);
+										// $$->ins = instCount+1;
+										// create_ins("")
+									}
+|	VOID MethodDeclarator Throws	{
+										$$ = create_node ( 4 ,"MethodHeader", $1, $2, $3);
+									}
+|	VOID MethodDeclarator	{
+								$$ = create_node ( 3 ,"MethodHeader", $1, $2);
+							}
 ;
 
 
@@ -382,22 +423,28 @@ VariableInitializers:
 
 
 Block:
-	LMPARA BlockStatements RMPARA	{ $$ = create_node ( 4 ,"Block", $1, $2, $3); } 
+	LMPARA BlockStatements RMPARA	{
+										$$ = create_node ( 4 ,"Block", $1, $2, $3);
+										$$->ins = $2->ins;
+									} 
 |	LMPARA RMPARA	{ $$ = create_node ( 3 ,"Block", $1, $2); } 
 ;
 
 BlockStatements:
-	BlockStatement	{ $$ = create_node(2,"Block_Statements",$1) ; }
-|	BlockStatements BlockStatement	{$1->children.push_back($2); $$ =$1 ;} 
+	BlockStatement	{
+						$$ = create_node(2,"Block_Statements",$1) ;
+						$$->ins = $1->ins;
+					}
+|	BlockStatements BlockStatement	{ $1->children.push_back($2); $$ =$1; } 
 ;
 
 BlockStatement:
 	LocalVariableDeclarationStatement	{ $$ = $1; }
-|	Statement	{ $$ = $1; }
+|	Statement	{ $$ = $1;}
 ;
 
 LocalVariableDeclarationStatement:
-	LocalVariableDeclaration SEMICOLON	{ $$ = create_node ( 3 ,"LocalVariableDeclarationStatement", $1, $2); } 
+	LocalVariableDeclaration SEMICOLON	{ $$ = create_node ( 3 ,"LocalVariableDeclarationStatement", $1, $2); $$->ins = $1->ins; } 
 ;
 
 LocalVariableDeclaration:
@@ -447,7 +494,7 @@ LabeledStatementNoShortIf:
 ;
 
 ExpressionStatement:
-	StatementExpression SEMICOLON	{ $$ = create_node ( 3 ,"ExpressionStatement", $1, $2); } 
+	StatementExpression SEMICOLON	{ $$ = create_node ( 3 ,"ExpressionStatement", $1, $2); $$->ins = $1->ins; } 
 ;
 
 StatementExpression:
@@ -461,19 +508,45 @@ StatementExpression:
 ;
 
 IfThenStatement:
-	IF LPAREN Expression RPAREN Statement	{ $$ = create_node ( 6 ,"IfThenStatement", $1, $2, $3, $4, $5); } 
+	IF LPAREN Expression RPAREN Statement	{
+												$$ = create_node ( 6 ,"IfThenStatement", $1, $2, $3, $4, $5);
+												$$->ins = instCount+1;
+												// cout << $5->ins << endl;
+												backpatch($3->truelist,$5->ins);
+												$4->nextlist = merge($3->falselist,$5->falselist);
+											} 
 ;
 
 IfThenElseStatement:
-	IF LPAREN Expression RPAREN StatementNoShortIf ELSE Statement	{ $$ = create_node ( 8 ,"IfThenElseStatement", $1, $2, $3, $4, $5, $6, $7); } 
+	IF LPAREN Expression RPAREN StatementNoShortIf Else Statement	{
+																		$$ = create_node ( 8 ,"IfThenElseStatement", $1, $2, $3, $4, $5, $6, $7);
+																		$$->ins = $3->ins;
+																		// cout << $$->ins << instructions[$$->ins-1] << endl;
+																		backpatch($3->truelist,$5->ins);
+																		backpatch($3->falselist,$7->ins);
+																		$$->nextlist = merge(merge($3->nextlist,makelist($7->ins)),$7->nextlist);
+																	} 
 ;
 
 IfThenElseStatementNoShortIf:
-	IF LPAREN Expression RPAREN StatementNoShortIf ELSE StatementNoShortIf	{ $$ = create_node ( 8 ,"IfThenElseStatementNoShortIf", $1, $2, $3, $4, $5, $6, $7); } 
+	IF LPAREN Expression RPAREN StatementNoShortIf Else StatementNoShortIf	{
+																				$$ = create_node ( 8 ,"IfThenElseStatementNoShortIf", $1, $2, $3, $4, $5, $6, $7);
+																				$$->ins = instCount+1;
+																				backpatch($3->truelist,$5->ins);
+																				backpatch($3->falselist,$7->ins);
+																				$$->nextlist = merge(merge($3->nextlist,makelist($7->ins)),$7->nextlist);
+																			}
 ;
 
 WhileStatement:
-	WHILE LPAREN Expression RPAREN Statement	{ $$ = create_node ( 6 ,"WhileStatement", $1, $2, $3, $4, $5); } 
+	WHILE LPAREN Expression RPAREN Statement	{
+													$$ = create_node ( 6 ,"WhileStatement", $1, $2, $3, $4, $5);
+													backpatch($5->nextlist,$3->ins);
+													backpatch($3->truelist,$5->ins);
+													$5->nextlist = $3->falselist;
+													create_ins("goto "+to_string($3->ins));
+													// cout << "a=>" << instructions[6] << endl;
+												} 
 ;
 
 WhileStatementNoShortIf:
@@ -481,14 +554,30 @@ WhileStatementNoShortIf:
 ;
 
 ForStatement:
-	FOR LPAREN ForInit SEMICOLON Expression SEMICOLON ForUpdate RPAREN Statement	{ $$ = create_node ( 10 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7, $8, $9); } 
-|	FOR LPAREN ForInit SEMICOLON SEMICOLON ForUpdate RPAREN Statement	{ $$ = create_node ( 9 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7, $8); } 
-|	FOR LPAREN SEMICOLON Expression SEMICOLON ForUpdate RPAREN Statement	{ $$ = create_node ( 9 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7, $8); } 
-|	FOR LPAREN SEMICOLON SEMICOLON ForUpdate RPAREN Statement	{ $$ = create_node ( 8 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7); } 
-|	FOR LPAREN ForInit SEMICOLON Expression SEMICOLON RPAREN Statement	{ $$ = create_node ( 9 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7, $8); } 
-|	FOR LPAREN ForInit SEMICOLON SEMICOLON RPAREN Statement	{ $$ = create_node ( 8 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7); } 
-|	FOR LPAREN SEMICOLON Expression SEMICOLON RPAREN Statement	{ $$ = create_node ( 8 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7); } 
-|	FOR LPAREN SEMICOLON SEMICOLON RPAREN Statement	{ $$ = create_node ( 7 ,"ForStatement", $1, $2, $3, $4, $5, $6); } 
+	FOR LPAREN ForInit SEMICOLON Expression SEMICOLON ForUpdate RPAREN Statement	{
+																						$$ = create_node ( 10 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7, $8, $9);
+																					} 
+|	FOR LPAREN ForInit SEMICOLON SEMICOLON ForUpdate RPAREN Statement	{
+																			$$ = create_node ( 9 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7, $8);
+																		} 
+|	FOR LPAREN SEMICOLON Expression SEMICOLON ForUpdate RPAREN Statement	{
+																				$$ = create_node ( 9 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7, $8);
+																			} 
+|	FOR LPAREN SEMICOLON SEMICOLON ForUpdate RPAREN Statement	{
+																	$$ = create_node ( 8 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7);
+																} 
+|	FOR LPAREN ForInit SEMICOLON Expression SEMICOLON RPAREN Statement	{
+																			$$ = create_node ( 9 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7, $8);
+																		} 
+|	FOR LPAREN ForInit SEMICOLON SEMICOLON RPAREN Statement	{
+																$$ = create_node ( 8 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7);
+															} 
+|	FOR LPAREN SEMICOLON Expression SEMICOLON RPAREN Statement	{
+																	$$ = create_node ( 8 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7);
+																} 
+|	FOR LPAREN SEMICOLON SEMICOLON RPAREN Statement	{
+														$$ = create_node ( 7 ,"ForStatement", $1, $2, $3, $4, $5, $6);
+													} 
 ;
 
 ForStatementNoShortIf:
@@ -580,7 +669,11 @@ ClassInstanceCreationExpression:
 ;
 
 ArgumentList:
-	Expression	{ $$ = create_node(2,"Argument_List",$1) ; }
+	Expression	{
+					$$ = create_node(2,"Argument_List",$1) ;
+					$$->ins = instCount+1;
+					create_ins("param "+string($1->addr));
+				}
 |	ArgumentList COMMA Expression	{ $1->children.push_back($2);$1->children.push_back($3); $$ =$1 ;} 
 ;
 
@@ -611,12 +704,26 @@ FieldAccess:
 ;
 
 MethodInvocation:
-	Name LPAREN ArgumentList RPAREN	{ $$ = create_node ( 5 ,"MethodInvocation", $1, $2, $3, $4); } 
-|	Name LPAREN RPAREN	{ $$ = create_node ( 4 ,"MethodInvocation", $1, $2, $3); } 
-|	Primary DOT IDENTIFIER LPAREN ArgumentList RPAREN	{ $$ = create_node ( 7 ,"MethodInvocation", $1, $2, $3, $4, $5, $6); } 
-|	Primary DOT IDENTIFIER LPAREN RPAREN	{ $$ = create_node ( 6 ,"MethodInvocation", $1, $2, $3, $4, $5); } 
-|	SUPER DOT IDENTIFIER LPAREN ArgumentList RPAREN	{ $$ = create_node ( 7 ,"MethodInvocation", $1, $2, $3, $4, $5, $6); } 
-|	SUPER DOT IDENTIFIER LPAREN RPAREN	{ $$ = create_node ( 6 ,"MethodInvocation", $1, $2, $3, $4, $5); } 
+	Name LPAREN ArgumentList RPAREN	{
+										$$ = create_node ( 5 ,"MethodInvocation", $1, $2, $3, $4);
+										$$->ins = instCount+1;
+										create_ins(newTemp()+" = call _"+string($1->addr));
+									} 
+|	Name LPAREN RPAREN	{
+							$$ = create_node ( 4 ,"MethodInvocation", $1, $2, $3);
+						} 
+|	Primary DOT IDENTIFIER LPAREN ArgumentList RPAREN	{
+															$$ = create_node ( 7 ,"MethodInvocation", $1, $2, $3, $4, $5, $6);
+														} 
+|	Primary DOT IDENTIFIER LPAREN RPAREN	{
+												$$ = create_node ( 6 ,"MethodInvocation", $1, $2, $3, $4, $5);
+											} 
+|	SUPER DOT IDENTIFIER LPAREN ArgumentList RPAREN	{
+														$$ = create_node ( 7 ,"MethodInvocation", $1, $2, $3, $4, $5, $6);
+													} 
+|	SUPER DOT IDENTIFIER LPAREN RPAREN	{
+											$$ = create_node ( 6 ,"MethodInvocation", $1, $2, $3, $4, $5);
+										} 
 ;
 
 
@@ -649,17 +756,31 @@ UnaryExpression:
 ;
 
 PreIncrementExpression:
-	PLUS_PLUS UnaryExpression	{ $$ = create_node ( 2 ,$1->val, $2); } 
+	PLUS_PLUS UnaryExpression	{
+									$$ = create_node ( 2 ,$1->val, $2);
+									$$->ins = instCount+1;
+									$$->addr = str_to_ch(newTemp());
+									create_ins(string($$->addr)+" = "+string($2->addr)+" + 1");
+								}
 ;
 
 PreDecrementExpression:
-	MINUS_MINUS UnaryExpression	{ $$ = create_node ( 2 ,$1->val, $2); } 
+	MINUS_MINUS UnaryExpression	{
+									$$ = create_node ( 2 ,$1->val, $2);
+									$$->ins = instCount+1;
+									$$->addr = str_to_ch(newTemp());
+									create_ins(string($$->addr)+" = "+string($2->addr)+" - 1");
+								}
 ;
 
 UnaryExpressionNotPlusMinus:
 	PostfixExpression	{ $$ = $1; }
 |	TILDE UnaryExpression	{ $$ = create_node ( 2 ,$1->val, $2); } 
-|	NOT UnaryExpression	{ $$ = create_node ( 2 ,$1->val , $2); } 
+|	NOT UnaryExpression	{
+							$$ = create_node ( 2 ,$1->val , $2);
+							$$->ins = instCount+1;
+							$$->addr = str_to_ch(newTemp());
+						}
 |	CastExpression	{ $$ = $1; }
 ;
 
@@ -694,21 +815,36 @@ RelationalExpression:
 	ShiftExpression	{ $$ = $1; }
 |	RelationalExpression LT ShiftExpression	{
 												$$ = create_node ( 3 ,$2->val, $1, $3); 
-												// $$->ins = instCount;
-												// $$->code.push_back(create_instruction($1->code+$3->code+"if"+string($1->addr)+"<"+string($3->addr)+"goto "));
-												// $$->code.push_back(create_instruction(goto ));
-												// $$->truelist = makelist($$->code[0]);
-												// $$->falselist = makelist($$->code[1]);
-
 												$$->ins = instCount+1;
 												$$->truelist = makelist(instCount+1);
 												$$->falselist = makelist(instCount+2);
 												create_ins("if "+string($1->addr)+" < "+string($3->addr)+" goto ");
 												create_ins("goto ");
 											} 
-|	RelationalExpression GT ShiftExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
-|	RelationalExpression LE ShiftExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
-|	RelationalExpression GE ShiftExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
+|	RelationalExpression GT ShiftExpression	{
+												$$ = create_node ( 3 ,$2->val, $1, $3); 
+												$$->ins = instCount+1;
+												$$->truelist = makelist(instCount+1);
+												$$->falselist = makelist(instCount+2);
+												create_ins("if "+string($1->addr)+" > "+string($3->addr)+" goto ");
+												create_ins("goto ");
+											} 
+|	RelationalExpression LE ShiftExpression	{
+												$$ = create_node ( 3 ,$2->val, $1, $3); 
+												$$->ins = instCount+1;
+												$$->truelist = makelist(instCount+1);
+												$$->falselist = makelist(instCount+2);
+												create_ins("if "+string($1->addr)+" <= "+string($3->addr)+" goto ");
+												create_ins("goto ");
+											} 
+|	RelationalExpression GE ShiftExpression	{
+												$$ = create_node ( 3 ,$2->val, $1, $3); 
+												$$->ins = instCount+1;
+												$$->truelist = makelist(instCount+1);
+												$$->falselist = makelist(instCount+2);
+												create_ins("if "+string($1->addr)+" >= "+string($3->addr)+" goto ");
+												create_ins("goto ");
+											} 
 |	RelationalExpression INSTANCEOF ReferenceType	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
 ;
 
@@ -734,20 +870,19 @@ InclusiveOrExpression:
 
 ConditionalAndExpression:
 	InclusiveOrExpression	{ $$ = $1; }
-|	ConditionalAndExpression AND InclusiveOrExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
+|	ConditionalAndExpression AND InclusiveOrExpression	{
+															$$ = create_node ( 3 ,$2->val, $1, $3);
+															$$->ins = instCount+1;
+															backpatch($1->truelist,$3->ins);
+															$$->truelist = $3->truelist;
+															$$->falselist = merge($1->falselist,$3->falselist);
+														} 
 ;
 
 ConditionalOrExpression:
 	ConditionalAndExpression	{ $$ = $1; }
 |	ConditionalOrExpression OR ConditionalAndExpression	{
 															$$ = create_node ( 3 ,$2->val, $1, $3);
-																											 
-															// $$->ins = instCount;
-															// $$->code.push_back(create_instruction($1->code+$3->code+"if"+string($1->addr)+"<"+string($3->addr)+"goto "));
-															// $$->code.push_back(create_instruction(goto ));
-															// $$->truelist = makelist($$->code[0]);
-															// $$->falselist = makelist($$->code[1]);
-
 															$$->ins = instCount+1;
 															backpatch($1->falselist,$3->ins);
 															$$->truelist = merge($1->truelist,$3->truelist);
@@ -766,7 +901,11 @@ AssignmentExpression:
 ;
 
 Assignment:
-	LeftHandSide AssignmentOperator AssignmentExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
+	LeftHandSide AssignmentOperator AssignmentExpression	{
+																$$ = create_node ( 3 ,$2->val, $1, $3);
+																$$->ins = instCount+1;
+																create_ins(string($1->addr)+" "+string($2->val)+" "+string($3->addr));
+															} 
 ;
 
 LeftHandSide:
@@ -1271,7 +1410,10 @@ void MakeDOTFile(NODE*cell)
 void MakeIRFile()
 {
 	for(int i=0;i<instructions.size();i++)
+	{
 		cout << i+1 << "\t" << instructions[i] << endl;
+		code_out << i+1 << "\t" << instructions[i] << endl;
+	}
 }
 
 void printToCSV(){
@@ -1321,13 +1463,21 @@ vector<int> merge(vector<int> p1, vector<int> p2){
 void backpatch(vector<int>p, int i)
 {
 	for(int j=0;j<p.size();j++)
+	{
 		instructions[p[j]-1]+=to_string(i);
+		if(p[j]==7)
+			cout << "\nacha\n";
+	}
 }
 
 void create_ins(string s)
 {
 	instructions.push_back(s);
 	instCount++;
+}
+
+string newTemp(){
+	return "t"+to_string(tempCount++);
 }
 
 int main(int argc, char* argv[]){

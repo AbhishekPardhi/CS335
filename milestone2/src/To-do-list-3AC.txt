@@ -1,0 +1,4 @@
+For statements
+Function invocations
+Expressions
+Method declarations
