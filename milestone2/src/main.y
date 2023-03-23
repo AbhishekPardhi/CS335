@@ -2,9 +2,7 @@
     /* Declaration */
     #include <bits/stdc++.h>
     #include "data.h"
-	// #include "instructions.h"
 	#include "symbol_table.cpp"
-    // #include "data.cpp"
     using namespace std;
     int yylex();
     extern int yylineno;
@@ -20,8 +18,9 @@
 	vector<int> makelist(int i);
 	vector<int> merge(vector<int> p1,vector<int> p2);
 	void backpatch(vector<int> p,int i);
-	vector<string> instructions;
-	void create_ins(string s);
+	// vector<string> instructions;
+	vector<vector<string>> instructions;
+	void create_ins(int type,string i,string op,string arg1,string arg2); // type = 1=>normal 0=>abnormal
 
 	int tempCount;
 	string newTemp();
@@ -79,7 +78,10 @@ Type:
 ;
 
 Else:
-	ELSE { $$ = $1; create_ins("goto "); }
+	ELSE 	{
+				$$ = $1;
+				create_ins(0,"goto","","","");
+			}
 ;
 
 PrimitiveType:
@@ -123,9 +125,18 @@ InterfaceType:
 ;
 
 ArrayType:
-	PrimitiveType LSPAR RSPAR 	{ $$ = create_node ( 4 ,"Array_Type", $1, $2, $3); } 
-|	Name LSPAR RSPAR	{ $$ = create_node ( 4 ,"Array_Type", $1, $2, $3); } 
-|	ArrayType LSPAR RSPAR	{ $$ = create_node ( 4 ,"Array_Type", $1, $2, $3); } 
+	PrimitiveType LSPAR RSPAR 	{
+									$$ = create_node ( 4 ,"Array_Type", $1, $2, $3);
+									$$->addr = $1->addr;
+								}
+|	Name LSPAR RSPAR	{
+							$$ = create_node ( 4 ,"Array_Type", $1, $2, $3);
+							$$->addr = $1->addr;
+						}
+|	ArrayType LSPAR RSPAR	{
+								$$ = create_node ( 4 ,"Array_Type", $1, $2, $3);
+								$$->addr = $1->addr;
+							}
 ;
 
 
@@ -139,7 +150,10 @@ SimpleName:
 ;
 
 QualifiedName:
-	Name DOT IDENTIFIER	{ $$ = create_node ( 4 ,"Qualified_Name", $1, $2, $3); } 
+	Name DOT IDENTIFIER	{
+							$$ = create_node ( 4 ,"Qualified_Name", $1, $2, $3);
+							$$->addr = str_to_ch(string($1->addr)+string($3->addr));
+						} 
 ;
 
 CompilationUnit:
@@ -272,7 +286,7 @@ VariableDeclarator:
 |	VariableDeclaratorId EQUALS VariableInitializer	{
 														$$ = create_node ( 3 ,$2->val, $1, $3);
 														$$->ins = instCount+1;
-														create_ins(string($1->addr)+" "+string($2->addr)+" "+string($3->addr));
+														create_ins(0,$1->addr,$2->val,$3->addr,"");
 													}
 ;
 
@@ -308,8 +322,7 @@ MethodHeader:
 											}
 |	Modifiers VOID MethodDeclarator	{
 										$$ = create_node ( 4 ,"MethodHeader", $1, $2, $3);
-										// $$->ins = instCount+1;
-										// create_ins("")
+
 									}
 |	VOID MethodDeclarator Throws	{
 										$$ = create_node ( 4 ,"MethodHeader", $1, $2, $3);
@@ -321,19 +334,62 @@ MethodHeader:
 
 
 MethodDeclarator:
-	IDENTIFIER LPAREN FormalParameterList RPAREN	{ $$ = create_node ( 5 ,"MethodDeclarator", $1, $2, $3, $4);} 
-|	MethodDeclarator LSPAR RSPAR	{ $$ = create_node ( 4 ,"MethodDeclarator", $1, $2, $3); } 
-|	IDENTIFIER LPAREN RPAREN	{ $$ = create_node ( 4 ,"MethodDeclarator", $1, $2, $3); } 
+	IDENTIFIER LPAREN FormalParameterList RPAREN	{
+														$$ = create_node ( 5 ,"MethodDeclarator", $1, $2, $3, $4);
+														$$->ins = instCount+1;
+														bool flag=false;
+														string funcName=string($1->addr);
+														for(auto class_ptr:classMap)
+														{
+															stme* temp=class_ptr.second;
+															while(temp!=NULL)
+															{
+																if($1->val==temp->id)
+																{
+																	flag=true;
+																	funcName+=class_ptr.first;
+																	break;
+																}
+																temp=temp->next;
+															}
+															if(flag) break;
+														}
+														// funcName+=string($3->addr);
+														create_ins(0,funcName,":","","");
+														create_ins(0,"BeginFunc","","","");
+													} 
+|	MethodDeclarator LSPAR RSPAR	{
+										$$ = create_node ( 4 ,"MethodDeclarator", $1, $2, $3);
+										// add "v" to funcName
+									} 
+|	IDENTIFIER LPAREN RPAREN	{
+									$$ = create_node ( 4 ,"MethodDeclarator", $1, $2, $3);
+								}
 ;
 
 FormalParameterList:
-	FormalParameter	{ $$ = create_node(2,"Formal_Parameter_List",$1) ; }
-|	FormalParameterList COMMA FormalParameter	{ $1->children.push_back($2);$1->children.push_back($3); $$ =$1 ;} 
+	FormalParameter	{
+						$$ = create_node(2,"Formal_Parameter_List",$1) ;
+						// $$->addr = str_to_ch(string(""+*string($1->addr).begin()));
+						// string str="";
+						// str.push_back(*string($1->addr).begin());
+						// $$->addr = str_to_ch(str);
+					}
+|	FormalParameterList COMMA FormalParameter	{
+													$1->children.push_back($2);$1->children.push_back($3); $$ =$1 ;
+													// $$->addr=str_to_ch(string($1->addr)+string($3->addr));
+												} 
 ;
 
 FormalParameter:
-	Type VariableDeclaratorId	{ $$ = create_node ( 3 ,"FormalParameter", $1, $2); } 
-|	FINAL Type VariableDeclaratorId	{ $$ = create_node ( 4 ,"FormalParameter", $1, $2, $3); }
+	Type VariableDeclaratorId	{
+									$$ = create_node ( 3 ,"FormalParameter", $1, $2);
+									$$->addr = $1->addr;
+								}
+|	FINAL Type VariableDeclaratorId	{
+										$$ = create_node ( 4 ,"FormalParameter", $1, $2, $3);
+										$$->addr = $1->addr;
+									}
 ;
 
 Throws:
@@ -346,7 +402,11 @@ ClassTypeList:
 ;
 
 MethodBody:
-	Block 	{ $$ = $1; }
+	Block 	{
+				$$ = $1;
+				$$->ins = instCount+1;
+				create_ins(0,"EndFunc","","","");
+			}
 |	SEMICOLON	{ $$ = $1; }
 ;
 
@@ -553,8 +613,7 @@ WhileStatement:
 													backpatch($5->nextlist,$3->ins);
 													backpatch($3->truelist,$5->ins);
 													$5->nextlist = $3->falselist;
-													create_ins("goto "+to_string($3->ins));
-													// cout << "a=>" << instructions[6] << endl;
+													create_ins(0,"goto",to_string($3->ins),"","");
 												} 
 ;
 
@@ -625,7 +684,11 @@ ContinueStatement:
 ;
 
 ReturnStatement:
-	RETURN Expression SEMICOLON	{ $$ = create_node ( 4 ,"ReturnStatement", $1, $2, $3); } 
+	RETURN Expression SEMICOLON	{
+									$$ = create_node ( 4 ,"ReturnStatement", $1, $2, $3);
+									$$->ins = instCount+1;
+									create_ins(0,"Return",$2->addr,"","");
+								}
 |	RETURN SEMICOLON	{ $$ = create_node ( 3 ,"ReturnStatement", $1, $2); } 
 ;
 
@@ -687,9 +750,15 @@ ArgumentList:
 	Expression	{
 					$$ = create_node(2,"Argument_List",$1) ;
 					$$->ins = instCount+1;
-					create_ins("param "+string($1->addr));
+					create_ins(0,"PushParam",$1->addr,"","");
+					$$->addr = str_to_ch(to_string(4));
 				}
-|	ArgumentList COMMA Expression	{ $1->children.push_back($2);$1->children.push_back($3); $$ =$1 ;} 
+|	ArgumentList COMMA Expression	{
+										$1->children.push_back($2);
+										$1->children.push_back($3);
+										$$ =$1;
+										$$->addr = str_to_ch(string(to_string(stoi(string($1->addr))+1)));
+									}
 ;
 
 ArrayCreationExpression:
@@ -700,8 +769,16 @@ ArrayCreationExpression:
 ;
 
 DimExprs:
-	DimExpr	{ $$ = create_node(2,"Dim_Expers",$1) ; }
-|	DimExprs DimExpr	{$1->children.push_back($2); $$ =$1 ; } 
+	DimExpr	{
+				$$ = create_node(2,"Dim_Expers",$1) ;
+				$$->addr = $1->addr;
+			}
+|	DimExprs DimExpr	{
+							$1->children.push_back($2); $$ =$1 ;
+							$$->ins = instCount+1;
+							$$->addr = str_to_ch(newTemp());
+							create_ins(1,$$->addr,"*",$2->addr,"4");
+						}
 ;
 
 DimExpr:
@@ -722,28 +799,57 @@ MethodInvocation:
 	Name LPAREN ArgumentList RPAREN	{
 										$$ = create_node ( 5 ,"MethodInvocation", $1, $2, $3, $4);
 										$$->ins = instCount+1;
-										create_ins(newTemp()+" = call _"+string($1->addr));
+										$$->addr = str_to_ch(newTemp());
+										create_ins(0,$$->addr,"=","call",$1->addr);
+										create_ins(0,"PopParam",$3->addr,"","");
 									} 
 |	Name LPAREN RPAREN	{
 							$$ = create_node ( 4 ,"MethodInvocation", $1, $2, $3);
+							$$->ins = instCount+1;
+							$$->addr = str_to_ch(newTemp());
+							create_ins(0,$$->addr,"=","call",$1->addr);
+							create_ins(0,"PopParam",$3->addr,"","");
 						} 
 |	Primary DOT IDENTIFIER LPAREN ArgumentList RPAREN	{
 															$$ = create_node ( 7 ,"MethodInvocation", $1, $2, $3, $4, $5, $6);
+															$$->ins = instCount+1;
+															$$->addr = str_to_ch(newTemp());
+															create_ins(0,$$->addr,"=","call",$3->addr);
+															create_ins(0,"PopParam",$3->addr,"","");
 														} 
 |	Primary DOT IDENTIFIER LPAREN RPAREN	{
 												$$ = create_node ( 6 ,"MethodInvocation", $1, $2, $3, $4, $5);
+												$$->ins = instCount+1;
+												$$->addr = str_to_ch(newTemp());
+												create_ins(0,$$->addr,"=","call",$3->addr);
+												create_ins(0,"PopParam",$3->addr,"","");
 											} 
 |	SUPER DOT IDENTIFIER LPAREN ArgumentList RPAREN	{
 														$$ = create_node ( 7 ,"MethodInvocation", $1, $2, $3, $4, $5, $6);
+														$$->ins = instCount+1;
+														$$->addr = str_to_ch(newTemp());
+														create_ins(0,$$->addr,"=","call",$3->addr);
+														create_ins(0,"PopParam",$3->addr,"","");
 													} 
 |	SUPER DOT IDENTIFIER LPAREN RPAREN	{
 											$$ = create_node ( 6 ,"MethodInvocation", $1, $2, $3, $4, $5);
+											$$->ins = instCount+1;
+											$$->addr = str_to_ch(newTemp());
+											create_ins(0,$$->addr,"=","call",$3->addr);
+											create_ins(0,"PopParam",$3->addr,"","");
 										} 
 ;
 
 
 ArrayAccess:
-	Name LSPAR Expression RSPAR	{ $$ = create_node ( 5 ,"ArrayAccess", $1, $2, $3, $4); } 
+	Name LSPAR Expression RSPAR	{
+									$$ = create_node ( 5 ,"ArrayAccess", $1, $2, $3, $4);
+									$$->ins = instCount+1;
+									$$->addr = str_to_ch(newTemp());
+									string reg = newTemp();
+									create_ins(1,reg,"+",$1->addr,$3->addr);
+									create_ins(1,$$->addr,"*",reg,"4");
+								}
 |	PrimaryNoNewArray LSPAR Expression RSPAR	{ $$ = create_node ( 5 ,"ArrayAccess", $1, $2, $3, $4); } 
 ;
 
@@ -755,46 +861,80 @@ PostfixExpression:
 ;
 
 PostIncrementExpression:
-	PostfixExpression PLUS_PLUS	{ $$ = create_node ( 2 ,$2->val, $1); } 
+	PostfixExpression PLUS_PLUS	{
+									$$ = create_node ( 2 ,$2->val, $1);
+									$$->ins = instCount+1;
+									create_ins(0,$$->addr,"=",$1->addr,"");
+									string reg = str_to_ch(newTemp());
+									create_ins(1,reg,"+",$1->addr,"1");
+									$1->addr = str_to_ch(reg);
+								}
 ;
 
 PostDecrementExpression:
-	PostfixExpression MINUS_MINUS	{ $$ = create_node ( 2 ,$2->val, $1); } 
+	PostfixExpression MINUS_MINUS	{
+										$$ = create_node ( 2 ,$2->val, $1);
+										$$->ins = instCount+1;
+										create_ins(0,$$->addr,"=",$1->addr,"");
+										string reg = str_to_ch(newTemp());
+										create_ins(1,reg,"-",$1->addr,"1");
+										$1->addr = str_to_ch(reg);
+									}
 ;
 
 UnaryExpression:
 	PreIncrementExpression	{ $$ = $1; }
 |	PreDecrementExpression	{ $$ = $1; }
-|	PLUS UnaryExpression	{ $$ = create_node ( 2 ,$1->val, $2); } 
-|	MINUS UnaryExpression	{ $$ = create_node ( 2 ,$1->val, $2); } 
+|	PLUS UnaryExpression	{
+								$$ = create_node ( 2 ,$1->val, $2);
+								$$->ins = instCount+1;
+								create_ins(0,$$->addr,"=","+",$2->addr);
+							}
+|	MINUS UnaryExpression	{ 
+								$$ = create_node ( 2 ,$1->val, $2);
+								$$->ins = instCount+1;
+								create_ins(0,$$->addr,"=","-",$2->addr);
+							}
 |	UnaryExpressionNotPlusMinus	{ $$ = $1; }
 ;
 
 PreIncrementExpression:
 	PLUS_PLUS UnaryExpression	{
-									$$ = create_node ( 2 ,$1->val, $2);
+									$$ = create_node ( 2 ,$2->val, $1);
 									$$->ins = instCount+1;
 									$$->addr = str_to_ch(newTemp());
-									create_ins(string($$->addr)+" = "+string($2->addr)+" + 1");
+									string reg = str_to_ch(newTemp());
+									create_ins(1,reg,"+",$2->addr,"1");
+									$2->addr = str_to_ch(reg);
+									create_ins(0,$$->addr,"=",$2->addr,"");
 								}
 ;
 
 PreDecrementExpression:
 	MINUS_MINUS UnaryExpression	{
-									$$ = create_node ( 2 ,$1->val, $2);
+									$$ = create_node ( 2 ,$2->val, $1);
 									$$->ins = instCount+1;
 									$$->addr = str_to_ch(newTemp());
-									create_ins(string($$->addr)+" = "+string($2->addr)+" - 1");
+									string reg = str_to_ch(newTemp());
+									create_ins(1,reg,"-",$1->addr,"1");
+									$2->addr = str_to_ch(reg);
+									create_ins(0,$$->addr,"=",$2->addr,"");
 								}
 ;
 
 UnaryExpressionNotPlusMinus:
 	PostfixExpression	{ $$ = $1; }
-|	TILDE UnaryExpression	{ $$ = create_node ( 2 ,$1->val, $2); } 
+|	TILDE UnaryExpression	{
+								$$ = create_node ( 2 ,$1->val , $2);
+								$$->ins = instCount+1;
+								$$->addr = str_to_ch(newTemp());
+								create_ins(1,$$->addr,$1->val,$2->addr,"");
+							}
 |	NOT UnaryExpression	{
 							$$ = create_node ( 2 ,$1->val , $2);
 							$$->ins = instCount+1;
 							$$->addr = str_to_ch(newTemp());
+							create_ins(1,$$->addr,$1->val,$2->addr,"");
 						}
 |	CastExpression	{ $$ = $1; }
 ;
@@ -808,15 +948,40 @@ CastExpression:
 
 MultiplicativeExpression:
 	UnaryExpression	{ $$ = $1; }
-|	MultiplicativeExpression TIMES UnaryExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
-|	MultiplicativeExpression DIVIDE UnaryExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
-|	MultiplicativeExpression MOD UnaryExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
+|	MultiplicativeExpression TIMES UnaryExpression	{
+														$$ = create_node ( 3 ,$2->val, $1, $3);
+														$$->ins = instCount+1;
+														$$->addr = str_to_ch(newTemp());
+														create_ins(1,$$->addr,$2->val,$1->addr,$3->addr);
+													} 
+|	MultiplicativeExpression DIVIDE UnaryExpression	{
+														$$ = create_node ( 3 ,$2->val, $1, $3);
+														$$->ins = instCount+1;
+														$$->addr = str_to_ch(newTemp());
+														create_ins(1,$$->addr,$2->val,$1->addr,$3->addr);
+													} 
+|	MultiplicativeExpression MOD UnaryExpression	{
+														$$ = create_node ( 3 ,$2->val, $1, $3);
+														$$->ins = instCount+1;
+														$$->addr = str_to_ch(newTemp());
+														create_ins(1,$$->addr,$2->val,$1->addr,$3->addr);
+													} 
 ;
 
 AdditiveExpression:
 	MultiplicativeExpression	{ $$ = $1; }
-|	AdditiveExpression PLUS MultiplicativeExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
-|	AdditiveExpression MINUS MultiplicativeExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
+|	AdditiveExpression PLUS MultiplicativeExpression	{
+															$$ = create_node ( 3 ,$2->val, $1, $3);
+															$$->ins = instCount+1;
+															$$->addr = str_to_ch(newTemp());
+															create_ins(1,$$->addr,$2->val,$1->addr,$3->addr);
+														} 
+|	AdditiveExpression MINUS MultiplicativeExpression	{
+															$$ = create_node ( 3 ,$2->val, $1, $3);
+															$$->ins = instCount+1;
+															$$->addr = str_to_ch(newTemp());
+															create_ins(1,$$->addr,$2->val,$1->addr,$3->addr);
+														} 
 ;
 
 ShiftExpression:
@@ -831,56 +996,96 @@ RelationalExpression:
 |	RelationalExpression LT ShiftExpression	{
 												$$ = create_node ( 3 ,$2->val, $1, $3); 
 												$$->ins = instCount+1;
+												$$->addr = str_to_ch(newTemp());
+												create_ins(1,$$->addr,$2->val,$1->addr,$3->addr);
 												$$->truelist = makelist(instCount+1);
 												$$->falselist = makelist(instCount+2);
-												create_ins("if "+string($1->addr)+" < "+string($3->addr)+" goto ");
-												create_ins("goto ");
+												create_ins(0,"if",$$->addr,"goto","");
+												create_ins(0,"goto","","","");
 											} 
 |	RelationalExpression GT ShiftExpression	{
 												$$ = create_node ( 3 ,$2->val, $1, $3); 
 												$$->ins = instCount+1;
+												$$->addr = str_to_ch(newTemp());
+												create_ins(1,$$->addr,$2->val,$1->addr,$3->addr);
 												$$->truelist = makelist(instCount+1);
 												$$->falselist = makelist(instCount+2);
-												create_ins("if "+string($1->addr)+" > "+string($3->addr)+" goto ");
-												create_ins("goto ");
+												create_ins(0,"if",$$->addr,"goto","");
+												create_ins(0,"goto","","","");
 											} 
 |	RelationalExpression LE ShiftExpression	{
 												$$ = create_node ( 3 ,$2->val, $1, $3); 
 												$$->ins = instCount+1;
+												$$->addr = str_to_ch(newTemp());
+												create_ins(1,$$->addr,$2->val,$1->addr,$3->addr);
 												$$->truelist = makelist(instCount+1);
 												$$->falselist = makelist(instCount+2);
-												create_ins("if "+string($1->addr)+" <= "+string($3->addr)+" goto ");
-												create_ins("goto ");
+												create_ins(0,"if",$$->addr,"goto","");
+												create_ins(0,"goto","","","");
 											} 
 |	RelationalExpression GE ShiftExpression	{
 												$$ = create_node ( 3 ,$2->val, $1, $3); 
 												$$->ins = instCount+1;
+												$$->addr = str_to_ch(newTemp());
+												create_ins(1,$$->addr,$2->val,$1->addr,$3->addr);
 												$$->truelist = makelist(instCount+1);
 												$$->falselist = makelist(instCount+2);
-												create_ins("if "+string($1->addr)+" >= "+string($3->addr)+" goto ");
-												create_ins("goto ");
+												create_ins(0,"if",$$->addr,"goto","");
+												create_ins(0,"goto","","","");
 											} 
 |	RelationalExpression INSTANCEOF ReferenceType	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
 ;
 
 EqualityExpression:
 	RelationalExpression	{ $$ = $1; }
-|	EqualityExpression EQUALS_EQUALS RelationalExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
-|	EqualityExpression NOT_EQUALS RelationalExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
+|	EqualityExpression EQUALS_EQUALS RelationalExpression	{
+																$$ = create_node ( 3 ,$2->val, $1, $3);
+																$$->ins = instCount+1;
+																$$->addr = str_to_ch(newTemp());
+																create_ins(1,$$->addr,$2->val,$1->addr,$3->addr);
+																$$->truelist = makelist(instCount+1);
+																$$->falselist = makelist(instCount+2);
+																create_ins(0,"if",$$->addr,"goto","");
+																create_ins(0,"goto","","","");
+															} 
+|	EqualityExpression NOT_EQUALS RelationalExpression	{
+															$$ = create_node ( 3 ,$2->val, $1, $3);
+															$$->ins = instCount+1;
+															create_ins(1,$$->addr,$2->val,$1->addr,$3->addr);
+															$$->truelist = makelist(instCount+1);
+															$$->falselist = makelist(instCount+2);
+															create_ins(0,"if",$$->addr,"goto","");
+															create_ins(0,"goto","","","");
+														} 
 ;
 AndExpression:
 	EqualityExpression	{ $$ = $1; }
-|	AndExpression BITWISE_AND EqualityExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
+|	AndExpression BITWISE_AND EqualityExpression	{
+														$$ = create_node ( 3 ,$2->val, $1, $3);
+														$$->ins = instCount+1;
+														$$->addr = str_to_ch(newTemp());
+														create_ins(1,$$->addr,$2->val,$1->addr,$3->addr);
+													}
 ;
 
 ExclusiveOrExpression:
 	AndExpression	{ $$ = $1; }
-|	ExclusiveOrExpression XOR AndExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
+|	ExclusiveOrExpression XOR AndExpression	{
+												$$ = create_node ( 3 ,$2->val, $1, $3);
+												$$->ins = instCount+1;
+												$$->addr = str_to_ch(newTemp());
+												create_ins(1,$$->addr,$2->val,$1->addr,$3->addr);
+											}
 ;
 
 InclusiveOrExpression:
 	ExclusiveOrExpression	{ $$ = $1; }
-|	InclusiveOrExpression BITWISE_OR ExclusiveOrExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
+|	InclusiveOrExpression BITWISE_OR ExclusiveOrExpression	{
+																$$ = create_node ( 3 ,$2->val, $1, $3);
+																$$->ins = instCount+1;
+																$$->addr = str_to_ch(newTemp());
+																create_ins(1,$$->addr,$2->val,$1->addr,$3->addr);
+															}
 ;
 
 ConditionalAndExpression:
@@ -907,7 +1112,15 @@ ConditionalOrExpression:
 
 ConditionalExpression:
 	ConditionalOrExpression	{ $$ = $1; }
-|	ConditionalOrExpression QUESTION Expression COLON ConditionalExpression	{ $$ = create_node ( 6 ,"ConditionalExpression", $1, $2, $3, $4, $5); } 
+|	ConditionalOrExpression QUESTION Expression COLON ConditionalExpression	{
+																				$$ = create_node ( 6 ,"ConditionalExpression", $1, $2, $3, $4, $5);
+																				$$->ins = instCount+1;
+																				$$->addr = str_to_ch(newTemp());
+																				create_ins(0,"if",$1->addr,"goto",to_string(instCount+4));
+																				create_ins(1,$$->addr,"=",$5->addr,"");
+																				create_ins(0,"goto",to_string(instCount+2),"","");
+																				create_ins(1,$$->addr,"=",$3->addr,"");
+																			} 
 ;
 
 AssignmentExpression:
@@ -919,7 +1132,7 @@ Assignment:
 	LeftHandSide AssignmentOperator AssignmentExpression	{
 																$$ = create_node ( 3 ,$2->val, $1, $3);
 																$$->ins = instCount+1;
-																create_ins(string($1->addr)+" "+string($2->val)+" "+string($3->addr));
+																create_ins(0,$1->addr,$2->val,$3->addr,"");
 															} 
 ;
 
@@ -1407,6 +1620,13 @@ char* str_to_ch(string s)
 	return result_chr;
 }
 
+void create_ins(int type,string i,string op,string arg1,string arg2)
+{
+	vector<string> instruction{to_string(type),i,op,arg1,arg2};
+	instructions.push_back(instruction);
+	instCount += 1;
+}
+
 void branchMethodSymtable(NODE* declaration_node)
 {
 	string decl_node=declaration_node->val;
@@ -1546,10 +1766,28 @@ void MakeDOTFile(NODE*cell)
 
 void MakeIRFile()
 {
+	int tabs=0;
 	for(int i=0;i<instructions.size();i++)
 	{
-		cout << i+1 << "\t" << instructions[i] << endl;
-		code_out << i+1 << "\t" << instructions[i] << endl;
+		if(instructions[i][1]=="EndFunc") tabs--;
+		cout << i+1 << "\t" << string(tabs,'\t');
+		code_out << i+1 << "\t" << string(tabs,'\t');
+		if(instructions[i][0]=="0")
+		{
+			for(int j=1;j<instructions[i].size();j++)
+			{
+				cout << instructions[i][j] << (instructions[i][j].length()?" ":"");
+				code_out << instructions[i][j] << (instructions[i][j].length()?" ":"");
+			}
+			if(instructions[i][1]=="BeginFunc") tabs++;
+		}
+		else
+		{
+			cout << instructions[i][1] << " = " << instructions[i][3] << " " << instructions[i][2] << " " << instructions[i][4];
+			code_out << instructions[i][1] << " = " << instructions[i][3] << " " << instructions[i][2] << " " << instructions[i][4];
+		}
+		cout << endl;
+		code_out << endl;
 	}
 }
 
@@ -1593,17 +1831,7 @@ vector<int> merge(vector<int> p1, vector<int> p2){
 void backpatch(vector<int>p, int i)
 {
 	for(int j=0;j<p.size();j++)
-	{
-		instructions[p[j]-1]+=to_string(i);
-		if(p[j]==7)
-			cout << "\nacha\n";
-	}
-}
-
-void create_ins(string s)
-{
-	instructions.push_back(s);
-	instCount++;
+		instructions[p[j]-1].push_back(to_string(i));
 }
 
 string newTemp(){
