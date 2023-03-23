@@ -1,17 +1,12 @@
 public class ExampleExpression {
+    public static void something(int a){
+      return a++;
+    } 
+    
     public static void main(String[] args) {
-      int x = 150;
-      int y = 150;
-  
-    //   if (x < 100 || x > 200 && x != y) {
-    //     System.out.println("Ankur chakka");
-    //   } else {
-    //     System.out.println("Manas chakka");
-    //   }
-      if (x < 100 || y < 200) {
-        System.out.println("Ankur chakka");
-      } else {
-        System.out.println("Manas chakka");
+      int x=0;
+      for(int i=0; i<10; i++){
+        x += 2;
       }
     }
   }
