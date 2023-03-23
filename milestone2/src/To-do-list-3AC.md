@@ -6,3 +6,7 @@ Method declarations
 (lite) ArrayAccess
 FieldAccess
 (lite) ArgumentList (PopParam)
+Array initializer
+Array.length
+Add a bool
+CHnage falselist to nextlist for statements;

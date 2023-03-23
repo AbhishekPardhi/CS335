@@ -7,16 +7,18 @@
 7	EndFunc 
 8	main : 
 9	BeginFunc 
-10		x = 150 
-11		y = 150 
-12		t2 = x == 3
-13		if t2 goto 15 
-14		goto 
-15		y = 2 
-16		goto 12 
-17		y = 24 
-18		PushParam 3 
-19		t3 = call Masti 
-20		PopParam 4 
-21		z = t3 
-22	EndFunc 
+10		t2 = 2 * 4
+11		t3 = arr + t2
+12		t4 = * t3 
+13		PushParam t4 
+14		t5 = call Masti 
+15		PopParam 4 
+16		i = 0 
+17		t6 = i < 5
+18		if t6 goto 
+19		goto 
+20		++ = i 
+21		t7 = i + 1
+22		++ = x 
+23		t8 = x + 1
+24	EndFunc 

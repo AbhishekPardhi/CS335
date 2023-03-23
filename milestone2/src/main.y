@@ -406,6 +406,7 @@ MethodBody:
 				$$ = $1;
 				$$->ins = instCount+1;
 				create_ins(0,"EndFunc","","","");
+				backpatch($1->nextlist,$$->ins);
 			}
 |	SEMICOLON	{ $$ = $1; }
 ;
@@ -495,6 +496,7 @@ Block:
 	LMPARA BlockStatements RMPARA	{
 										$$ = create_node ( 4 ,"Block", $1, $2, $3);
 										$$->ins = $2->ins;
+										$$->nextlist = $2->nextlist;
 									} 
 |	LMPARA RMPARA	{ $$ = create_node ( 3 ,"Block", $1, $2); } 
 ;
@@ -504,7 +506,11 @@ BlockStatements:
 						$$ = create_node(2,"Block_Statements",$1) ;
 						$$->ins = $1->ins;
 					}
-|	BlockStatements BlockStatement	{ $1->children.push_back($2); $$ =$1; } 
+|	BlockStatements BlockStatement	{
+										$1->children.push_back($2); $$ =$1;
+										backpatch($1->nextlist,$2->ins);
+										$$->nextlist = $2->nextlist;
+									} 
 ;
 
 BlockStatement:
@@ -624,6 +630,12 @@ WhileStatementNoShortIf:
 ForStatement:
 	FOR LPAREN ForInit SEMICOLON Expression SEMICOLON ForUpdate RPAREN Statement	{
 																						$$ = create_node ( 10 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7, $8, $9);
+																						$$->ins = instCount+1;
+																						backpatch($9->nextlist,$7->ins);
+																						backpatch($5->truelist,$9->ins);
+																						backpatch($7->truelist,$5->ins);
+																						$9->nextlist = $5->falselist;
+																						create_ins(0,"goto",to_string($7->ins),"","");
 																					} 
 |	FOR LPAREN ForInit SEMICOLON SEMICOLON ForUpdate RPAREN Statement	{
 																			$$ = create_node ( 9 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7, $8);
@@ -665,11 +677,19 @@ ForInit:
 ;
 
 ForUpdate:
-	StatementExpressionList	{ $$ = $1; }
+	StatementExpressionList	{
+								$$ = $1;
+								$$->ins = $1->ins;
+								create_ins(0,"goto","","","");
+								$$->truelist = makelist(instCount);
+							}
 ;
 
 StatementExpressionList:
-	StatementExpression	{ $$ = create_node(2,"Statement_Expression_List",$1) ; }
+	StatementExpression	{
+							$$ = create_node(2,"Statement_Expression_List",$1) ;
+							$$->ins = $1->ins;
+						}
 |	StatementExpressionList COMMA StatementExpression	{ $1->children.push_back($2);$1->children.push_back($3); $$ =$1 ; } 
 ;
 
@@ -845,10 +865,12 @@ ArrayAccess:
 	Name LSPAR Expression RSPAR	{
 									$$ = create_node ( 5 ,"ArrayAccess", $1, $2, $3, $4);
 									$$->ins = instCount+1;
+									string reg1 = newTemp();
+									create_ins(1,reg1,"*",$3->addr,"4");
+									string reg2 = newTemp();
+									create_ins(1,reg2,"+",$1->addr,reg1);
 									$$->addr = str_to_ch(newTemp());
-									string reg = newTemp();
-									create_ins(1,reg,"+",$1->addr,$3->addr);
-									create_ins(1,$$->addr,"*",reg,"4");
+									create_ins(0,$$->addr,"=","*",reg2);
 								}
 |	PrimaryNoNewArray LSPAR Expression RSPAR	{ $$ = create_node ( 5 ,"ArrayAccess", $1, $2, $3, $4); } 
 ;
@@ -864,6 +886,7 @@ PostIncrementExpression:
 	PostfixExpression PLUS_PLUS	{
 									$$ = create_node ( 2 ,$2->val, $1);
 									$$->ins = instCount+1;
+									$$->addr = str_to_ch(newTemp());
 									create_ins(0,$$->addr,"=",$1->addr,"");
 									string reg = str_to_ch(newTemp());
 									create_ins(1,reg,"+",$1->addr,"1");
@@ -1905,7 +1928,7 @@ int main(int argc, char* argv[]){
 
 	// Open the output file
 	fout.open(output_file.c_str(),ios::out);
-	code_out.open("3AC.txt",ios::out);
+	code_out.open("./output/3AC.txt",ios::out);
 	// Get the DOT file template from the file
     ifstream infile("./DOT_Template.txt");
     string line;
