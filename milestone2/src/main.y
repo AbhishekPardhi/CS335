@@ -12,7 +12,7 @@
 	void ParameterSymtable(NODE* );
 	int vardim(NODE* );
 	void fieldSymTable(NODE *);
-	string typecast(string , string);
+	string typecast(string , string, string);
 	string handle_function(NODE*);
 	string get_type(NODE* );
 	char * str_to_ch(string s);
@@ -48,6 +48,9 @@
 
 	int forFlag = 0;
 	unordered_map <string,stme*> classMap;	
+
+	unordered_map <string, int> typeMap;
+
 %}
 
 %union {
@@ -571,7 +574,7 @@ PrimaryNoNewArray:
 |	FLOAT_LITERAL	{ $$ = $1; $1->type=str_to_ch("float");}
 |	INTEGER_LITERAL	{ $$ = $1; $$->type=str_to_ch("int");}
 |	BOOLEAN_LITERAL	{ $$ = $1; $1->type=str_to_ch("boolean");}
-|	STRING_LITERAL	{ $$ = $1; $1->type=str_to_ch("string");}
+|	STRING_LITERAL	{ $$ = $1; $1->type=str_to_ch("String");}
 |	TEXTBLOCK_LITERAL	{ $$ = $1; $1->type=str_to_ch("text_block");}
 |	THIS	{ $$ = $1; }
 |	LPAREN Expression RPAREN	{ $$ = create_node ( 4 ,"PrimaryNoNewArray", $1, $2, $3); } 
@@ -827,7 +830,7 @@ string handle_expression(NODE* node)
 	{
 		string child_type= handle_expression(node->children[i]);
 		string node_type=node->type;
-		string result_type= typecast(child_type,node_type);
+		string result_type= typecast(node_type,child_type,node->val);
 		if (result_type=="Error")
 		{
 			string var_name=node->val;
@@ -862,7 +865,6 @@ ste* insert_var_id(NODE * node,string type)
 		current_ste=new_ste;
 	}
 	else{
-		print_ste(start_ste);
 		string e_message= "Error: Variable "+var_name+ " redeclared";
 		yerror(e_message);
 
@@ -1334,7 +1336,7 @@ string handle_arrayinit(NODE* node)
 	{
 		string child_val=child->val;
 		if (child_val!=",")
-			var_type=typecast(var_type,handle_expression(child));
+			var_type=typecast(var_type,handle_expression(child),var_init->val);
 			if (var_type=="Error")
 			{
 				string e_message= "Error : Array Initializer has incompatible types ";
@@ -1344,8 +1346,135 @@ string handle_arrayinit(NODE* node)
 	return var_type+"[]";
 }
 
-string typecast(string typ1,string typ2)
+string typecast(string typ1,string typ2,string op)
 {
+	bool valid = (typeMap.find(typ1)!= typeMap.end()) && (typeMap.find(typ2)!= typeMap.end());
+	int t1,t2;
+	if (valid)
+	{	
+		t1=typeMap[typ1];
+		t2=typeMap[typ2];
+	}
+	if (op=="=" || op =="-" )
+	{
+		if (valid)
+		{
+			if (t1>=t2)
+				return typ1;
+			else
+				return "Error";
+		}
+		else
+		{
+			if (typ1==typ2)
+				return typ1;
+			else
+				return "Error";
+		}
+	}
+	if(op=="+")
+	{
+		if (valid)
+		{
+			if (t1>=t2)
+				return typ1;
+			else 
+				return typ2;
+		}
+		else
+		{
+			if (typ1=="String" || typ2=="String")
+				return "String";
+			if (typ1==typ2)
+				return typ1;
+			else
+				return "Error";
+		}
+	}
+	if (op==">" || op == "<" || op=="<=" || op==">=" || op=="==" || op=="!=")
+	{
+		if (valid)
+		{
+			return "boolean";
+		}
+		else
+		{
+			if (typ1==typ2)
+				return "boolean";
+			else
+				return "Error";
+		}
+	}
+	if (op=="&&" || op=="||")
+	{
+		if (typ1==typ2 && typ1=="boolean")
+			return "boolean";
+		else
+			return "Error";
+	}
+	if (op=="*" || op=="/" || op=="%")
+	{
+		if (valid)
+		{
+			if (t1>=t2)
+				return typ1;
+			else
+				return typ2;
+		}
+		else
+		{
+			return "Error";
+		}
+	}
+	if (op=="&" || op=="|" || op=="^" || op=="<<" || op==">>" || op==">>>")
+	{
+		if (valid)
+		{
+			if (t1>=t2)
+				return typ1;
+			else
+				return typ2;
+		}
+		else
+		{
+			return "Error";
+		}
+	}
+
+	if (op=="+=")
+	{
+		if (valid)
+		{
+			if (t1>=t2)
+				return typ1;
+			else
+				return "Error";
+		}
+		else
+		{
+			if (typ1=="String")
+				return "String";
+			if (typ1==typ2)
+				return typ1;
+			else
+				return "Error";
+		}
+	}
+	if (op=="-=" || op=="*=" || op=="/=" || op=="%=" || op=="&=" || op=="|=" || op=="^=" || op=="<<=" || op==">>=" || op==">>>=")
+	{
+		if (valid)
+		{
+			if (t1>=t2)
+				return typ1;
+			else
+				return "Error";
+		}
+		else
+		{
+			return "Error";
+		}
+	}
+	
 	if (typ1 == typ2)
 		return typ1;
 	if (typ1 == "" || typ2 == "")
@@ -1597,7 +1726,13 @@ void printToCSV(){
 
 int main(int argc, char* argv[]){
 
-	
+	typeMap["byte"] = 1;
+	typeMap["short"] = 2;
+	typeMap["char"] = 3;
+	typeMap["int"] = 4;
+	typeMap["long"] = 5;
+	typeMap["float"] = 6;
+	typeMap["double"] = 7;
 
 	if(argc < 2 || argc > 4) {
 		cout << "Usage: ./main <input file> <output file> <debug>" << endl;
@@ -1699,7 +1834,7 @@ int main(int argc, char* argv[]){
 	start_ste->next=current_ste;
 	current_ste->prev=start_ste;
 	searchAST(start_node);
-	print_ste(start_ste);
 	printToCSV();
+	print_ste(start_ste);
     return 0;
 }
