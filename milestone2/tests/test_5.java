@@ -1,22 +1,18 @@
-/* Using interface */
+/* Type coercion (casting) */
+public class TypeCoercion {
+    public static void main(String[] args) {
+        int intVar = 100;
+        long longVar = intVar;
+        float floatVar = longVar;
+        double doubleVar = longVar;
 
-interface Polygon {
-  void getArea(int length, int breadth);
-}
+        double dVar = 3.141596;
+        long lVar = (long) dVar;
+        int iVar = (int) dVar;
 
-// implement the Polygon interface
-class Rectangle implements Polygon {
+        System.out.println("Dummy print: " + (short) 3.14F);
 
-  // implementation of abstract method
-  public void getArea(int length, int breadth) {
-    // System.out.println("The area of the rectangle is " + (length * breadth));
-    length=1;
-  }
-}
-
-class Main {
-  public static void main(String[] args) {
-    Rectangle r1 = new Polygon();
-    r1.getArea(5, 6);
-  }
+        double exp = intVar + longVar + dVar * floatVar + lVar + doubleVar + iVar;
+        System.out.println("Exp: " + exp);
+    }
 }

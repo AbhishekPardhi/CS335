@@ -1,27 +1,22 @@
-/* Java Program to Pass Method as Argument */
+/* Using interface */
+
+interface Polygon {
+  void getArea(int length, int breadth);
+}
+
+// implement the Polygon interface
+class Rectangle implements Polygon {
+
+  // implementation of abstract method
+  public void getArea(int length, int breadth) {
+    // System.out.println("The area of the rectangle is " + (length * breadth));
+    length=1;
+  }
+}
 
 class Main {
-
-  // calculate the sum
-  public int add(int a, int b) {
-
-    // calculate sum
-    int sum = a + b;
-    return sum;
-  }
-
-  // calculate the square
-  public void square(int num) {
-    int result = num * num;
-    System.out.println(result);    // prints 576
-  }
   public static void main(String[] args) {
-
-    Main obj = new Main();
-
-    // call the square() method
-    // passing add() as an argument
-    obj.square(obj.add(15, 9));
-
+    Rectangle r1 = new Rectangle();
+    r1.getArea(5, 6);
   }
 }

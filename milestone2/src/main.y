@@ -49,7 +49,7 @@
 
 	unordered_map <string, stme*> tableMap;
 
-	ste* start_ste = new ste;		// point of error
+	ste* start_ste = new ste;
 	
 	
 	ste * current_ste = start_ste;
@@ -837,7 +837,7 @@ PrimaryNoNewArray:
 |	FLOAT_LITERAL	{ $$ = $1; $$->addr = $$->val; $1->type=str_to_ch("float");}
 |	INTEGER_LITERAL	{ $$ = $1; $$->addr = $$->val; $$->type=str_to_ch("int");}
 |	BOOLEAN_LITERAL	{ $$ = $1; $$->addr = $$->val; $1->type=str_to_ch("boolean");}
-|	STRING_LITERAL	{ $$ = $1; $$->addr = $$->val; $1->type=str_to_ch("string");}
+|	STRING_LITERAL	{ $$ = $1; $$->addr = $$->val; $1->type=str_to_ch("String");}
 |	TEXTBLOCK_LITERAL	{ $$ = $1; $$->addr = $$->val; $1->type=str_to_ch("text_block");}
 |	THIS	{ $$ = $1; }
 |	LPAREN Expression RPAREN	{ $$ = create_node ( 4 ,"PrimaryNoNewArray", $1, $2, $3); } 
@@ -1009,7 +1009,7 @@ UnaryExpression:
 
 PreIncrementExpression:
 	PLUS_PLUS UnaryExpression	{
-									$$ = create_node ( 2 ,$2->val, $1);
+									$$ = create_node ( 2 ,$1->val, $2);
 									$$->ins = instCount+1;
 									$$->addr = str_to_ch(newTemp());
 									string reg = str_to_ch(newTemp());
@@ -1021,7 +1021,7 @@ PreIncrementExpression:
 
 PreDecrementExpression:
 	MINUS_MINUS UnaryExpression	{
-									$$ = create_node ( 2 ,$2->val, $1);
+									$$ = create_node ( 2 ,$1->val, $2);
 									$$->ins = instCount+1;
 									$$->addr = str_to_ch(newTemp());
 									string reg = str_to_ch(newTemp());
@@ -1634,11 +1634,9 @@ string get_invocation_name(NODE* node){
 
 string handle_array_creation_Expression(NODE* node){
 	string array_type=get_type(node->children[1]);
-
 	for(auto array_child: node->children){
 		string array_child_val = array_child->val;
-
-		if(array_child_val=="Dim_Exprs"){
+		if(array_child_val=="Dim_Expers"){
 			for(auto dim_child: array_child->children){
 				string dim_child_val=dim_child->val;
 				if(dim_child_val=="Dim_Expr"){

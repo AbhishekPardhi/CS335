@@ -1,23 +1,27 @@
-/* BUBBLE SORT */
+/* Java Program to Pass Method as Argument */
 
-public class BubbleSort {
-    public static void main(final String[] args) {
-        int n = 10, c, d, swap;
+class Main {
 
-        final int array[] = { 23, 1, 78, 45, 46, 90, 2, 12, 75, 0 };
+  // calculate the sum
+  public int add(int a, int b) {
 
-        for (c = 0; c < (n - 1); c++) {
-            for (d = 0; d < n - c - 1; d++) {
-                if (array[d] > array[d + 1]) /* For descending order use < */
-                {
-                    swap = array[d];
-                    array[d] = array[d + 1];
-                    array[d + 1] = swap;
-                }
-            }
-        }
-        // System.out.println("Sorted list of numbers:");
-        for (c = 0; c < n; c++)
-            array[c]=89;
-    }
+    // calculate sum
+    int sum = a + b;
+    return sum;
+  }
+
+  // calculate the square
+  public void square(int num) {
+    int result = num * num;
+    System.out.println(result);    // prints 576
+  }
+  public static void main(String[] args) {
+
+    Main obj = new Main();
+
+    // call the square() method
+    // passing add() as an argument
+    obj.square(obj.add(15, 9));
+
+  }
 }
