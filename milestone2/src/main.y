@@ -635,44 +635,126 @@ ForStatement:
 	FOR LPAREN ForInit SEMICOLON Expression SEMICOLON ForUpdate RPAREN Statement	{
 																						$$ = create_node ( 10 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7, $8, $9);
 																						$$->ins = instCount+1;
-																						backpatch($9->nextlist,$7->ins);
-																						backpatch($5->truelist,$9->ins);
-																						backpatch($7->truelist,$5->ins);
-																						$9->nextlist = $5->falselist;
-																						create_ins(0,"goto",to_string($7->ins),"","");
+																						backpatch($9->nextlist,$7->ins); // statement,forupdate
+																						backpatch($5->truelist,$9->ins); // expression,statement
+																						backpatch($7->truelist,$5->ins); // forupdate,expression
+																						$$->nextlist = $5->falselist;    // lhs,expression
+																						create_ins(0,"goto",to_string($7->ins),"",""); // forupdate
 																					} 
 |	FOR LPAREN ForInit SEMICOLON SEMICOLON ForUpdate RPAREN Statement	{
 																			$$ = create_node ( 9 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7, $8);
+																			$$->ins = instCount+1;																																								$$->ins = instCount+1;
+																			backpatch($8->nextlist,$6->ins);
+																			backpatch($6->truelist,$8->ins);
+																			create_ins(0,"goto",to_string($6->ins),"","");
 																		} 
 |	FOR LPAREN SEMICOLON Expression SEMICOLON ForUpdate RPAREN Statement	{
 																				$$ = create_node ( 9 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7, $8);
+																				$$->ins = instCount+1;
+																				backpatch($8->nextlist,$6->ins);
+																				backpatch($4->truelist,$8->ins);
+																				backpatch($6->truelist,$4->ins);
+																				$$->nextlist = $4->falselist;
+																				create_ins(0,"goto",to_string($6->ins),"","");
 																			} 
 |	FOR LPAREN SEMICOLON SEMICOLON ForUpdate RPAREN Statement	{
 																	$$ = create_node ( 8 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7);
+																	$$->ins = instCount+1;																																						$$->ins = instCount+1;
+																	backpatch($7->nextlist,$5->ins);
+																	backpatch($5->truelist,$7->ins);
+																	create_ins(0,"goto",to_string($5->ins),"","");
 																} 
 |	FOR LPAREN ForInit SEMICOLON Expression SEMICOLON RPAREN Statement	{
 																			$$ = create_node ( 9 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7, $8);
+																			$$->ins = instCount+1;
+																			backpatch($8->nextlist,$5->ins);
+																			backpatch($5->truelist,$8->ins);
+																			$$->nextlist = $5->falselist;
+																			create_ins(0,"goto",to_string($5->ins),"","");
 																		} 
 |	FOR LPAREN ForInit SEMICOLON SEMICOLON RPAREN Statement	{
 																$$ = create_node ( 8 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7);
+																$$->ins = instCount+1;
+																backpatch($7->nextlist,$7->ins);
+																create_ins(0,"goto",to_string($7->ins),"","");
 															} 
 |	FOR LPAREN SEMICOLON Expression SEMICOLON RPAREN Statement	{
 																	$$ = create_node ( 8 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7);
+																	$$->ins = instCount+1;
+																	backpatch($7->nextlist,$7->ins);
+																	backpatch($4->truelist,$7->ins);
+																	$$->nextlist = $4->falselist;
+																	create_ins(0,"goto",to_string($4->ins),"","");
 																} 
 |	FOR LPAREN SEMICOLON SEMICOLON RPAREN Statement	{
 														$$ = create_node ( 7 ,"ForStatement", $1, $2, $3, $4, $5, $6);
+														$$->ins = instCount+1;
+														backpatch($6->nextlist,$6->ins);
+														create_ins(0,"goto",to_string($6->ins),"","");
 													} 
 ;
 
 ForStatementNoShortIf:
-	FOR LPAREN ForInit SEMICOLON Expression SEMICOLON ForUpdate RPAREN StatementNoShortIf	{ $$ = create_node ( 10 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6, $7, $8, $9); } 
-|	FOR LPAREN ForInit SEMICOLON SEMICOLON ForUpdate RPAREN StatementNoShortIf	{ $$ = create_node ( 9 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6, $7, $8); } 
-|	FOR LPAREN SEMICOLON Expression SEMICOLON ForUpdate RPAREN StatementNoShortIf	{ $$ = create_node ( 9 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6, $7, $8); } 
-|	FOR LPAREN SEMICOLON SEMICOLON ForUpdate RPAREN StatementNoShortIf	{ $$ = create_node ( 8 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6, $7); } 
-|	FOR LPAREN ForInit SEMICOLON Expression SEMICOLON RPAREN StatementNoShortIf	{ $$ = create_node ( 9 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6, $7, $8); } 
-|	FOR LPAREN ForInit SEMICOLON SEMICOLON RPAREN StatementNoShortIf	{ $$ = create_node ( 8 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6, $7); } 
-|	FOR LPAREN SEMICOLON Expression SEMICOLON RPAREN StatementNoShortIf	{ $$ = create_node ( 8 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6, $7); } 
-|	FOR LPAREN SEMICOLON SEMICOLON RPAREN StatementNoShortIf	{ $$ = create_node ( 7 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6); } 
+	FOR LPAREN ForInit SEMICOLON Expression SEMICOLON ForUpdate RPAREN StatementNoShortIf	{
+																								$$ = create_node ( 10 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6, $7, $8, $9);
+																								$$->ins = instCount+1;
+																								backpatch($9->nextlist,$7->ins); // statement,forupdate
+																								backpatch($5->truelist,$9->ins); // expression,statement
+																								backpatch($7->truelist,$5->ins); // forupdate,expression
+																								$$->nextlist = $5->falselist;    // lhs,expression
+																								create_ins(0,"goto",to_string($7->ins),"",""); // forupdate
+																							} 
+|	FOR LPAREN ForInit SEMICOLON SEMICOLON ForUpdate RPAREN StatementNoShortIf	{
+																					$$ = create_node ( 9 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6, $7, $8);
+																					$$->ins = instCount+1;																																								$$->ins = instCount+1;
+																					backpatch($8->nextlist,$6->ins);
+																					backpatch($6->truelist,$8->ins);
+																					create_ins(0,"goto",to_string($6->ins),"","");
+																				} 
+|	FOR LPAREN SEMICOLON Expression SEMICOLON ForUpdate RPAREN StatementNoShortIf	{
+																						$$ = create_node ( 9 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6, $7, $8);
+																						$$->ins = instCount+1;
+																						backpatch($8->nextlist,$6->ins);
+																						backpatch($4->truelist,$8->ins);
+																						backpatch($6->truelist,$4->ins);
+																						$$->nextlist = $4->falselist;
+																						create_ins(0,"goto",to_string($6->ins),"","");
+																					} 
+|	FOR LPAREN SEMICOLON SEMICOLON ForUpdate RPAREN StatementNoShortIf	{
+																			$$ = create_node ( 8 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6, $7);
+																			$$->ins = instCount+1;																																						$$->ins = instCount+1;
+																			backpatch($7->nextlist,$5->ins);
+																			backpatch($5->truelist,$7->ins);
+																			create_ins(0,"goto",to_string($5->ins),"","");
+																		} 
+|	FOR LPAREN ForInit SEMICOLON Expression SEMICOLON RPAREN StatementNoShortIf	{
+																					$$ = create_node ( 9 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6, $7, $8);
+																					$$->ins = instCount+1;
+																					backpatch($8->nextlist,$5->ins);
+																					backpatch($5->truelist,$8->ins);
+																					$$->nextlist = $5->falselist;
+																					create_ins(0,"goto",to_string($5->ins),"","");
+																				} 
+|	FOR LPAREN ForInit SEMICOLON SEMICOLON RPAREN StatementNoShortIf	{
+																			$$ = create_node ( 8 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6, $7);
+																			$$->ins = instCount+1;
+																			backpatch($7->nextlist,$7->ins);
+																			create_ins(0,"goto",to_string($7->ins),"","");
+																		} 
+|	FOR LPAREN SEMICOLON Expression SEMICOLON RPAREN StatementNoShortIf	{
+																			$$ = create_node ( 8 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6, $7);
+																			$$->ins = instCount+1;
+																			backpatch($7->nextlist,$7->ins);
+																			backpatch($4->truelist,$7->ins);
+																			$$->nextlist = $4->falselist;
+																			create_ins(0,"goto",to_string($4->ins),"","");
+																		} 
+|	FOR LPAREN SEMICOLON SEMICOLON RPAREN StatementNoShortIf	{
+																	$$ = create_node ( 7 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6);
+																	$$->ins = instCount+1;
+																	backpatch($6->nextlist,$6->ins);
+																	create_ins(0,"goto",to_string($6->ins),"","");
+																} 
 ;
 
 ForInit:
@@ -1013,9 +1095,24 @@ AdditiveExpression:
 
 ShiftExpression:
 	AdditiveExpression	{ $$ = $1; }
-|	ShiftExpression LEFT_SHIFT AdditiveExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
-|	ShiftExpression RIGHT_SHIFT AdditiveExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
-|	ShiftExpression UNSIGNED_RIGHT_SHIFT AdditiveExpression	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
+|	ShiftExpression LEFT_SHIFT AdditiveExpression	{
+														$$ = create_node ( 3 ,$2->val, $1, $3);
+														$$->ins = instCount+1;
+														$$->addr = str_to_ch(newTemp());
+														create_ins(1,$$->addr,$2->val,$1->addr,$3->addr);
+													} 
+|	ShiftExpression RIGHT_SHIFT AdditiveExpression	{
+														$$ = create_node ( 3 ,$2->val, $1, $3);
+														$$->ins = instCount+1;
+														$$->addr = str_to_ch(newTemp());
+														create_ins(1,$$->addr,$2->val,$1->addr,$3->addr);
+													} 
+|	ShiftExpression UNSIGNED_RIGHT_SHIFT AdditiveExpression	{
+																$$ = create_node ( 3 ,$2->val, $1, $3);
+																$$->ins = instCount+1;
+																$$->addr = str_to_ch(newTemp());
+																create_ins(1,$$->addr,$2->val,$1->addr,$3->addr);
+															} 
 ;
 
 RelationalExpression:
