@@ -897,7 +897,7 @@ void insert_variable(NODE * local_var_node)
 			insert_var_id(var_dec_id,type);
 
 			string right_type=handle_expression(var_id_child->children[1]);
-			if (right_type!=type)
+			if (typecast(type,right_type,"=")=="Error")
 			{
 				string e_message= "Error : Type mismatch for assignment of type " + right_type + " to variable of type " + type;
 				yerror(e_message);
@@ -1520,7 +1520,7 @@ void fieldSymTable(NODE* node)
 				classMap[cur_class]=field_entry;
 				classMap[cur_class]->id=entry->lexeme;
 				string right_type=handle_expression(var_id_child->children[1]);
-				if (right_type!=type)
+				if (typecast(type,right_type,"=")=="Error")
 				{
 					string e_message= "Error : Type mismatch for assignment of type " + right_type + " to variable of type " + type;
 					yerror(e_message);
