@@ -5,7 +5,6 @@ class MergeSort {
 	{
 		int n1 = m - l + 1;
 		int n2 = r - m;
-
 		/* Create temp arrays */
 		int L[] = new int[n1];
 		int R[] = new int[n2];
@@ -62,8 +61,6 @@ class MergeSort {
 			sort(arr, l, m);
 			sort(arr, m + 1, r);
 
-			// Merge the sorted halves
-			merge(arr, l, m, r);
 		}
 	}
 

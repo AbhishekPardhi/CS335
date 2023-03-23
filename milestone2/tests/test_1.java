@@ -16,8 +16,8 @@ public class BubbleSort {
                 }
             }
         }
-        System.out.println("Sorted list of numbers:");
+        // System.out.println("Sorted list of numbers:");
         for (c = 0; c < n; c++)
-            System.out.println(array[c]);
+            array[c]=89;
     }
 }

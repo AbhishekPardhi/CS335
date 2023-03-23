@@ -11,8 +11,7 @@
 	void ParameterSymtable(NODE* );
 	int vardim(NODE* );
 	void fieldSymTable(NODE *);
-	string typecast(string , string);
-	string handle_expression(NODE*);
+	string typecast(string , string, string);
 	string handle_function(NODE*);
 	string get_type(NODE* );
 	vector<int> makelist(int i);
@@ -27,7 +26,9 @@
 	int instCount;
 	char * str_to_ch(string s);
 	string get_invocation_name(NODE* );
-
+	string handle_array_access(NODE*);
+	string handle_arrayinit(NODE* );
+	string handle_array_creation_Expression(NODE* );
 	int lineno;
 	string cur_class;
 
@@ -56,6 +57,9 @@
 
 	int forFlag = 0;
 	unordered_map <string,stme*> classMap;	
+
+	unordered_map <string, int> typeMap;
+
 %}
 
 %union {
@@ -1187,6 +1191,92 @@ Expression:
 %%
 
 
+string handle_cast_expression(NODE* node){
+	int num_children=node->children.size();
+	ste* lookup_ste=lookup(current_ste,node->children[num_children-1]->val);
+
+	string type="";
+	if(lookup_ste==NULL && node->children[num_children-1]->type==""){
+		string e_message="Error : Variable " + (string) node->children[num_children-1]->val + " not declared before use ";
+		lineno=node->lineno;
+		yerror(e_message);
+	}
+	else{
+		for(int i=0;i<num_children-1;i++){
+			string child_val=node->children[i]->val;
+			if(child_val=="(" || child_val==")")
+				continue;
+			else
+				type+=get_type(node->children[i]);
+		}
+	}
+	return type;
+}
+
+string handle_expression(NODE* node)
+{
+	if (node->children.size()==0)
+	{	
+		lineno=node->lineno;
+		string node_type=node->type;
+		string node_val= node->val;
+		if (node_val=="(" || node_val==")")
+			return "";
+		if (node_type=="")
+		{
+			//case the leaf is not a literal
+			string node_val=node->val;
+
+			ste* lookup_ste=lookup(current_ste,node_val);
+			if (lookup_ste==NULL)
+			{
+				string var_name=node->val;
+				string e_message= "Error : Variable " + var_name + " not declared before use ";
+				lineno=node->lineno;
+				yerror(e_message);
+			}
+
+			return lookup_ste->type;		
+		}
+		return node_type;
+	}
+	string child_val=node->val;
+
+	if (child_val=="MethodInvocation" || child_val=="ClassInstanceCreationExpression" || child_val=="Qualified_Name")
+		return handle_function(node);
+	
+	if (child_val=="ArrayInitializer")
+		return handle_arrayinit(node);
+
+	if(child_val=="ArrayAccess"){
+		return handle_array_access(node);
+	}
+	if(child_val=="ArrayCreationExpression"){
+		return handle_array_creation_Expression(node);
+	}
+	if(child_val=="CastExpression"){
+		return handle_cast_expression(node);
+	}
+	node->type=str_to_ch(handle_expression(node->children[0]));
+
+	for (int i=1;i<node->children.size();i++)
+	{
+		string child_type= handle_expression(node->children[i]);
+		string node_type=node->type;
+		string result_type= typecast(node_type,child_type,node->val);
+		if (result_type=="Error")
+		{
+			string var_name=node->val;
+			string e_message= "Error : Type mismatch for operator \'"+ var_name+ "\' with operands of type " + node_type +" and " + child_type;
+			yerror(e_message);
+		}
+		node->type=str_to_ch(result_type);
+	}
+
+	string node_type=node->type;
+	return node_type;
+}
+
 ste* insert_var_id(NODE * node,string type)
 {
 	string var_name = node->children[0]->val;
@@ -1194,6 +1284,7 @@ ste* insert_var_id(NODE * node,string type)
 	ste* return_ste;
 	int dim = vardim(node);
 	ste* new_ste= new ste;
+
 
 	if (lookup(current_ste,var_name)==NULL){
 		current_ste->lexeme=var_name;
@@ -1231,10 +1322,15 @@ void insert_variable(NODE * local_var_node)
 		else if (var_id_child_val == "=")
 		{
 			NODE* var_dec_id = var_id_child->children[0];
+			int dim=vardim(var_dec_id);
+			for (int i=0;i<dim;i++)
+			{
+				type+="[]";
+			}
 			insert_var_id(var_dec_id,type);
 
 			string right_type=handle_expression(var_id_child->children[1]);
-			if (right_type!=type)
+			if (typecast(type,right_type,"=")=="Error")
 			{
 				string e_message= "Error : Type mismatch for assignment of type " + right_type + " to variable of type " + type;
 				yerror(e_message);
@@ -1274,7 +1370,7 @@ void searchAST(NODE* node)
 	
 	string temp=node->val;
 
-	if (temp=="{" || temp=="for")
+	if (temp=="{")
 	{	
 		if(temp=="{" && forFlag==1){
 			forFlag=0;
@@ -1293,16 +1389,48 @@ void searchAST(NODE* node)
 	}
 	else if(temp=="ForStatementNoShortIf" || temp=="ForStatement"){
 		int flag=0;
-		for ( auto  for_statement_child : node->children)
-		{	
+		ste * new_ste = new ste;
+		
+		current_ste->type="branch_head";
+
+		branch.push(current_ste);
+
+		current_ste->next_scope=new_ste;
+		new_ste->prev_scope=current_ste;
+
+		current_ste=new_ste;
+
+		for (int i=0;i<node->children.size();i++)
+		{		
+			NODE* for_statement_child = node->children[i];
+			if(i==node->children.size()-1){
+				searchAST(for_statement_child);
+				current_ste=branch.top();
+				branch.pop();
+				ste* new_ste1 = new ste;
+				current_ste->next=new_ste1;
+				new_ste1->prev=current_ste;
+				current_ste=new_ste1;
+				return;
+			}
 			string for_statement_child_val = for_statement_child->val;
-			if (for_statement_child_val == "LocalVariableDeclaration" || for_statement_child_val == "Block")
+			if (for_statement_child_val == "LocalVariableDeclaration")
 			{
 				flag+=1;
+				searchAST(for_statement_child);
+			}
+			else if ( for_statement_child_val=="for" || for_statement_child_val=="(" || for_statement_child_val==")" || for_statement_child_val==";" ){
+				continue;
+			}
+			else{
+				handle_expression(for_statement_child);
 			}
 		}
 
 		if(flag==2) forFlag=1;
+
+		
+		return;
 	}
 	else if (temp=="}")
 	{
@@ -1407,6 +1535,62 @@ string get_invocation_name(NODE* node){
 	return name;
 }
 
+string handle_array_creation_Expression(NODE* node){
+	string array_type=get_type(node->children[1]);
+
+	for(auto array_child: node->children){
+		string array_child_val = array_child->val;
+
+		if(array_child_val=="Dim_Exprs"){
+			for(auto dim_child: array_child->children){
+				string dim_child_val=dim_child->val;
+				if(dim_child_val=="Dim_Expr"){
+					array_type=array_type+"[]";
+				}
+				if (handle_expression(dim_child->children[1])!="int")
+				{
+					string error_message="Error : array index must be an integer";
+					yerror(error_message);
+				}
+			}
+		}
+		else if(array_child_val=="Dims"){
+			for(auto dim_child: array_child->children){
+				string dim_child_val=dim_child->val;
+				if(dim_child_val=="["){
+					array_type=array_type+"[]";
+				}
+			}
+		}
+
+	}
+	return array_type;
+}
+
+string handle_array_access(NODE* node){
+	
+	NODE* first_child=node->children[0];
+	string type = handle_expression(first_child);
+
+	int l=type.size();
+	string last_two = type.substr(l-2,2);
+	string new_sub_type=type.substr(0,l-2);
+
+	string first_child_val=first_child->val;
+	if (last_two!="[]" )
+	{
+		string error_message="Error : "+first_child_val+" is not an array";
+		yerror(error_message);
+	}
+	if (handle_expression(node->children[2])!="int")
+	{
+		string error_message="Error : array index must be an integer";
+		yerror(error_message);
+	}
+
+	return new_sub_type;
+}
+
 string handle_function(NODE* node){
 
 	string node_val = node->val;
@@ -1465,12 +1649,14 @@ string handle_function(NODE* node){
 						else{
 
 							ste* entry_ste=tableMap[name]->entry;
+							
 
 							for(int i=0;i<num_params;i++){
 								if(types[i]!=entry_ste->type){
 									string e_message= "Error : Method " + name + " called with wrong type of arguments ";
 									yerror(e_message);
 								}
+								entry_ste=entry_ste->next;
 							}
 						}
 					}
@@ -1487,6 +1673,18 @@ string handle_function(NODE* node){
 			class_head=class_head->next;
 		}
 
+		if (name=="out.println" || name=="out.print")
+		{
+			//check child node for "argumentList"
+			for(auto node_child: node->children){
+				string node_child_val = node_child->val;
+
+				if(node_child_val=="Argument_List"){
+					handle_expression(node_child);
+				}
+			}
+			return "void";
+		}
 
 		string e_message= "Error : Method " + name + " not declared before use ";
 		yerror(e_message);
@@ -1509,62 +1707,210 @@ string handle_function(NODE* node){
 		}
 	}
 
+	if(node_val=="Qualified_Name"){
+		string name = get_invocation_name(node);
+
+
+		
+		string class_scope;
+		int dot_index=name.find(".");
+		string second=name.substr(dot_index+1);
+		if (second=="length")
+		{
+			ste* lookup_ste=lookup(current_ste,name.substr(0,dot_index));
+			if (lookup_ste!=NULL)
+			{
+				string type=lookup_ste->type;
+				if (type.substr(type.size()-2,2)=="[]" )
+				{
+					return "int";
+				}
+				else
+				{
+					string error_message="Error : "+name.substr(0,dot_index)+" is not an array";
+					yerror(error_message);
+				}
+			}
+			else
+			{
+				string error_mesaage="Error : variable "+name.substr(0,dot_index)+" was not declared";
+				yerror(error_mesaage);
+			}
+		}
+		ste* lookup_ste=lookup(current_ste,name);
+		if (lookup_ste!=NULL)
+		{
+			string type=lookup_ste->type;
+			return type;
+		}
+		else
+		{
+			string e_message= "Error : variable " + name + " not declared before use ";
+			yerror(e_message);
+		}
+	}
+
 	return "";
 }
 
-string handle_expression(NODE* node)
+string handle_arrayinit(NODE* node)
 {
-	if (node->children.size()==0)
-	{	
-		lineno=node->lineno;
-		string node_type=node->type;
-		if (node_type=="")
-		{
-			//case the leaf is not a literal
-			string node_val=node->val;
+	NODE* var_init;
+	for (auto child:node->children)
+	{
+		string child_val=child->val;
+		if (child_val=="Variable_Initializers")
+			var_init=child;
+	}
+	string var_type="";
 
-			ste* lookup_ste=lookup(current_ste,node_val);
-			if (lookup_ste==NULL)
+	for (auto child : var_init->children)
+	{
+		string child_val=child->val;
+		if (child_val!=",")
+			var_type=typecast(var_type,handle_expression(child),var_init->val);
+			if (var_type=="Error")
 			{
-				string var_name=node->val;
-				string e_message= "Error : Variable " + var_name + " not declared before use ";
-				lineno=node->lineno;
+				string e_message= "Error : Array Initializer has incompatible types ";
 				yerror(e_message);
 			}
-
-			return lookup_ste->type;		
-		}
-		return node_type;
 	}
-	string child_val=node->val;
-	if (child_val=="MethodInvocation" || child_val=="ClassInstanceCreationExpression")
-		return handle_function(node);
-
-
-	node->type=str_to_ch(handle_expression(node->children[0]));
-
-	for (int i=1;i<node->children.size();i++)
-	{
-		string child_type= handle_expression(node->children[i]);
-		string node_type=node->type;
-		string result_type= typecast(child_type,node_type);
-		if (result_type=="Error")
-		{
-			string var_name=node->val;
-			string e_message= "Error : Type mismatch for operator \'"+ var_name+ "\' with operands of type " + child_type +" and " +node_type;
-			yerror(e_message);
-		}
-		node->type=str_to_ch(result_type);
-	}
-
-	string node_type=node->type;
-	return node_type;
+	return var_type+"[]";
 }
 
-string typecast(string typ1,string typ2)
+string typecast(string typ1,string typ2,string op)
 {
+	bool valid = (typeMap.find(typ1)!= typeMap.end()) && (typeMap.find(typ2)!= typeMap.end());
+	int t1,t2;
+	if (valid)
+	{	
+		t1=typeMap[typ1];
+		t2=typeMap[typ2];
+	}
+	if (op=="=" || op =="-" )
+	{
+		if (valid)
+		{
+			if (t1>=t2)
+				return typ1;
+			else
+				return "Error";
+		}
+		else
+		{
+			if (typ1==typ2)
+				return typ1;
+			else
+				return "Error";
+		}
+	}
+	if(op=="+")
+	{
+		if (valid)
+		{
+			if (t1>=t2)
+				return typ1;
+			else 
+				return typ2;
+		}
+		else
+		{
+			if (typ1=="String" || typ2=="String")
+				return "String";
+			if (typ1==typ2)
+				return typ1;
+			else
+				return "Error";
+		}
+	}
+	if (op==">" || op == "<" || op=="<=" || op==">=" || op=="==" || op=="!=")
+	{
+		if (valid)
+		{
+			return "boolean";
+		}
+		else
+		{
+			if (typ1==typ2)
+				return "boolean";
+			else
+				return "Error";
+		}
+	}
+	if (op=="&&" || op=="||")
+	{
+		if (typ1==typ2 && typ1=="boolean")
+			return "boolean";
+		else
+			return "Error";
+	}
+	if (op=="*" || op=="/" || op=="%")
+	{
+		if (valid)
+		{
+			if (t1>=t2)
+				return typ1;
+			else
+				return typ2;
+		}
+		else
+		{
+			return "Error";
+		}
+	}
+	if (op=="&" || op=="|" || op=="^" || op=="<<" || op==">>" || op==">>>")
+	{
+		if (valid)
+		{
+			if (t1>=t2)
+				return typ1;
+			else
+				return typ2;
+		}
+		else
+		{
+			return "Error";
+		}
+	}
+
+	if (op=="+=")
+	{
+		if (valid)
+		{
+			if (t1>=t2)
+				return typ1;
+			else
+				return "Error";
+		}
+		else
+		{
+			if (typ1=="String")
+				return "String";
+			if (typ1==typ2)
+				return typ1;
+			else
+				return "Error";
+		}
+	}
+	if (op=="-=" || op=="*=" || op=="/=" || op=="%=" || op=="&=" || op=="|=" || op=="^=" || op=="<<=" || op==">>=" || op==">>>=")
+	{
+		if (valid)
+		{
+			if (t1>=t2)
+				return typ1;
+			else
+				return "Error";
+		}
+		else
+		{
+			return "Error";
+		}
+	}
+	
 	if (typ1 == typ2)
-	return typ1;
+		return typ1;
+	if (typ1 == "" || typ2 == "")
+		return typ1+typ2;
 	return "Error";
 }
 
@@ -1579,7 +1925,10 @@ void fieldSymTable(NODE* node)
 		{
 			string var_id_child_val=var_id_child->val;
 			if (var_id_child_val == "Variable_Declarator_Id")
-			{
+			{	
+				int dim=vardim(var_id_child);
+				for(int i=0;i<dim;i++)
+					type=type+"[]";
 				ste* entry=insert_var_id(var_id_child,type);
 				stme* field_entry=new stme;
 				field_entry->num_params=-1;
@@ -1590,7 +1939,10 @@ void fieldSymTable(NODE* node)
 				
 			}
 			else if (var_id_child_val == "=")
-			{
+			{	
+				int dim=vardim(var_id_child);
+				for(int i=0;i<dim;i++)
+					type=type+"[]";
 				NODE* var_dec_id = var_id_child->children[0];
 				ste* entry=insert_var_id(var_dec_id,type);
 				stme* field_entry=new stme;
@@ -1600,7 +1952,7 @@ void fieldSymTable(NODE* node)
 				classMap[cur_class]=field_entry;
 				classMap[cur_class]->id=entry->lexeme;
 				string right_type=handle_expression(var_id_child->children[1]);
-				if (right_type!=type)
+				if (typecast(type,right_type,"=")=="Error")
 				{
 					string e_message= "Error : Type mismatch for assignment of type " + right_type + " to variable of type " + type;
 					yerror(e_message);
@@ -1764,6 +2116,11 @@ void ParameterSymtable(NODE* param_node)
 
 	//store the name of the parameter
 	NODE* var_node=param_node->children[length-1];
+	int dim=vardim(var_node);
+	for (int i=0;i<dim;i++)
+	{
+		type+="[]";
+	}
 	insert_var_id(var_node,type);
 }
 
@@ -1825,8 +2182,14 @@ void printToCSV(){
 
 		fout<<it->first<<","<<it->second->return_type<<","<<it->second->num_params<<",,,,"<<endl;
 		ste* current_ste = it->second->entry;
-		while(current_ste->next!=NULL || current_ste->next_scope!=NULL){
+		while(current_ste->next!=NULL || current_ste->next_scope!=NULL || !branch.empty()){
+			if(current_ste->next==NULL && current_ste->next_scope==NULL){
+				current_ste = branch.top();
+				branch.pop();
+				continue;
+			}
 			if(current_ste->type=="branch_head"){
+				branch.push(current_ste->next);
 				current_ste = current_ste->next_scope;
 				continue;
 			}
@@ -1863,7 +2226,13 @@ string newTemp(){
 
 int main(int argc, char* argv[]){
 
-	
+	typeMap["byte"] = 1;
+	typeMap["short"] = 2;
+	typeMap["char"] = 3;
+	typeMap["int"] = 4;
+	typeMap["long"] = 5;
+	typeMap["float"] = 6;
+	typeMap["double"] = 7;
 
 	if(argc < 2 || argc > 4) {
 		cout << "Usage: ./main <input file> <output file> <debug>" << endl;
@@ -1977,7 +2346,7 @@ int main(int argc, char* argv[]){
 	start_ste->next=current_ste;
 	current_ste->prev=start_ste;
 	searchAST(start_node);
-	print_ste(start_ste);
 	printToCSV();
+	/* print_ste(start_ste); */
     return 0;
 }
