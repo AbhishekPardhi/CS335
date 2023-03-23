@@ -785,6 +785,7 @@ ste* insert_var_id(NODE * node,string type)
 	int dim = vardim(node);
 	ste* new_ste= new ste;
 
+
 	if (lookup(current_ste,var_name)==NULL){
 		current_ste->lexeme=var_name;
 		current_ste->type=type;
@@ -821,6 +822,11 @@ void insert_variable(NODE * local_var_node)
 		else if (var_id_child_val == "=")
 		{
 			NODE* var_dec_id = var_id_child->children[0];
+			int dim=vardim(var_dec_id);
+			for (int i=0;i<dim;i++)
+			{
+				type+="[]";
+			}
 			insert_var_id(var_dec_id,type);
 
 			string right_type=handle_expression(var_id_child->children[1]);
@@ -1102,6 +1108,31 @@ string handle_function(NODE* node){
 	return "";
 }
 
+string handle_arrayinit(NODE* node)
+{
+	NODE* var_init;
+	for (auto child:node->children)
+	{
+		string child_val=child->val;
+		if (child_val=="Variable_Initializers")
+			var_init=child;
+	}
+	string var_type="";
+
+	for (auto child : var_init->children)
+	{
+		string child_val=child->val;
+		if (child_val!=",")
+			var_type=typecast(var_type,handle_expression(child));
+			if (var_type=="Error")
+			{
+				string e_message= "Error : Array Initializer has incompatible types ";
+				yerror(e_message);
+			}
+	}
+	return var_type+"[]";
+}
+
 string handle_expression(NODE* node)
 {
 	if (node->children.size()==0)
@@ -1129,7 +1160,9 @@ string handle_expression(NODE* node)
 	string child_val=node->val;
 	if (child_val=="MethodInvocation" || child_val=="ClassInstanceCreationExpression")
 		return handle_function(node);
-
+	
+	if (child_val=="ArrayInitializer")
+		return handle_arrayinit(node);		
 
 	node->type=str_to_ch(handle_expression(node->children[0]));
 
@@ -1154,7 +1187,9 @@ string handle_expression(NODE* node)
 string typecast(string typ1,string typ2)
 {
 	if (typ1 == typ2)
-	return typ1;
+		return typ1;
+	if (typ1 == "" || typ2 == "")
+		return typ1+typ2;
 	return "Error";
 }
 
