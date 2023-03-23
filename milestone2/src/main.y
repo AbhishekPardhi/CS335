@@ -1238,6 +1238,18 @@ string handle_function(NODE* node){
 			class_head=class_head->next;
 		}
 
+		if (name=="out.println" || name=="out.print")
+		{
+			//check child node for "argumentList"
+			for(auto node_child: node->children){
+				string node_child_val = node_child->val;
+
+				if(node_child_val=="Argument_List"){
+					handle_expression(node_child);
+				}
+			}
+			return "void";
+		}
 
 		string e_message= "Error : Method " + name + " not declared before use ";
 		yerror(e_message);
@@ -1262,6 +1274,35 @@ string handle_function(NODE* node){
 
 	if(node_val=="Qualified_Name"){
 		string name = get_invocation_name(node);
+
+
+		
+		string class_scope;
+		int dot_index=name.find(".");
+		string second=name.substr(dot_index+1);
+		if (second=="length")
+		{
+			ste* lookup_ste=lookup(current_ste,name.substr(0,dot_index));
+			/* cout<<"no "<<name.substr(0,dot_index)<<" "<<lookup_ste->type<<endl; */
+			if (lookup_ste!=NULL)
+			{
+				string type=lookup_ste->type;
+				if (type.substr(type.size()-2,2)=="[]" )
+				{
+					return "int";
+				}
+				else
+				{
+					string error_message="Error : "+name.substr(0,dot_index)+" is not an array";
+					yerror(error_message);
+				}
+			}
+			else
+			{
+				string error_mesaage="Error : variable "+name.substr(0,dot_index)+" was not declared";
+				yerror(error_mesaage);
+			}
+		}
 		ste* lookup_ste=lookup(current_ste,name);
 		if (lookup_ste!=NULL)
 		{
