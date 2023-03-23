@@ -834,7 +834,7 @@ string handle_expression(NODE* node)
 		if (result_type=="Error")
 		{
 			string var_name=node->val;
-			string e_message= "Error : Type mismatch for operator \'"+ var_name+ "\' with operands of type " + child_type +" and " +node_type;
+			string e_message= "Error : Type mismatch for operator \'"+ var_name+ "\' with operands of type " + node_type +" and " + child_type;
 			yerror(e_message);
 		}
 		node->type=str_to_ch(result_type);
@@ -1493,7 +1493,10 @@ void fieldSymTable(NODE* node)
 		{
 			string var_id_child_val=var_id_child->val;
 			if (var_id_child_val == "Variable_Declarator_Id")
-			{
+			{	
+				int dim=vardim(var_id_child);
+				for(int i=0;i<dim;i++)
+					type=type+"[]";
 				ste* entry=insert_var_id(var_id_child,type);
 				stme* field_entry=new stme;
 				field_entry->num_params=-1;
@@ -1504,7 +1507,10 @@ void fieldSymTable(NODE* node)
 				
 			}
 			else if (var_id_child_val == "=")
-			{
+			{	
+				int dim=vardim(var_id_child);
+				for(int i=0;i<dim;i++)
+					type=type+"[]";
 				NODE* var_dec_id = var_id_child->children[0];
 				ste* entry=insert_var_id(var_dec_id,type);
 				stme* field_entry=new stme;
