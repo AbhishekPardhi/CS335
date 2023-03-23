@@ -1,22 +1,11 @@
-/* Using interface */
-
-interface Polygon {
-  void getArea(int length, int breadth);
+class test_25
+{  
+    public static void main(String args[])
+    {  
+	int x = 20;
+	int y = 18;
+	if (x > y) 
+  		System.out.println("x is greater than y");
+    }  
 }
 
-// implement the Polygon interface
-class Rectangle implements Polygon {
-
-  // implementation of abstract method
-  public void getArea(int length, int breadth) {
-    // System.out.println("The area of the rectangle is " + (length * breadth));
-    length=1;
-  }
-}
-
-class Main {
-  public static void main(String[] args) {
-    Rectangle r1 = new Rectangle();
-    r1.getArea(5, 6);
-  }
-}
