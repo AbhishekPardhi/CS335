@@ -950,10 +950,15 @@ void searchAST(NODE* node)
 	}
 	else if(temp=="ForStatementNoShortIf" || temp=="ForStatement"){
 		int flag=0;
-		for ( auto  for_statement_child : node->children)
-		{	
+		for (int i=0;i<node->children.size();i++)
+		{		
+			NODE* for_statement_child = node->children[i];
+			if(i==node->children.size()-1){
+				searchAST(for_statement_child);
+				return;
+			}
 			string for_statement_child_val = for_statement_child->val;
-			if (for_statement_child_val == "LocalVariableDeclaration" || for_statement_child_val=="Block")
+			if (for_statement_child_val == "LocalVariableDeclaration")
 			{
 				flag+=1;
 				searchAST(for_statement_child);

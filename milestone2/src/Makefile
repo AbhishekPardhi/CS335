@@ -6,3 +6,6 @@ compile: main.y main.l
 
 clean:	
 		rm -f main main.tab.c main.tab.h lex.yy.c main.output *.dot *.png -r output
+
+dot:	output.dot
+		dot -Tpng output.dot -o AST.png
