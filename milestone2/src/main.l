@@ -117,71 +117,42 @@ IDENTIFIERS                     {JAVA_LETTER}{JAVA_LETTER_OR_DIGIT}*
                                 yylval.elem = create_node(1, strdup(yytext));
                                 yylval.elem->lineno=yylineno;
                                 
-                                string type_str = "null";
-                                char * type = new char[type_str.length() + 1];
-                                strcpy(type, type_str.c_str());
-                                yylval.elem->type = type;
-                                return LITERAL;
+                                return NULL_LITERAL;
                             }
 {CHAR_LITERAL}              {   
                                 yylval.elem = create_node(1, strdup(yytext));
                                 yylval.elem->lineno=yylineno;
 
-                                string type_str = "char";
-                                char * type = new char[type_str.length() + 1];
-                                strcpy(type, type_str.c_str());
-                                yylval.elem->type = type;
-                                return LITERAL;
+                                return CHAR_LITERAL;
                             }
 {BOOLEAN_LITERAL}              {   
                                 yylval.elem = create_node(1, strdup(yytext));
                                 yylval.elem->lineno=yylineno;
 
-                                string type_str = "boolean";
-                                char * type = new char[type_str.length() + 1];
-                                strcpy(type, type_str.c_str());
-                                yylval.elem->type = type;
-                                return LITERAL;
+                                return BOOLEAN_LITERAL;
                             }
 {INTEGER_LITERAL}              {   
                                 yylval.elem = create_node(1, strdup(yytext));
                                 yylval.elem->lineno=yylineno;
-
-                                string type_str = "int";
-                                char * type = new char[type_str.length() + 1];
-                                strcpy(type, type_str.c_str());
-                                yylval.elem->type = type;
-                                return LITERAL;
+                                return INTEGER_LITERAL;
                             }
 {FLOAT_LITERAL}              {   
                                 yylval.elem = create_node(1, strdup(yytext));
                                 yylval.elem->lineno=yylineno;
 
-                                string type_str = "float";
-                                char * type = new char[type_str.length() + 1];
-                                strcpy(type, type_str.c_str());
-                                yylval.elem->type = type;
-                                return LITERAL;
+                                return FLOAT_LITERAL;
                             }
 {STRINGS_LITERAL}           {   
                                 yylval.elem = create_node(1, strdup(yytext));
                                 yylval.elem->lineno=yylineno;
 
-                                string type_str = "string";
-                                char * type = new char[type_str.length() + 1];
-                                strcpy(type, type_str.c_str());
-                                yylval.elem->type = type;
-                                return LITERAL;
+                                return STRING_LITERAL;
                             }
 {TEXT_BLOCK_LITERAL}        {   
                                 yylval.elem = create_node(1, strdup(yytext));
                                 yylval.elem->lineno=yylineno;
 
-                                string type_str = "textblock";
-                                char * type = new char[type_str.length() + 1];
-                                strcpy(type, type_str.c_str());
-                                yylval.elem->type = type;
-                                return LITERAL;
+                                return TEXTBLOCK_LITERAL;
                             }
 {KEYWORDS}                  {   
                                 yylval.elem = create_node(1, strdup(yytext));

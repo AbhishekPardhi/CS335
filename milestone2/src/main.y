@@ -17,7 +17,6 @@
 	string handle_expression(NODE*);
 	string handle_function(NODE*);
 	string get_type(NODE* );
-	char* str_to_ch(string s);
 	vector<int> makelist(int i);
 	vector<int> merge(vector<int> p1,vector<int> p2);
 	void backpatch(vector<int> p,int i);
@@ -26,11 +25,21 @@
 	int lineno;
 	int tempCount;
 	int instCount;
+	char * str_to_ch(string s);
+	string get_invocation_name(NODE* );
+
+	int lineno;
+	string cur_class;
+
+	void yerror(string s)
+	{
+		cout<<s<<" at line number "<<lineno<<endl;
+		exit(1);
+	}
 
     void yyerror(const char *s) {
-        printf("Error: %s at line %d\n", s, lineno);
-        exit(0);
-        return;
+        printf("Error: %s at line %d\n", s, yylineno);
+        exit(1);
     }
     NODE *start_node;
 	fstream fout;
@@ -46,14 +55,14 @@
 	stack<ste*> branch;
 
 	int forFlag = 0;
-	vector<string> ass_op={"=","*=","/=","%=","+=","-=","<<=",">>=",">>>=","&=","^=","|=",">","<","==","<=",">="};
+	unordered_map <string,stme*> classMap;	
 %}
 
 %union {
     NODE *elem;
 }
 
-%token <elem>  BITWISE_AND BITWISE_OR COMMA FINALLY LPAREN RPAREN IDENTIFIER EQUALS DOT CLASS PUBLIC PRIVATE SEMICOLON COLON OR RETURN TRY SYNCHRONIZED THROW BREAK CONTINUE CATCH FINAL IF ELSE WHILE FOR LSPAR RSPAR TIMES_EQUALS DIVIDE_EQUALS MOD_EQUALS PLUS_EQUALS MINUS_EQUALS LEFT_SHIFT_EQUALS RIGHT_SHIFT_EQUALS UNSIGNED_RIGHT_SHIFT_EQUALS AND_EQUALS XOR_EQUALS OR_EQUALS QUESTION NOT_EQUALS LT GT LE GE INSTANCEOF AND XOR PLUS MINUS TIMES DIVIDE MOD PLUS_PLUS MINUS_MINUS TILDE THIS SUPER INT LONG SHORT BYTE CHAR IMPLEMENTS FLOAT DOUBLE BOOLEAN VOID NOT EXTENDS RMPARA LMPARA STATIC LEFT_SHIFT RIGHT_SHIFT UNSIGNED_RIGHT_SHIFT LITERAL THROWS NEW IMPORT PACKAGE INTERFACE EQUALS_EQUALS 
+%token <elem>  BITWISE_AND BITWISE_OR COMMA FINALLY LPAREN RPAREN IDENTIFIER EQUALS DOT CLASS PUBLIC PRIVATE SEMICOLON COLON OR RETURN TRY SYNCHRONIZED THROW BREAK CONTINUE CATCH FINAL IF ELSE WHILE FOR LSPAR RSPAR TIMES_EQUALS DIVIDE_EQUALS MOD_EQUALS PLUS_EQUALS MINUS_EQUALS LEFT_SHIFT_EQUALS RIGHT_SHIFT_EQUALS UNSIGNED_RIGHT_SHIFT_EQUALS AND_EQUALS XOR_EQUALS OR_EQUALS QUESTION NOT_EQUALS LT GT LE GE INSTANCEOF AND XOR PLUS MINUS TIMES DIVIDE MOD PLUS_PLUS MINUS_MINUS TILDE THIS SUPER INT LONG SHORT BYTE CHAR IMPLEMENTS FLOAT DOUBLE BOOLEAN VOID NOT EXTENDS RMPARA LMPARA STATIC LEFT_SHIFT RIGHT_SHIFT UNSIGNED_RIGHT_SHIFT NULL_LITERAL CHAR_LITERAL INTEGER_LITERAL FLOAT_LITERAL BOOLEAN_LITERAL STRING_LITERAL TEXTBLOCK_LITERAL THROWS NEW IMPORT PACKAGE INTERFACE EQUALS_EQUALS 
 %type <elem> Goal CompilationUnit Type PrimitiveType NumericType IntegralType FloatingPointType ReferenceType ClassOrInterfaceType ClassType InterfaceType ArrayType Name SimpleName QualifiedName ImportDeclarations TypeDeclarations PackageDeclaration ImportDeclaration TypeDeclaration Modifiers Modifier ClassDeclaration Super Interfaces ClassBody ClassBodyDeclarations ClassBodyDeclaration ClassMemberDeclaration FieldDeclaration VariableDeclarators VariableDeclarator VariableDeclaratorId VariableInitializer MethodDeclaration MethodHeader MethodDeclarator FormalParameterList Throws ClassTypeList MethodBody StaticInitializer ConstructorDeclaration ConstructorDeclarator ConstructorBody InterfaceDeclaration Expression ArrayInitializer FormalParameter Block SingleTypeImportDeclaration TypeImportOnDemandDeclaration AssignmentExpression ConditionalExpression Assignment ConditionalOrExpression LeftHandSide ConditionalAndExpression InclusiveOrExpression ExclusiveOrExpression AndExpression EqualityExpression RelationalExpression ShiftExpression AdditiveExpression MultiplicativeExpression UnaryExpression PreIncrementExpression PreDecrementExpression UnaryExpressionNotPlusMinus PostIncrementExpression PostDecrementExpression CastExpression Primary PrimaryNoNewArray ArrayCreationExpression ArrayAccess FieldAccess MethodInvocation ClassInstanceCreationExpression ArgumentList PostfixExpression InterfaceTypeList ExplicitConstructorInvocation InterfaceBody InterfaceMemberDeclarations InterfaceMemberDeclaration ConstantDeclaration AbstractMethodDeclaration ExtendsInterfaces AssignmentOperator Dims DimExprs DimExpr VariableInitializers BlockStatements BlockStatement LocalVariableDeclarationStatement Statement StatementNoShortIf StatementWithoutTrailingSubstatement IfThenStatement IfThenElseStatement IfThenElseStatementNoShortIf WhileStatement WhileStatementNoShortIf ForStatement ForStatementNoShortIf ForInit ForUpdate StatementExpression StatementExpressionList LocalVariableDeclaration EmptyStatement LabeledStatement ExpressionStatement BreakStatement ContinueStatement ReturnStatement ThrowStatement SynchronizedStatement TryStatement Catches CatchClause Finally LabeledStatementNoShortIf
 
 %%
@@ -245,7 +254,7 @@ VariableDeclarator:
 ;
 
 VariableDeclaratorId:
-	IDENTIFIER	{ $$ = create_node(2,"Variable_Declarator_Id",$1) ;  $1->isvar=1;}
+	IDENTIFIER	{ $$ = create_node(2,"Variable_Declarator_Id",$1) ;}
 |	VariableDeclaratorId LSPAR RSPAR	{ $1->children.push_back($2);$1->children.push_back($3); $$ =$1 ;} 
 ;
 
@@ -565,7 +574,13 @@ Primary:
 ;
 
 PrimaryNoNewArray:
-	LITERAL	{ $$ = $1; $$->addr = $$->val; }
+	NULL_LITERAL	{ $$ = $1; $$->addr = $$->val; $1->type=str_to_ch("null");}
+|	CHAR_LITERAL	{ $$ = $1; $$->addr = $$->val; $1->type=str_to_ch("char");}
+|	FLOAT_LITERAL	{ $$ = $1; $$->addr = $$->val; $1->type=str_to_ch("float");}
+|	INTEGER_LITERAL	{ $$ = $1; $$->addr = $$->val; $$->type=str_to_ch("int");}
+|	BOOLEAN_LITERAL	{ $$ = $1; $$->addr = $$->val; $1->type=str_to_ch("boolean");}
+|	STRING_LITERAL	{ $$ = $1; $$->addr = $$->val; $1->type=str_to_ch("string");}
+|	TEXTBLOCK_LITERAL	{ $$ = $1; $$->addr = $$->val; $1->type=str_to_ch("text_block");}
 |	THIS	{ $$ = $1; }
 |	LPAREN Expression RPAREN	{ $$ = create_node ( 4 ,"PrimaryNoNewArray", $1, $2, $3); } 
 |	ClassInstanceCreationExpression	{ $$ = $1; }
@@ -797,10 +812,11 @@ Expression:
 %%
 
 
-void insert_var_id(NODE * node,string type)
+ste* insert_var_id(NODE * node,string type)
 {
 	string var_name = node->children[0]->val;
 	lineno=node->children[0]->lineno;
+	ste* return_ste;
 	int dim = vardim(node);
 	ste* new_ste= new ste;
 
@@ -810,20 +826,17 @@ void insert_var_id(NODE * node,string type)
 		current_ste->dim=dim;
 		current_ste->token="IDENTIFIER";
 		current_ste->lineno=lineno;
-
+		return_ste=current_ste;
 		current_ste->next=new_ste;
 		new_ste->prev=current_ste;
 		current_ste=new_ste;
 	}
 	else{
-		string e_message= "Variable "+var_name+ " redeclared";
-		char* e_message_ar= new char[e_message.size()+1];
-		strcpy(e_message_ar,e_message.c_str());
+		string e_message= "Error: Variable "+var_name+ " redeclared";
+		yerror(e_message);
 
-		yyerror(e_message_ar);
-		exit(1);
 	}
-
+	return return_ste;
 }
 
 void insert_variable(NODE * local_var_node)
@@ -844,6 +857,13 @@ void insert_variable(NODE * local_var_node)
 		{
 			NODE* var_dec_id = var_id_child->children[0];
 			insert_var_id(var_dec_id,type);
+
+			string right_type=handle_expression(var_id_child->children[1]);
+			if (right_type!=type)
+			{
+				string e_message= "Error : Type mismatch for assignment of type " + right_type + " to variable of type " + type;
+				yerror(e_message);
+			}
 		}
 	}
 }
@@ -953,7 +973,22 @@ void searchAST(NODE* node)
 		}
 		return;
 	}
-	
+	else if (temp=="this")
+	{
+		string var_name = "this";
+		lineno=node->children[0]->lineno;
+		ste* new_ste= new ste;
+
+		current_ste->lexeme=var_name;
+		current_ste->type=cur_class;
+		current_ste->dim=0;
+		current_ste->token="IDENTIFIER";
+		current_ste->lineno=lineno;
+
+		current_ste->next=new_ste;
+		new_ste->prev=current_ste;
+		current_ste=new_ste;
+	}
 	else if(temp=="ExpressionStatement")
 	{
 		string left_child_val=node->children[0]->val;
@@ -961,12 +996,17 @@ void searchAST(NODE* node)
 		{	
 			handle_function(node->children[0]);
 		}
-		/* else
-			handle_expression(node->children[0]); */
+		else
+			handle_expression(node->children[0]);
 	}
 
 	for(int i = 0; i < node->children.size(); i++)
 	{
+		string child_node_val=node->children[i]->val;
+		if (child_node_val=="class"){
+			cur_class=node->children[i+1]->val;
+			classMap[cur_class]= new stme;
+		}
 		searchAST(node->children[i]);
 	}
 }
@@ -997,37 +1037,95 @@ string handle_function(NODE* node){
 	string node_val = node->val;
 	if(node_val == "MethodInvocation"){
 		string name = get_invocation_name(node);
-		ste* lookup_ste=lookup(current_ste,name);
 
-		if (lookup_ste==NULL)
+		string class_scope;
+		int dot_index=name.find(".");
+		if (dot_index!=-1)
 		{
-			string e_message= "Method " + name + " not declared before use ";
-			char* e_message_ar= new char[e_message.size()+1];
-			strcpy(e_message_ar,e_message.c_str());
-
-			yyerror(e_message_ar);
-			exit(1);
+			ste* lookup_ste=lookup(current_ste,name.substr(0,dot_index));
+			if (lookup_ste!=NULL)
+				class_scope=lookup_ste->type;
+			else
+			{
+				string error_mesaage="Error : variable "+name.substr(0,dot_index)+" is not defined";
+			}
+			name=name.substr(dot_index+1);
 		}
 		else
 		{
-			string type=lookup_ste->type;
-			return type;
+			class_scope=cur_class;
 		}
+
+		//find name in classMap
+		stme* class_head=classMap[class_scope];
+		while (class_head!=NULL)
+		{
+			if (class_head->id==name)
+			{
+				string type=tableMap[name]->return_type;
+				int num_params=tableMap[name]->num_params;
+
+				int arg_flag=0;
+					
+				for(auto node_child: node->children){
+					string node_child_val = node_child->val;
+
+					if(node_child_val=="Argument_List"){
+
+						vector < string > types;
+						arg_flag=1;
+						for(auto node_child_child: node_child->children){
+
+							string node_child_child_val = node_child_child->val;
+							if(node_child_child_val==",") continue;
+
+							string arg_type=handle_expression(node_child_child);
+							types.push_back(arg_type);
+						}
+
+						if(types.size()!=num_params){
+							string e_message= "Error : Method " + name + " called with wrong number of arguments ";
+							yerror(e_message);
+						}
+						else{
+
+							ste* entry_ste=tableMap[name]->entry;
+
+							for(int i=0;i<num_params;i++){
+								if(types[i]!=entry_ste->type){
+									string e_message= "Error : Method " + name + " called with wrong type of arguments ";
+									yerror(e_message);
+								}
+							}
+						}
+					}
+
+				}
+
+				if(arg_flag==0 && num_params!=0){
+					string e_message= "Error : Method " + name + " called with wrong number of arguments ";
+					yerror(e_message);
+				}
+				return type;
+
+			}
+			class_head=class_head->next;
+		}
+
+
+		string e_message= "Error : Method " + name + " not declared before use ";
+		yerror(e_message);
+
 	}
 	
 	if(node_val=="ClassInstanceCreationExpression"){
 		string name = get_invocation_name(node->children[1]);
-		cout<<name<<endl;
-		ste* lookup_ste=lookup(current_ste,name);
+		
 
-		if (lookup_ste==NULL)
+		if (classMap.find(name)==classMap.end())
 		{	
-			string e_message= "Class " + name + " not declared before use ";
-			char* e_message_ar= new char[e_message.size()+1];
-			strcpy(e_message_ar,e_message.c_str());
-
-			yyerror(e_message_ar);
-			exit(1);
+			string e_message= "Error : Class " + name + " not declared before use ";
+			yerror(e_message);
 		}
 		else
 		{	
@@ -1047,51 +1145,51 @@ void yerror(string s)
 
 string handle_expression(NODE* node)
 {
-    if (node->children.size()==0)
-    {    
-        lineno=node->lineno;
-        string node_type=node->type;
-        if (node_type=="")
-        {
-            //case the leaf is not a literal
-            string node_val=node->val;
+	if (node->children.size()==0)
+	{	
+		lineno=node->lineno;
+		string node_type=node->type;
+		if (node_type=="")
+		{
+			//case the leaf is not a literal
+			string node_val=node->val;
 
-            ste* lookup_ste=lookup(current_ste,node_val);
-            if (lookup_ste==NULL)
-            {
-                string var_name=node->val;
-                string e_message= "Error : Variable " + var_name + " not declared before use ";
-                lineno=node->lineno;
-                yerror(e_message);
-            }
+			ste* lookup_ste=lookup(current_ste,node_val);
+			if (lookup_ste==NULL)
+			{
+				string var_name=node->val;
+				string e_message= "Error : Variable " + var_name + " not declared before use ";
+				lineno=node->lineno;
+				yerror(e_message);
+			}
 
-            return lookup_ste->type;        
-        }
-        return node_type;
-    }
-    string child_val=node->val;
-    if (child_val=="MethodInvocation")
-        return handle_function(node);
+			return lookup_ste->type;		
+		}
+		return node_type;
+	}
+	string child_val=node->val;
+	if (child_val=="MethodInvocation" || child_val=="ClassInstanceCreationExpression")
+		return handle_function(node);
 
 
-    node->type=str_to_ch(handle_expression(node->children[0]));
+	node->type=str_to_ch(handle_expression(node->children[0]));
 
-    for (int i=1;i<node->children.size();i++)
-    {
-        string child_type= handle_expression(node->children[i]);
-        string node_type=node->type;
-        string result_type= typecast(child_type,node_type);
-        if (result_type=="Error")
-        {
-            string var_name=node->val;
-            string e_message= "Error : Type mismatch for operator \'"+ var_name+ "\' with operands of type " + child_type +" and " +node_type;
-            yerror(e_message);
-        }
-        node->type=str_to_ch(result_type);
-    }
+	for (int i=1;i<node->children.size();i++)
+	{
+		string child_type= handle_expression(node->children[i]);
+		string node_type=node->type;
+		string result_type= typecast(child_type,node_type);
+		if (result_type=="Error")
+		{
+			string var_name=node->val;
+			string e_message= "Error : Type mismatch for operator \'"+ var_name+ "\' with operands of type " + child_type +" and " +node_type;
+			yerror(e_message);
+		}
+		node->type=str_to_ch(result_type);
+	}
 
-    string node_type=node->type;
-    return node_type;
+	string node_type=node->type;
+	return node_type;
 }
 
 string typecast(string typ1,string typ2)
@@ -1113,12 +1211,31 @@ void fieldSymTable(NODE* node)
 			string var_id_child_val=var_id_child->val;
 			if (var_id_child_val == "Variable_Declarator_Id")
 			{
-				insert_var_id(var_id_child,type);
+				ste* entry=insert_var_id(var_id_child,type);
+				stme* field_entry=new stme;
+				field_entry->num_params=-1;
+				field_entry->entry=entry;
+				field_entry->next=classMap[cur_class];
+				classMap[cur_class]=field_entry;
+				classMap[cur_class]->id=entry->lexeme;
+				
 			}
 			else if (var_id_child_val == "=")
 			{
 				NODE* var_dec_id = var_id_child->children[0];
-				insert_var_id(var_dec_id,type);
+				ste* entry=insert_var_id(var_dec_id,type);
+				stme* field_entry=new stme;
+				field_entry->num_params=-1;
+				field_entry->entry=entry;
+				field_entry->next=classMap[cur_class];
+				classMap[cur_class]=field_entry;
+				classMap[cur_class]->id=entry->lexeme;
+				string right_type=handle_expression(var_id_child->children[1]);
+				if (right_type!=type)
+				{
+					string e_message= "Error : Type mismatch for assignment of type " + right_type + " to variable of type " + type;
+					yerror(e_message);
+				}
 			}
 		}
 	}
@@ -1127,15 +1244,34 @@ void fieldSymTable(NODE* node)
 		string var_id_child_val=var_id_child->val;
 		if (var_id_child_val == "Variable_Declarator_Id")
 		{
-			insert_var_id(var_id_child,type);
+			ste* entry=insert_var_id(var_id_child,type);
+			stme* field_entry=new stme;
+			field_entry->num_params=-1;
+			field_entry->entry=entry;
+			field_entry->next=classMap[cur_class];
+			classMap[cur_class]=field_entry;
+			classMap[cur_class]->id=entry->lexeme;
 		}
 		else if (var_id_child_val == "=")
 		{
 			NODE* var_dec_id = var_id_child->children[0];
-			insert_var_id(var_dec_id,type);
+			ste* entry=insert_var_id(var_dec_id,type);
+			stme* field_entry=new stme;
+			field_entry->num_params=-1;
+			field_entry->entry=entry;
+			field_entry->next=classMap[cur_class];
+			classMap[cur_class]=field_entry;
+			classMap[cur_class]->id=entry->lexeme;
 		}
 	}
 
+}
+
+char* str_to_ch(string s)
+{
+	char* result_chr = new char[s.size()+1];
+	strcpy(result_chr,s.c_str());
+	return result_chr;
 }
 
 void branchMethodSymtable(NODE* declaration_node)
@@ -1157,6 +1293,10 @@ void branchMethodSymtable(NODE* declaration_node)
 				table_entry->num_params=0;
 
 				tableMap[id_node_val]=table_entry;
+				table_entry->next=classMap[cur_class];
+				classMap[cur_class]=table_entry;
+				classMap[cur_class]->id=id_node_val;
+				
 
 				for (auto child_node : decl_child_node->children)
 				{
@@ -1216,6 +1356,9 @@ void branchMethodSymtable(NODE* declaration_node)
 			table_entry->num_params=0;
 
 			tableMap[id_node_val]=table_entry;
+			table_entry->next=classMap[cur_class];
+			classMap[cur_class]=table_entry;
+			classMap[cur_class]->id=id_node_val;
 		
 			for (auto child_node : node->children)
 			{
