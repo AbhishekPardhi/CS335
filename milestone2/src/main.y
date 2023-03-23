@@ -13,11 +13,12 @@
 	int vardim(NODE* );
 	void fieldSymTable(NODE *);
 	string typecast(string , string);
-	string handle_expression(NODE*);
 	string handle_function(NODE*);
 	string get_type(NODE* );
 	char * str_to_ch(string s);
 	string get_invocation_name(NODE* );
+	string handle_array_access(NODE*);
+	string handle_arrayinit(NODE* );
 
 	int lineno;
 	string cur_class;
@@ -777,6 +778,66 @@ Expression:
 %%
 
 
+
+string handle_expression(NODE* node)
+{
+	if (node->children.size()==0)
+	{	
+		lineno=node->lineno;
+		string node_type=node->type;
+		string node_val= node->val;
+		if (node_val=="(" || node_val==")")
+			return "";
+		if (node_type=="")
+		{
+			//case the leaf is not a literal
+			string node_val=node->val;
+
+			ste* lookup_ste=lookup(current_ste,node_val);
+			if (lookup_ste==NULL)
+			{
+				string var_name=node->val;
+				string e_message= "Error : Variable " + var_name + " not declared before use ";
+				lineno=node->lineno;
+				yerror(e_message);
+			}
+
+			return lookup_ste->type;		
+		}
+		return node_type;
+	}
+	string child_val=node->val;
+
+	if (child_val=="MethodInvocation" || child_val=="ClassInstanceCreationExpression" || child_val=="Qualified_Name")
+		return handle_function(node);
+	
+	if (child_val=="ArrayInitializer")
+		return handle_arrayinit(node);
+
+	if(child_val=="ArrayAccess"){
+		return handle_array_access(node);
+	}		
+
+	node->type=str_to_ch(handle_expression(node->children[0]));
+
+	for (int i=1;i<node->children.size();i++)
+	{
+		string child_type= handle_expression(node->children[i]);
+		string node_type=node->type;
+		string result_type= typecast(child_type,node_type);
+		if (result_type=="Error")
+		{
+			string var_name=node->val;
+			string e_message= "Error : Type mismatch for operator \'"+ var_name+ "\' with operands of type " + child_type +" and " +node_type;
+			yerror(e_message);
+		}
+		node->type=str_to_ch(result_type);
+	}
+
+	string node_type=node->type;
+	return node_type;
+}
+
 ste* insert_var_id(NODE * node,string type)
 {
 	string var_name = node->children[0]->val;
@@ -1011,6 +1072,29 @@ string get_invocation_name(NODE* node){
 	return name;
 }
 
+string handle_array_access(NODE* node){
+	
+	NODE* first_child=node->children[0];
+	string type = handle_expression(first_child);
+
+	int l=type.size();
+	string last_two = type.substr(l-2,2);
+	string new_sub_type=type.substr(0,l-2);
+
+	if (last_two!="[]" )
+	{
+		string error_message="Error : "+type+" is not an array";
+		yerror(error_message);
+	}
+	if (handle_expression(node->children[2])!="int")
+	{
+		string error_message="Error : array index must be an integer";
+		yerror(error_message);
+	}
+
+	return new_sub_type;
+}
+
 string handle_function(NODE* node){
 
 	string node_val = node->val;
@@ -1155,58 +1239,6 @@ string handle_arrayinit(NODE* node)
 			}
 	}
 	return var_type+"[]";
-}
-
-string handle_expression(NODE* node)
-{
-	if (node->children.size()==0)
-	{	
-		lineno=node->lineno;
-		string node_type=node->type;
-		if (node_type=="")
-		{
-			//case the leaf is not a literal
-			string node_val=node->val;
-
-			ste* lookup_ste=lookup(current_ste,node_val);
-			if (lookup_ste==NULL)
-			{
-				string var_name=node->val;
-				string e_message= "Error : Variable " + var_name + " not declared before use ";
-				lineno=node->lineno;
-				yerror(e_message);
-			}
-
-			return lookup_ste->type;		
-		}
-		return node_type;
-	}
-	string child_val=node->val;
-
-	if (child_val=="MethodInvocation" || child_val=="ClassInstanceCreationExpression" || child_val=="Qualified_Name")
-		return handle_function(node);
-	
-	if (child_val=="ArrayInitializer")
-		return handle_arrayinit(node);		
-
-	node->type=str_to_ch(handle_expression(node->children[0]));
-
-	for (int i=1;i<node->children.size();i++)
-	{
-		string child_type= handle_expression(node->children[i]);
-		string node_type=node->type;
-		string result_type= typecast(child_type,node_type);
-		if (result_type=="Error")
-		{
-			string var_name=node->val;
-			string e_message= "Error : Type mismatch for operator \'"+ var_name+ "\' with operands of type " + child_type +" and " +node_type;
-			yerror(e_message);
-		}
-		node->type=str_to_ch(result_type);
-	}
-
-	string node_type=node->type;
-	return node_type;
 }
 
 string typecast(string typ1,string typ2)
