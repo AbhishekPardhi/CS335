@@ -22,7 +22,7 @@
 	void backpatch(vector<int> p,int i);
 	vector<string> instructions;
 	void create_ins(string s);
-	int lineno;
+
 	int tempCount;
 	string newTemp();
 	int instCount;
@@ -304,7 +304,7 @@ MethodHeader:
 								$$ = create_node ( 3 ,"MethodHeader", $1, $2);
 							}
 |	Modifiers VOID MethodDeclarator Throws	{
-												$$ = create_node ( 5 ,"MethodHeader", $1, $2, $3, $4)
+												$$ = create_node ( 5 ,"MethodHeader", $1, $2, $3, $4);
 											}
 |	Modifiers VOID MethodDeclarator	{
 										$$ = create_node ( 4 ,"MethodHeader", $1, $2, $3);
@@ -1276,12 +1276,6 @@ string handle_function(NODE* node){
 	return "";
 }
 
-void yerror(string s)
-{
-	cout<<s<<" at line number "<<lineno<<endl;
-	exit(1);
-}
-
 string handle_expression(NODE* node)
 {
 	if (node->children.size()==0)
@@ -1582,13 +1576,6 @@ void printToCSV(){
 		
 		fout.close();
 	}
-}
-
-char* str_to_ch(string s)
-{
-    char* result_chr = new char[s.size()+1];
-    strcpy(result_chr,s.c_str());
-    return result_chr;
 }
 
 vector<int> makelist(int i){
