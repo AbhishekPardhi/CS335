@@ -1285,7 +1285,6 @@ string handle_function(NODE* node){
 		if (second=="length")
 		{
 			ste* lookup_ste=lookup(current_ste,name.substr(0,dot_index));
-			/* cout<<"no "<<name.substr(0,dot_index)<<" "<<lookup_ste->type<<endl; */
 			if (lookup_ste!=NULL)
 			{
 				string type=lookup_ste->type;
@@ -1716,8 +1715,14 @@ void printToCSV(){
 
 		fout<<it->first<<","<<it->second->return_type<<","<<it->second->num_params<<",,,,"<<endl;
 		ste* current_ste = it->second->entry;
-		while(current_ste->next!=NULL || current_ste->next_scope!=NULL){
+		while(current_ste->next!=NULL || current_ste->next_scope!=NULL || !branch.empty()){
+			if(current_ste->next==NULL && current_ste->next_scope==NULL){
+				current_ste = branch.top();
+				branch.pop();
+				continue;
+			}
 			if(current_ste->type=="branch_head"){
+				branch.push(current_ste->next);
 				current_ste = current_ste->next_scope;
 				continue;
 			}
@@ -1841,6 +1846,6 @@ int main(int argc, char* argv[]){
 	current_ste->prev=start_ste;
 	searchAST(start_node);
 	printToCSV();
-	print_ste(start_ste);
+	/* print_ste(start_ste); */
     return 0;
 }
