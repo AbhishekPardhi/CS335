@@ -862,6 +862,7 @@ ste* insert_var_id(NODE * node,string type)
 		current_ste=new_ste;
 	}
 	else{
+		print_ste(start_ste);
 		string e_message= "Error: Variable "+var_name+ " redeclared";
 		yerror(e_message);
 
@@ -934,7 +935,7 @@ void searchAST(NODE* node)
 	
 	string temp=node->val;
 
-	if (temp=="{" || temp=="for")
+	if (temp=="{")
 	{	
 		if(temp=="{" && forFlag==1){
 			forFlag=0;
@@ -953,11 +954,28 @@ void searchAST(NODE* node)
 	}
 	else if(temp=="ForStatementNoShortIf" || temp=="ForStatement"){
 		int flag=0;
+		ste * new_ste = new ste;
+		
+		current_ste->type="branch_head";
+
+		branch.push(current_ste);
+
+		current_ste->next_scope=new_ste;
+		new_ste->prev_scope=current_ste;
+
+		current_ste=new_ste;
+
 		for (int i=0;i<node->children.size();i++)
 		{		
 			NODE* for_statement_child = node->children[i];
 			if(i==node->children.size()-1){
 				searchAST(for_statement_child);
+				current_ste=branch.top();
+				branch.pop();
+				ste* new_ste1 = new ste;
+				current_ste->next=new_ste1;
+				new_ste1->prev=current_ste;
+				current_ste=new_ste1;
 				return;
 			}
 			string for_statement_child_val = for_statement_child->val;
@@ -975,6 +993,8 @@ void searchAST(NODE* node)
 		}
 
 		if(flag==2) forFlag=1;
+
+		
 		return;
 	}
 	else if (temp=="}")
@@ -1122,7 +1142,6 @@ string handle_array_access(NODE* node){
 	string new_sub_type=type.substr(0,l-2);
 
 	string first_child_val=first_child->val;
-	cout<<type<<endl;
 	if (last_two!="[]" )
 	{
 		string error_message="Error : "+first_child_val+" is not an array";
@@ -1195,12 +1214,14 @@ string handle_function(NODE* node){
 						else{
 
 							ste* entry_ste=tableMap[name]->entry;
+							
 
 							for(int i=0;i<num_params;i++){
 								if(types[i]!=entry_ste->type){
 									string e_message= "Error : Method " + name + " called with wrong type of arguments ";
 									yerror(e_message);
 								}
+								entry_ste=entry_ste->next;
 							}
 						}
 					}
@@ -1241,7 +1262,6 @@ string handle_function(NODE* node){
 
 	if(node_val=="Qualified_Name"){
 		string name = get_invocation_name(node);
-		cout<<name<<endl;
 		ste* lookup_ste=lookup(current_ste,name);
 		if (lookup_ste!=NULL)
 		{
@@ -1481,6 +1501,11 @@ void ParameterSymtable(NODE* param_node)
 
 	//store the name of the parameter
 	NODE* var_node=param_node->children[length-1];
+	int dim=vardim(var_node);
+	for (int i=0;i<dim;i++)
+	{
+		type+="[]";
+	}
 	insert_var_id(var_node,type);
 }
 

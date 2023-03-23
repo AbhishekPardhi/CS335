@@ -1,5 +1,3 @@
 ->interface
--> ArrayCreationExpression
 ->typecast
-
 -> array.length
