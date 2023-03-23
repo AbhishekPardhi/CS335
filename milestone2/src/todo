@@ -2,3 +2,5 @@
 -> ArrayAccess
 -> ArrayCreationExpression
 ->typecast
+
+-> array.length

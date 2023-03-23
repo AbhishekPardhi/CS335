@@ -892,13 +892,21 @@ void searchAST(NODE* node)
 		for ( auto  for_statement_child : node->children)
 		{	
 			string for_statement_child_val = for_statement_child->val;
-			if (for_statement_child_val == "LocalVariableDeclaration" || for_statement_child_val == "Block")
+			if (for_statement_child_val == "LocalVariableDeclaration" || for_statement_child_val=="Block")
 			{
 				flag+=1;
+				searchAST(for_statement_child);
+			}
+			else if ( for_statement_child_val=="for" || for_statement_child_val=="(" || for_statement_child_val==")" || for_statement_child_val==";" ){
+				continue;
+			}
+			else{
+				handle_expression(for_statement_child);
 			}
 		}
 
 		if(flag==2) forFlag=1;
+		return;
 	}
 	else if (temp=="}")
 	{
@@ -1105,6 +1113,22 @@ string handle_function(NODE* node){
 		}
 	}
 
+	if(node_val=="Qualified_Name"){
+		string name = get_invocation_name(node);
+		cout<<name<<endl;
+		ste* lookup_ste=lookup(current_ste,name);
+		if (lookup_ste!=NULL)
+		{
+			string type=lookup_ste->type;
+			return type;
+		}
+		else
+		{
+			string e_message= "Error : variable " + name + " not declared before use ";
+			yerror(e_message);
+		}
+	}
+
 	return "";
 }
 
@@ -1158,7 +1182,8 @@ string handle_expression(NODE* node)
 		return node_type;
 	}
 	string child_val=node->val;
-	if (child_val=="MethodInvocation" || child_val=="ClassInstanceCreationExpression")
+
+	if (child_val=="MethodInvocation" || child_val=="ClassInstanceCreationExpression" || child_val=="Qualified_Name")
 		return handle_function(node);
 	
 	if (child_val=="ArrayInitializer")
