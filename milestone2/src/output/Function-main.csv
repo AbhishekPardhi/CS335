@@ -1,0 +1,8 @@
+Function name:,Return Type, Number of Parameters ,Lexeme,Type,Line Number,Token
+main,void,1,,,,
+,,,args,String[],6,IDENTIFIER
+,,,x,int,7,IDENTIFIER
+,,,y,int,8,IDENTIFIER
+,,,bool1,boolean,9,IDENTIFIER
+,,,bool2,boolean,10,IDENTIFIER
+,,,i,int,12,IDENTIFIER

@@ -14,7 +14,6 @@ typedef struct node
     char *type;
     char *addr;
     int ins; // stores the starting instruction number of the current node's code
-    // vector<INSTRUCTION*> code; // stores 3AC code for the complete production of the node
     vector<int> truelist;
     vector<int> falselist;
     vector<int> nextlist;

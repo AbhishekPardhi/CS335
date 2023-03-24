@@ -590,7 +590,6 @@ IfThenStatement:
 	IF LPAREN Expression RPAREN Statement	{
 												$$ = create_node ( 6 ,"IfThenStatement", $1, $2, $3, $4, $5);
 												$$->ins = instCount+1;
-												// cout << $5->ins << endl;
 												backpatch($3->truelist,$5->ins);
 												$4->nextlist = merge($3->falselist,$5->falselist);
 											} 
@@ -600,7 +599,6 @@ IfThenElseStatement:
 	IF LPAREN Expression RPAREN StatementNoShortIf Else Statement	{
 																		$$ = create_node ( 8 ,"IfThenElseStatement", $1, $2, $3, $4, $5, $6, $7);
 																		$$->ins = $3->ins;
-																		// cout << $$->ins << instructions[$$->ins-1] << endl;
 																		backpatch($3->truelist,$5->ins);
 																		backpatch($3->falselist,$7->ins);
 																		$$->nextlist = merge(merge($3->nextlist,makelist($7->ins)),$7->nextlist);
@@ -976,7 +974,7 @@ PostIncrementExpression:
 									create_ins(0,$$->addr,"=",$1->addr,"");
 									string reg = str_to_ch(newTemp());
 									create_ins(1,reg,"+",$1->addr,"1");
-									$1->addr = str_to_ch(reg);
+									create_ins(0,$1->addr,"=",reg,"");
 								}
 ;
 
@@ -987,7 +985,7 @@ PostDecrementExpression:
 										create_ins(0,$$->addr,"=",$1->addr,"");
 										string reg = str_to_ch(newTemp());
 										create_ins(1,reg,"-",$1->addr,"1");
-										$1->addr = str_to_ch(reg);
+										create_ins(0,$1->addr,"=",reg,"");
 									}
 ;
 
@@ -1014,6 +1012,7 @@ PreIncrementExpression:
 									$$->addr = str_to_ch(newTemp());
 									string reg = str_to_ch(newTemp());
 									create_ins(1,reg,"+",$2->addr,"1");
+									create_ins(0,$2->addr,"=",reg,"");
 									$2->addr = str_to_ch(reg);
 									create_ins(0,$$->addr,"=",$2->addr,"");
 								}
@@ -1026,6 +1025,7 @@ PreDecrementExpression:
 									$$->addr = str_to_ch(newTemp());
 									string reg = str_to_ch(newTemp());
 									create_ins(1,reg,"-",$1->addr,"1");
+									create_ins(0,$2->addr,"=",reg,"");
 									$2->addr = str_to_ch(reg);
 									create_ins(0,$$->addr,"=",$2->addr,"");
 								}
@@ -1037,13 +1037,13 @@ UnaryExpressionNotPlusMinus:
 								$$ = create_node ( 2 ,$1->val , $2);
 								$$->ins = instCount+1;
 								$$->addr = str_to_ch(newTemp());
-								create_ins(1,$$->addr,$1->val,$2->addr,"");
+								create_ins(0,$$->addr,"=",$1->val,$2->addr);
 							}
 |	NOT UnaryExpression	{
 							$$ = create_node ( 2 ,$1->val , $2);
 							$$->ins = instCount+1;
 							$$->addr = str_to_ch(newTemp());
-							create_ins(1,$$->addr,$1->val,$2->addr,"");
+							create_ins(0,$$->addr,"=",$1->val,$2->addr);
 						}
 |	CastExpression	{ $$ = $1; }
 ;
@@ -1084,6 +1084,7 @@ AdditiveExpression:
 															$$->ins = instCount+1;
 															$$->addr = str_to_ch(newTemp());
 															create_ins(1,$$->addr,$2->val,$1->addr,$3->addr);
+															cout << instCount << endl;
 														} 
 |	AdditiveExpression MINUS MultiplicativeExpression	{
 															$$ = create_node ( 3 ,$2->val, $1, $3);
@@ -1256,7 +1257,16 @@ Assignment:
 	LeftHandSide AssignmentOperator AssignmentExpression	{
 																$$ = create_node ( 3 ,$2->val, $1, $3);
 																$$->ins = instCount+1;
-																create_ins(0,$1->addr,$2->val,$3->addr,"");
+																string prefix = string($2->val);
+																prefix.pop_back();
+																string reg = newTemp();
+																if(prefix.length()){
+																	create_ins(1,reg,prefix,$1->addr,$3->addr);
+																	create_ins(0,$1->addr,"=",reg,"");
+																}
+																else{
+																	create_ins(0,$1->addr,$2->val,$3->addr,"");
+																}
 															} 
 ;
 
