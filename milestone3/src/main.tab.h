@@ -13,7 +13,7 @@
 
  #line 8 "/usr/share/bison++/bison.h"
 
-#line 65 "main.y"
+#line 64 "main.y"
 typedef union {
     NODE *elem;
 } yy_parse_stype;

@@ -17,7 +17,6 @@
 	vector<int> makelist(int i);
 	vector<int> merge(vector<int> p1,vector<int> p2);
 	void backpatch(vector<int> p,int i);
-	// vector<string> instructions;
 	vector<vector<string>> instructions;
 	void create_ins(int type,string i,string op,string arg1,string arg2); // type = 1=>normal 0=>abnormal
 
@@ -519,6 +518,7 @@ Block:
 										$$ = create_node ( 4 ,"Block", $1, $2, $3);
 										$$->ins = $2->ins;
 										$$->nextlist = $2->nextlist;
+										$$->falselist = $2->falselist;
 									} 
 |	LMPARA RMPARA	{ $$ = create_node ( 3 ,"Block", $1, $2); } 
 ;
@@ -527,6 +527,7 @@ BlockStatements:
 	BlockStatement	{
 						$$ = create_node(2,"Block_Statements",$1) ;
 						$$->ins = $1->ins;
+						$$->nextlist = $1->nextlist;
 					}
 |	BlockStatements BlockStatement	{
 										$1->children.push_back($2); $$ =$1;
@@ -654,7 +655,7 @@ ForStatement:
 																						backpatch($9->nextlist,$7->ins); // statement,forupdate
 																						backpatch($5->truelist,$9->ins); // expression,statement
 																						backpatch($7->truelist,$5->ins); // forupdate,expression
-																						$$->nextlist = $5->falselist;    // lhs,expression
+																						$$->nextlist = merge($5->falselist,$9->nextlist);    // lhs,expression,statement
 																						create_ins(0,"goto",to_string($7->ins),"",""); // forupdate
 																					} 
 |	FOR LPAREN ForInit SEMICOLON SEMICOLON ForUpdate RPAREN Statement	{
@@ -662,6 +663,7 @@ ForStatement:
 																			$$->ins = instCount+1;																																								$$->ins = instCount+1;
 																			backpatch($8->nextlist,$6->ins);
 																			backpatch($6->truelist,$8->ins);
+																			$$->nextlist = $8->nextlist;
 																			create_ins(0,"goto",to_string($6->ins),"","");
 																		} 
 |	FOR LPAREN SEMICOLON Expression SEMICOLON ForUpdate RPAREN Statement	{
@@ -670,7 +672,7 @@ ForStatement:
 																				backpatch($8->nextlist,$6->ins);
 																				backpatch($4->truelist,$8->ins);
 																				backpatch($6->truelist,$4->ins);
-																				$$->nextlist = $4->falselist;
+																				$$->nextlist = merge($4->falselist,$8->nextlist);
 																				create_ins(0,"goto",to_string($6->ins),"","");
 																			} 
 |	FOR LPAREN SEMICOLON SEMICOLON ForUpdate RPAREN Statement	{
@@ -678,6 +680,7 @@ ForStatement:
 																	$$->ins = instCount+1;																																						$$->ins = instCount+1;
 																	backpatch($7->nextlist,$5->ins);
 																	backpatch($5->truelist,$7->ins);
+																	$$->nextlist = $7->nextlist;
 																	create_ins(0,"goto",to_string($5->ins),"","");
 																} 
 |	FOR LPAREN ForInit SEMICOLON Expression SEMICOLON RPAREN Statement	{
@@ -685,13 +688,14 @@ ForStatement:
 																			$$->ins = instCount+1;
 																			backpatch($8->nextlist,$5->ins);
 																			backpatch($5->truelist,$8->ins);
-																			$$->nextlist = $5->falselist;
+																			$$->nextlist = merge($5->falselist,$8->nextlist);
 																			create_ins(0,"goto",to_string($5->ins),"","");
 																		} 
 |	FOR LPAREN ForInit SEMICOLON SEMICOLON RPAREN Statement	{
 																$$ = create_node ( 8 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7);
 																$$->ins = instCount+1;
 																backpatch($7->nextlist,$7->ins);
+																$$->nextlist = $7->nextlist;
 																create_ins(0,"goto",to_string($7->ins),"","");
 															} 
 |	FOR LPAREN SEMICOLON Expression SEMICOLON RPAREN Statement	{
@@ -699,13 +703,14 @@ ForStatement:
 																	$$->ins = instCount+1;
 																	backpatch($7->nextlist,$7->ins);
 																	backpatch($4->truelist,$7->ins);
-																	$$->nextlist = $4->falselist;
+																	$$->nextlist = merge($4->falselist,$7->nextlist);
 																	create_ins(0,"goto",to_string($4->ins),"","");
 																} 
 |	FOR LPAREN SEMICOLON SEMICOLON RPAREN Statement	{
 														$$ = create_node ( 7 ,"ForStatement", $1, $2, $3, $4, $5, $6);
 														$$->ins = instCount+1;
 														backpatch($6->nextlist,$6->ins);
+														$$->nextlist = $6->nextlist;
 														create_ins(0,"goto",to_string($6->ins),"","");
 													} 
 ;
@@ -717,7 +722,7 @@ ForStatementNoShortIf:
 																								backpatch($9->nextlist,$7->ins); // statement,forupdate
 																								backpatch($5->truelist,$9->ins); // expression,statement
 																								backpatch($7->truelist,$5->ins); // forupdate,expression
-																								$$->nextlist = $5->falselist;    // lhs,expression
+																								$$->nextlist = merge($5->falselist,$9->nextlist);    // lhs,expression
 																								create_ins(0,"goto",to_string($7->ins),"",""); // forupdate
 																							} 
 |	FOR LPAREN ForInit SEMICOLON SEMICOLON ForUpdate RPAREN StatementNoShortIf	{
@@ -725,6 +730,7 @@ ForStatementNoShortIf:
 																					$$->ins = instCount+1;																																								$$->ins = instCount+1;
 																					backpatch($8->nextlist,$6->ins);
 																					backpatch($6->truelist,$8->ins);
+																					$$->nextlist = $8->nextlist;
 																					create_ins(0,"goto",to_string($6->ins),"","");
 																				} 
 |	FOR LPAREN SEMICOLON Expression SEMICOLON ForUpdate RPAREN StatementNoShortIf	{
@@ -733,7 +739,7 @@ ForStatementNoShortIf:
 																						backpatch($8->nextlist,$6->ins);
 																						backpatch($4->truelist,$8->ins);
 																						backpatch($6->truelist,$4->ins);
-																						$$->nextlist = $4->falselist;
+																						$$->nextlist = merge($4->falselist,$8->nextlist);
 																						create_ins(0,"goto",to_string($6->ins),"","");
 																					} 
 |	FOR LPAREN SEMICOLON SEMICOLON ForUpdate RPAREN StatementNoShortIf	{
@@ -741,6 +747,7 @@ ForStatementNoShortIf:
 																			$$->ins = instCount+1;																																						$$->ins = instCount+1;
 																			backpatch($7->nextlist,$5->ins);
 																			backpatch($5->truelist,$7->ins);
+																			$$->nextlist = $7->nextlist;
 																			create_ins(0,"goto",to_string($5->ins),"","");
 																		} 
 |	FOR LPAREN ForInit SEMICOLON Expression SEMICOLON RPAREN StatementNoShortIf	{
@@ -748,13 +755,14 @@ ForStatementNoShortIf:
 																					$$->ins = instCount+1;
 																					backpatch($8->nextlist,$5->ins);
 																					backpatch($5->truelist,$8->ins);
-																					$$->nextlist = $5->falselist;
+																					$$->nextlist = merge($5->falselist,$8->nextlist);
 																					create_ins(0,"goto",to_string($5->ins),"","");
 																				} 
 |	FOR LPAREN ForInit SEMICOLON SEMICOLON RPAREN StatementNoShortIf	{
 																			$$ = create_node ( 8 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6, $7);
 																			$$->ins = instCount+1;
 																			backpatch($7->nextlist,$7->ins);
+																			$$->nextlist = $7->nextlist;
 																			create_ins(0,"goto",to_string($7->ins),"","");
 																		} 
 |	FOR LPAREN SEMICOLON Expression SEMICOLON RPAREN StatementNoShortIf	{
@@ -762,13 +770,14 @@ ForStatementNoShortIf:
 																			$$->ins = instCount+1;
 																			backpatch($7->nextlist,$7->ins);
 																			backpatch($4->truelist,$7->ins);
-																			$$->nextlist = $4->falselist;
+																			$$->nextlist = merge($4->falselist,$7->nextlist);
 																			create_ins(0,"goto",to_string($4->ins),"","");
 																		} 
 |	FOR LPAREN SEMICOLON SEMICOLON RPAREN StatementNoShortIf	{
 																	$$ = create_node ( 7 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6);
 																	$$->ins = instCount+1;
 																	backpatch($6->nextlist,$6->ins);
+																	$$->nextlist = $6->nextlist;
 																	create_ins(0,"goto",to_string($6->ins),"","");
 																} 
 ;
@@ -797,12 +806,22 @@ StatementExpressionList:
 
 BreakStatement:
 	BREAK IDENTIFIER SEMICOLON	{ $$ = create_node ( 4 ,"BreakStatement", $1, $2, $3); } 
-|	BREAK SEMICOLON	{ $$ = create_node ( 3 ,"BreakStatement", $1, $2); } 
+|	BREAK SEMICOLON	{
+						$$ = create_node ( 3 ,"BreakStatement", $1, $2);
+						$$->ins = instCount+1;
+						create_ins(0,"goto","","","");
+						$$->nextlist = makelist($$->ins);
+					} 
 ;
 
 ContinueStatement:
 	CONTINUE IDENTIFIER SEMICOLON	{ $$ = create_node ( 4 ,"ContinueStatement", $1, $2, $3); } 
-|	CONTINUE SEMICOLON	{ $$ = create_node ( 3 ,"ContinueStatement", $1, $2); } 
+|	CONTINUE SEMICOLON	{
+							$$ = create_node ( 3 ,"ContinueStatement", $1, $2);
+							$$->ins = instCount+1;
+							create_ins(0,"goto","","","");
+							$$->nextlist = makelist($$->ins);
+						} 
 ;
 
 ReturnStatement:
