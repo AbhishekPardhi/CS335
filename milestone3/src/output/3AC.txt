@@ -12,18 +12,7 @@
 12	main : 
 13	BeginFunc 
 14		x = 0 
-15		i = 0 
-16		t2 = i < 10
-17		if t2 goto 23 
-18		goto 26 
-19		t3 = i 
-20		t4 = i + 1
-21		i = t4 
-22		goto 16 
-23		goto 24 
-24		x = 2 
-25		goto 19 
-26		t6 = x + 2
-27		x = t6 
-28		x = 3 
-29	EndFunc 
+15		PushParam "processing" 
+16		t2 = call Systemoutprintln 
+17		PopParam 4 
+18	EndFunc 
