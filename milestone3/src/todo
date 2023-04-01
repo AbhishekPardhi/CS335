@@ -1,2 +1,3 @@
 ->interface
-->offset in symbol_table
+-> remove dim in ste
+-> class Type offset

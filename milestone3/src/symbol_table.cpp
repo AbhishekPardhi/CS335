@@ -22,7 +22,7 @@ void print_ste(ste* cur,int level=0)
     {
         cout<<"-> ";
     }
-    cout<<cur->lexeme<<" "<<cur->type<<endl;
+    cout<<cur->lexeme<<" "<<cur->type<<" "<<cur->offset<<endl;
     if (cur->next_scope != NULL)
     {
         print_ste(cur->next_scope,level+1);
@@ -54,3 +54,33 @@ stme* lookupFunction(stme* node, string funcName){
         return lookupFunction(node->next,funcName);
     return NULL;
 }
+
+int getOffset(string type, vector < int > dims ){
+
+    unordered_map < string, int > typeSize;
+    typeSize["byte"] = 1;
+    typeSize["short"] = 2;
+    typeSize["int"] = 4;
+    typeSize["long"] = 8;
+    typeSize["float"] = 4;
+    typeSize["double"] = 8;
+    typeSize["boolean"] = 1;
+    typeSize["char"] = 2;
+
+    typeSize["void"] = 0;
+
+    while(type[type.size()-1]==']'){
+        type = type.substr(0,type.size()-2);
+    }
+
+    if(dims.size()!=0){
+        int size = 1;
+        for(int i=0;i<dims.size();i++){
+            size *= dims[i];
+        }
+        return size*typeSize[type]-typeSize[type];
+    }
+
+    return typeSize[type];
+}
+    

@@ -59,6 +59,7 @@
 	stack<ste*> branch;
 
 	int forFlag = 0;
+	int offset = 0;
 	unordered_map <string,stme*> classMap;	
 
 	unordered_map <string, int> typeMap;
@@ -1466,12 +1467,16 @@ ste* insert_var_id(NODE * node,string type)
 		current_ste->lexeme=var_name;
 		current_ste->type=type;
 		current_ste->dim=dim;
+		current_ste->offset=offset;
 		current_ste->token="IDENTIFIER";
 		current_ste->lineno=lineno;
 		return_ste=current_ste;
 		current_ste->next=new_ste;
 		new_ste->prev=current_ste;
+		offset += getOffset(type,current_ste->dims);
+
 		current_ste=new_ste;
+
 	}
 	else{
 		string e_message= "Error: Variable "+var_name+ " redeclared";
@@ -1550,6 +1555,7 @@ void handle_interface_member_declaration(NODE* node)
 			fieldSymTable(node->children[i]);
 		}
 		else if (node_child_val=="AbstractMethodDeclaration"){
+			offset=0;
 			ste * new_ste = new ste;
 			current_ste->type="branch_head";
 
@@ -1696,15 +1702,16 @@ void searchAST(NODE* node)
 		insert_variable(node);
 	}
 	else if (temp=="FieldDeclaration")
-	{
+	{	
 		fieldSymTable(node);
 	}
 	else if (temp=="InterfaceDeclaration")
-	{
+	{	
 		return handle_interface_declaration(node);
 	}
 	else if( temp == "MethodDeclaration" || temp =="ConstructorDeclaration")
-	{
+	{	
+		offset = 0;
 		// new node for the new branch and the branch header in the previous branch junction
 		ste * new_ste = new ste;
 		current_ste->type="branch_head";
@@ -1810,9 +1817,11 @@ string handle_array_creation_Expression(NODE* node){
 	for(auto array_child: node->children){
 		string array_child_val = array_child->val;
 		if(array_child_val=="Dim_Expers"){
+			vector < int > dims;
 			for(auto dim_child: array_child->children){
 				string dim_child_val=dim_child->val;
 				if(dim_child_val=="Dim_Expr"){
+					dims.push_back(atoi(dim_child->children[1]->val));
 					array_type=array_type+"[]";
 				}
 				if (handle_expression(dim_child->children[1])!="int")
@@ -1821,6 +1830,8 @@ string handle_array_creation_Expression(NODE* node){
 					yerror(error_message);
 				}
 			}
+			current_ste->prev->dims=dims;
+			offset+=getOffset(array_type,dims);
 		}
 		else if(array_child_val=="Dims"){
 			for(auto dim_child: array_child->children){
@@ -2652,6 +2663,6 @@ int main(int argc, char* argv[]){
 	current_ste->prev=start_ste;
 	searchAST(start_node);
 	printToCSV();
-	/* print_ste(start_ste); */
+	print_ste(start_ste);
     return 0;
 }
