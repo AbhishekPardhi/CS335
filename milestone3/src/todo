@@ -1,5 +1,4 @@
 ->interface
 ->class in output
-->func redeclared
 ->class redeclared
 ->offset in symbol_table

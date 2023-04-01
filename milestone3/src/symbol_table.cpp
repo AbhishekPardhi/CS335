@@ -46,3 +46,11 @@ ste* lookup(ste* node, string lexeme)
         return lookup(node->prev,lexeme);
     return NULL;
 }
+
+stme* lookupFunction(stme* node, string funcName){
+    if (node->id==funcName)
+        return node;
+    if (node->next!=NULL)
+        return lookupFunction(node->next,funcName);
+    return NULL;
+}

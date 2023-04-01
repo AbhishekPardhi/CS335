@@ -2262,6 +2262,12 @@ void branchMethodSymtable(NODE* declaration_node)
 			if (decl_child_node_val=="ConstructorDeclarator")
 			{
 				NODE* identifier_node=decl_child_node->children[0];
+				if (lookupFunction(classMap[cur_class],identifier_node->val)!=NULL){
+					lineno=identifier_node->lineno;
+					string e_message= "Error: Method "+ (string) identifier_node->val+ " redeclared";
+					yerror(e_message);
+				}
+				
 				string id_node_val=identifier_node->val;
 
 				stme* table_entry=new stme;
@@ -2323,6 +2329,12 @@ void branchMethodSymtable(NODE* declaration_node)
 		if(node_val == "MethodDeclarator")
 		{
 			NODE* identifier_node=node->children[0];
+			if (lookupFunction(classMap[cur_class],identifier_node->val)!=NULL){
+				lineno=identifier_node->lineno;
+				string e_message= "Error: Method "+ (string) identifier_node->val+ " redeclared";
+				yerror(e_message);
+			}
+
 			// add map entry for the function
 			string id_node_val=identifier_node->val;
 			
