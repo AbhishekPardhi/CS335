@@ -1559,7 +1559,6 @@ void handle_interface_member_declaration(NODE* node)
 			// move current scope onto the new scope
 			current_ste=new_ste;
 			branchMethodSymtable(node->children[i]);
-			cout<<endl<<endl;
 			current_ste=branch.top();
 			branch.pop();
 			ste* new_ste1 = new ste;
@@ -2598,6 +2597,6 @@ int main(int argc, char* argv[]){
 	current_ste->prev=start_ste;
 	searchAST(start_node);
 	printToCSV();
-	/* print_ste(start_ste); */
+	print_ste(start_ste);
     return 0;
 }
