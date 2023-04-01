@@ -28,6 +28,7 @@
 	string handle_array_access(NODE*);
 	string handle_arrayinit(NODE* );
 	string handle_array_creation_Expression(NODE* );
+	string handle_class_declaration(NODE* );
 	int lineno;
 	void print_ste(ste* ,int);
 	string cur_class;
@@ -1753,16 +1754,32 @@ void searchAST(NODE* node)
 		else
 			handle_expression(node->children[0]);
 	}
-
+	else if (temp=="Class_Declaration"){
+		handle_class_declaration(node);
+	}
 	for(int i = 0; i < node->children.size(); i++)
 	{
-		string child_node_val=node->children[i]->val;
-		if (child_node_val=="class"){
-			cur_class=node->children[i+1]->val;
-			classMap[cur_class]= new stme;
-		}
 		searchAST(node->children[i]);
 	}
+}
+
+string handle_class_declaration( NODE * node){
+
+	for(int i=0;i<node->children.size();i++){
+		string node_val = node->children[i]->val;
+		if(node_val=="class"){
+			string class_name = node->children[i+1]->val;
+			if(classMap.find(class_name)!=classMap.end()){
+				lineno=node->children[i+1]->lineno;
+				yerror("Error: Class " + class_name + " redefined");
+			}
+
+			cur_class=class_name;
+			classMap[cur_class]= new stme;
+		}
+	}
+
+	return "";
 }
 
 string get_invocation_name(NODE* node){

@@ -1,4 +1,3 @@
 ->interface
 ->class in output
-->class redeclared
 ->offset in symbol_table
