@@ -3,6 +3,8 @@
     #include <bits/stdc++.h>
     #include "data.h"
 	#include "symbol_table.cpp"
+	#include <sys/stat.h>
+
     using namespace std;
     int yylex();
     extern int yylineno;
@@ -2450,31 +2452,55 @@ void MakeIRFile()
 
 void printToCSV(){
 	ofstream fout;
-
-	for(auto it = tableMap.begin(); it != tableMap.end(); it++){
-		string filename = "./output/Function-" + it->first + ".csv";
-		fout.open(filename);
-		
-		fout<<"Function name:,Return Type, Number of Parameters ,Lexeme,Type,Line Number,Token"<<endl;
-
-		fout<<it->first<<","<<it->second->return_type<<","<<it->second->num_params<<",,,,"<<endl;
-		ste* current_ste = it->second->entry;
-		while(current_ste->next!=NULL || current_ste->next_scope!=NULL || !branch.empty()){
-			if(current_ste->next==NULL && current_ste->next_scope==NULL){
-				current_ste = branch.top();
-				branch.pop();
+	for(auto it = classMap.begin(); it != classMap.end(); it++){
+		vector < stme* > v;
+		if(it->first=="") continue;
+		stme * curr = it->second;
+		string folderName = "Class-" + it->first;
+		string filePath = "./output/" + folderName;
+		mkdir(filePath.c_str(), 0777);
+		while(curr->next!=NULL){
+			if(curr->num_params==-1){
+				v.push_back(curr);
+				curr = curr->next;
 				continue;
 			}
-			if(current_ste->type=="branch_head"){
-				branch.push(current_ste->next);
-				current_ste = current_ste->next_scope;
-				continue;
-			}
+			string filename = filePath + "/" + curr->id + ".csv";
+			fout.open(filename);
+			
+			fout<<"Function name:,Return Type, Number of Parameters ,Lexeme,Type,Line Number,Token"<<endl;
 
-			fout<<",,,"<<current_ste->lexeme<<","<<current_ste->type<<","<<current_ste->lineno<<","<<current_ste->token<<endl;
-			current_ste = current_ste->next;
+			fout<<curr->id<<","<<curr->return_type<<","<<curr->num_params<<",,,,"<<endl;
+			ste* current_ste = curr->entry;
+			while(current_ste->next!=NULL || current_ste->next_scope!=NULL || !branch.empty()){
+				if(current_ste->next==NULL && current_ste->next_scope==NULL){
+					current_ste = branch.top();
+					branch.pop();
+					continue;
+				}
+				if(current_ste->type=="branch_head"){
+					branch.push(current_ste->next);
+					current_ste = current_ste->next_scope;
+					continue;
+				}
+
+				fout<<",,,"<<current_ste->lexeme<<","<<current_ste->type<<","<<current_ste->lineno<<","<<current_ste->token<<endl;
+				current_ste = current_ste->next;
+			}
+			
+			fout.close();
+
+			curr = curr->next;
 		}
-		
+
+		if(v.size()==0) continue;
+		string filename = filePath + "/FieldDeclarations"+ ".csv";
+		fout.open(filename);
+
+		fout<<"Field name:,Return Type, Number of Parameters"<<endl;
+		for(auto it = v.begin(); it != v.end(); it++){
+			fout<<(*it)->id<<","<<(*it)->entry->type<<","<<(*it)->num_params<<endl;
+		}
 		fout.close();
 	}
 }
@@ -2626,6 +2652,6 @@ int main(int argc, char* argv[]){
 	current_ste->prev=start_ste;
 	searchAST(start_node);
 	printToCSV();
-	print_ste(start_ste);
+	/* print_ste(start_ste); */
     return 0;
 }
