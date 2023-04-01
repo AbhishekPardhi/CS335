@@ -30,7 +30,11 @@
 	string handle_arrayinit(NODE* );
 	string handle_array_creation_Expression(NODE* );
 	int lineno;
+	void print_ste(ste* ,int);
 	string cur_class;
+    NODE *start_node;
+	ste* start_ste = new ste;
+	ste * current_ste = start_ste;
 
 	void yerror(string s)
 	{
@@ -42,17 +46,14 @@
         printf("Error: %s at line %d\n", s, yylineno);
         exit(1);
     }
-    NODE *start_node;
 	fstream fout;
 	fstream code_out;
 	extern FILE *yyin;
 
 	unordered_map <string, stme*> tableMap;
 
-	ste* start_ste = new ste;
 	
 	
-	ste * current_ste = start_ste;
 	stack<ste*> branch;
 
 	int forFlag = 0;
@@ -465,7 +466,7 @@ InterfaceBody:
 ;
 
 InterfaceMemberDeclarations:
-	InterfaceMemberDeclaration	{$$ = create_node(2,"Interface_Member_Decalarations",$1) ; }
+	InterfaceMemberDeclaration	{$$ = create_node(2,"Interface_Member_Declarations",$1) ; }
 |	InterfaceMemberDeclarations InterfaceMemberDeclaration	{ $1->children.push_back($2); $$ =$1 ; } 
 ;
 
@@ -1470,6 +1471,81 @@ int vardim(NODE* node)
 	return len/2;
 }
 
+
+void handle_interface_member_declaration(NODE* node)
+{
+	for(int i=0;i<node->children.size();i++)
+	{
+		string node_child_val=node->children[i]->val;
+		if(node_child_val=="FieldDeclaration")
+		{
+			fieldSymTable(node->children[i]);
+		}
+		else if (node_child_val=="AbstractMethodDeclaration"){
+			ste * new_ste = new ste;
+			current_ste->type="branch_head";
+
+			//save the branch header in the stack to return back to it later
+			branch.push(current_ste);
+
+			current_ste->next_scope=new_ste;
+			new_ste->prev_scope=current_ste;
+
+			// move current scope onto the new scope
+			current_ste=new_ste;
+			branchMethodSymtable(node->children[i]);
+			cout<<endl<<endl;
+			current_ste=branch.top();
+			branch.pop();
+			ste* new_ste1 = new ste;
+			current_ste->next=new_ste1;
+			new_ste1->prev=current_ste;
+			current_ste=new_ste1;
+		}
+	}
+}
+
+void handle_interface_declaration(NODE* node)
+{
+	for(int i=0;i<node->children.size();i++)
+	{
+		string node_child_val=node->children[i]->val;
+		if (node_child_val=="interface")
+		{
+			cur_class=node->children[i+1]->val;
+			ste * new_ste = new ste;
+			current_ste->type="branch_head";
+
+			//save the branch header in the stack to return back to it later
+			branch.push(current_ste);
+
+			current_ste->next_scope=new_ste;
+			new_ste->prev_scope=current_ste;
+
+			// move current scope onto the new scope
+			current_ste=new_ste;
+			classMap[cur_class]=new stme;
+		}
+		else if(node_child_val=="InterfaceBody")
+		{
+			NODE* interface_body=node->children[i];
+			for (auto child : interface_body->children)
+			{
+				string child_val=child->val;
+				if (child_val=="Interface_Member_Declarations")
+					handle_interface_member_declaration(child);
+			}
+		}
+	}
+	current_ste=branch.top();
+	branch.pop();
+	ste* new_ste1 = new ste;
+	current_ste->next=new_ste1;
+	new_ste1->prev=current_ste;
+	current_ste=new_ste1;
+	
+}
+
 void searchAST(NODE* node)
 {
 	if(node == NULL)
@@ -1556,7 +1632,11 @@ void searchAST(NODE* node)
 	{
 		fieldSymTable(node);
 	}
-	else if(temp == "MethodDeclaration" || temp =="ConstructorDeclaration")
+	else if (temp=="InterfaceDeclaration")
+	{
+		return handle_interface_declaration(node);
+	}
+	else if( temp == "MethodDeclaration" || temp =="ConstructorDeclaration")
 	{
 		// new node for the new branch and the branch header in the previous branch junction
 		ste * new_ste = new ste;
@@ -2162,11 +2242,10 @@ void branchMethodSymtable(NODE* declaration_node)
 		string node_val=child_node->val;
 		if(node_val == "MethodDeclarator")
 		{
-			idx-=1;;
+			idx-=1;
 			break;
 		}
 	}
-
 	int index=0;
 	for (auto node : header_node->children)
 	{	
@@ -2255,23 +2334,23 @@ void MakeIRFile()
 	for(int i=0;i<instructions.size();i++)
 	{
 		if(instructions[i][1]=="EndFunc") tabs--;
-		cout << i+1 << "\t" << string(tabs,'\t');
+		/* cout << i+1 << "\t" << string(tabs,'\t'); */
 		code_out << i+1 << "\t" << string(tabs,'\t');
 		if(instructions[i][0]=="0")
 		{
 			for(int j=1;j<instructions[i].size();j++)
 			{
-				cout << instructions[i][j] << (instructions[i][j].length()?" ":"");
+				/* cout << instructions[i][j] << (instructions[i][j].length()?" ":""); */
 				code_out << instructions[i][j] << (instructions[i][j].length()?" ":"");
 			}
 			if(instructions[i][1]=="BeginFunc") tabs++;
 		}
 		else
 		{
-			cout << instructions[i][1] << " = " << instructions[i][3] << " " << instructions[i][2] << " " << instructions[i][4];
+			/* cout << instructions[i][1] << " = " << instructions[i][3] << " " << instructions[i][2] << " " << instructions[i][4]; */
 			code_out << instructions[i][1] << " = " << instructions[i][3] << " " << instructions[i][2] << " " << instructions[i][4];
 		}
-		cout << endl;
+		/* cout << endl; */
 		code_out << endl;
 	}
 }
