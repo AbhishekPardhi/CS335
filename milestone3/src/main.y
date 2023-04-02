@@ -1970,7 +1970,6 @@ string handle_function(NODE* node){
 			}
 			return "void";
 		}
-
 		string e_message= "Error : Method " + name + " not declared before use ";
 		yerror(e_message);
 
@@ -1993,13 +1992,11 @@ string handle_function(NODE* node){
 	}
 
 	if(node_val=="Qualified_Name"){
-		string name = get_invocation_name(node);
-
-
-		
+		string name = get_invocation_name(node);		
 		string class_scope;
 		int dot_index=name.find(".");
-		string second=name.substr(dot_index+1);
+		string first=name.substr(0,dot_index);
+		string second=name.substr(dot_index+1);		 
 		if (second=="length")
 		{
 			ste* lookup_ste=lookup(current_ste,name.substr(0,dot_index));
@@ -2030,7 +2027,25 @@ string handle_function(NODE* node){
 		}
 		else
 		{
-			string e_message= "Error : variable " + name + " not declared before use ";
+			lookup_ste=lookup(current_ste,first);
+			if (lookup_ste!=NULL)
+			{
+				string type=lookup_ste->type;
+				if (classMap.find(type)==classMap.end())
+					yerror("Error : variable "+first+" does not have the method "+second);
+				stme* class_head=classMap[type];
+				while (class_head!=NULL)
+				{
+					if (class_head->id==second)
+					{
+						string return_type=class_head->entry->type;
+						return return_type;
+					}
+					class_head=class_head->next;
+				}
+				yerror("Error : variable "+first+" does not have the method "+second);
+			}
+			string e_message= "Error : variable " + name + " not declared before use";
 			yerror(e_message);
 		}
 	}
@@ -2439,15 +2454,19 @@ void check_interface()
 			}
 			stme* interface_mem=classMap[implement_class];
 			while(interface_mem->next!=NULL) {
-				if (interface_mem->num_params==-1)
+				/* if (interface_mem->num_params==-1)
 				{
 					interface_mem=interface_mem->next;
 					continue;
-				}
+				} */
 				stme* match=lookupFunction(classMap[class_->first],interface_mem->id);
 				if (match==NULL){
 					lineno=interface_mem->entry->lineno;
-					string e_message= "Error: Method "+ (string) interface_mem->id+ " not found in interface "+implement_class;
+					string e_message="";
+					if (interface_mem->num_params==-1) 
+						e_message= "Error: Method "+ (string) interface_mem->id+ " not found in interface "+implement_class;
+					else
+						e_message= "Error: Field "+ (string) interface_mem->id+ " not found in interface "+implement_class;
 					yerror(e_message);
 				}
 
@@ -2729,6 +2748,6 @@ int main(int argc, char* argv[]){
 	searchAST(start_node);
 	printToCSV();
 	check_interface();
-	print_ste(start_ste);
+	/* print_ste(start_ste); */
     return 0;
 }
