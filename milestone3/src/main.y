@@ -1784,6 +1784,7 @@ string handle_class_declaration( NODE * node){
 
 			cur_class=class_name;
 			classMap[cur_class]= new stme;
+			// cout << "parenum:" << cur_class << classMap.size() << endl;
 		}
 		else if (node_val=="Interfaces")
 		{
@@ -2733,6 +2734,8 @@ int main(int argc, char* argv[]){
 	/* print_ste(start_ste); */
 
 	cout << classMap.size() << endl;
+	for(auto elem:classMap)
+		cout << elem.first << endl;
 	fp = fopen(("../tests/"+input_file).c_str(), "r");
 	if(!fp){
 		cout << "Error opening file: " << input_file << endl;

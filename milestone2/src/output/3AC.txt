@@ -1,28 +1,27 @@
-1	something : 
+1	sayHello : 
 2	BeginFunc 
-3		t0 = a 
-4		t1 = a + 1
-5		a = t1 
-6		Return t0 
-7	EndFunc 
-8	main : 
-9	BeginFunc 
-10		x = 0 
-11		y = 2 
-12		bool1 = true 
-13		t2 = ! bool1 
-14		bool2 = t2 
-15		i = 0 
-16		t4 = i < 10
-17		if t4 goto 26 
-18		goto 28 
-19		t6 = i + 1
-20		i = t6 
-21		t5 = t6 
-22		goto 16 
-23		t7 = 2 * 4
-24		t8 = arr + t7
-25		t9 = * t8 
-26		x = t9 
-27		goto 19 
-28	EndFunc 
+3		acha = 2 
+4	EndFunc 
+5	something : 
+6	BeginFunc 
+7		t0 = a 
+8		t1 = a + 1
+9		a = t1 
+10		Return t0 
+11	EndFunc 
+12	main : 
+13	BeginFunc 
+14		i = 0 
+15		t2 = i < 10
+16		if t2 goto 22 
+17		goto 
+18		t3 = i 
+19		t4 = i + 1
+20		i = t4 
+21		goto 15 
+22		x = 2 
+23		goto 18 
+24		t6 = x + 2
+25		x = t6 
+26		x = 3 
+27	EndFunc 

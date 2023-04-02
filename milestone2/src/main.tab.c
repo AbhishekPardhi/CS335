@@ -1046,30 +1046,30 @@ static const short yyrline[] = { 0,
    248,   252,   254,   257,   259,   262,   264,   267,   269,   270,
    273,   275,   278,   280,   283,   285,   288,   290,   297,   299,
    302,   304,   307,   311,   315,   318,   321,   324,   327,   331,
-   334,   340,   365,   369,   374,   382,   388,   393,   399,   403,
-   405,   408,   415,   419,   423,   425,   426,   427,   430,   432,
-   435,   437,   438,   439,   443,   445,   446,   447,   450,   452,
-   453,   454,   457,   459,   462,   464,   467,   469,   472,   474,
-   477,   481,   486,   488,   489,   490,   493,   495,   499,   505,
-   508,   513,   520,   522,   525,   529,   531,   534,   536,   537,
-   538,   539,   540,   543,   545,   546,   547,   548,   551,   553,
-   554,   555,   556,   557,   558,   559,   560,   563,   567,   571,
-   575,   579,   581,   582,   583,   584,   585,   586,   589,   598,
-   608,   618,   628,   632,   642,   649,   658,   665,   673,   679,
-   687,   695,   705,   712,   721,   728,   736,   742,   750,   758,
-   760,   763,   772,   777,   780,   782,   785,   787,   790,   796,
-   799,   803,   807,   809,   810,   814,   816,   819,   823,   827,
-   829,   832,   834,   835,   836,   837,   838,   839,   840,   841,
-   842,   843,   844,   845,   848,   850,   853,   860,   868,   870,
-   871,   872,   875,   880,   888,   892,   894,   897,   899,   902,
-   910,   917,   924,   931,   938,   948,   959,   962,   964,   965,
-   966,   969,   981,   992,   994,   995,  1000,  1005,  1008,  1021,
-  1034,  1036,  1042,  1048,  1051,  1053,  1054,  1055,  1058,  1060,
-  1066,  1072,  1080,  1082,  1089,  1097,  1099,  1105,  1111,  1119,
-  1121,  1131,  1141,  1151,  1161,  1164,  1166,  1176,  1186,  1188,
-  1196,  1198,  1206,  1208,  1216,  1218,  1227,  1229,  1238,  1240,
-  1251,  1253,  1256,  1273,  1275,  1276,  1279,  1281,  1282,  1283,
-  1284,  1285,  1286,  1287,  1288,  1289,  1290,  1291,  1294
+   334,   340,   365,   369,   394,   402,   408,   413,   419,   423,
+   425,   428,   435,   439,   443,   445,   446,   447,   450,   452,
+   455,   457,   458,   459,   463,   465,   466,   467,   470,   472,
+   473,   474,   477,   479,   482,   484,   487,   489,   492,   494,
+   497,   501,   506,   508,   509,   510,   513,   515,   519,   525,
+   528,   533,   540,   542,   545,   549,   551,   554,   556,   557,
+   558,   559,   560,   563,   565,   566,   567,   568,   571,   573,
+   574,   575,   576,   577,   578,   579,   580,   583,   587,   591,
+   595,   599,   601,   602,   603,   604,   605,   606,   609,   618,
+   628,   638,   648,   652,   662,   669,   678,   685,   693,   699,
+   707,   715,   725,   732,   741,   748,   756,   762,   770,   778,
+   780,   783,   792,   797,   800,   802,   805,   807,   810,   816,
+   819,   823,   827,   829,   830,   834,   836,   839,   843,   847,
+   849,   852,   854,   855,   856,   857,   858,   859,   860,   861,
+   862,   863,   864,   865,   868,   870,   873,   880,   888,   890,
+   891,   892,   895,   900,   908,   912,   914,   917,   919,   922,
+   930,   937,   944,   951,   958,   968,   979,   982,   984,   985,
+   986,   989,  1001,  1012,  1014,  1015,  1020,  1025,  1028,  1041,
+  1054,  1056,  1062,  1068,  1071,  1073,  1074,  1075,  1078,  1080,
+  1086,  1092,  1100,  1102,  1109,  1117,  1119,  1125,  1131,  1139,
+  1141,  1151,  1161,  1171,  1181,  1184,  1186,  1196,  1206,  1208,
+  1216,  1218,  1226,  1228,  1236,  1238,  1247,  1249,  1258,  1260,
+  1271,  1273,  1276,  1293,  1295,  1296,  1299,  1301,  1302,  1303,
+  1304,  1305,  1306,  1307,  1308,  1309,  1310,  1311,  1314
 };
 
 static const char * const yytname[] = {   "$","error","$illegal.","BITWISE_AND",
@@ -2894,10 +2894,30 @@ case 94:
 #line 369 "main.y"
 {
 									yyval.elem = create_node ( 4 ,"MethodDeclarator", yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem);
+									yyval.elem->ins = instCount+1;
+									bool flag=false;
+									string funcName=string(yyvsp[-2].elem->addr);
+									for(auto class_ptr:classMap)
+									{
+										stme* temp=class_ptr.second;
+										while(temp!=NULL)
+										{
+											if(yyvsp[-2].elem->val==temp->id)
+											{
+												flag=true;
+												funcName+=class_ptr.first;
+												break;
+											}
+											temp=temp->next;
+										}
+										if(flag) break;
+									}
+									create_ins(0,funcName,":","","");
+									create_ins(0,"BeginFunc","","","");
 								;
     break;}
 case 95:
-#line 375 "main.y"
+#line 395 "main.y"
 {
 						yyval.elem = create_node(2,"Formal_Parameter_List",yyvsp[0].elem) ;
 						// $$->addr = str_to_ch(string(""+*string($1->addr).begin()));
@@ -2907,40 +2927,40 @@ case 95:
 					;
     break;}
 case 96:
-#line 382 "main.y"
+#line 402 "main.y"
 {
 													yyvsp[-2].elem->children.push_back(yyvsp[-1].elem);yyvsp[-2].elem->children.push_back(yyvsp[0].elem); yyval.elem =yyvsp[-2].elem ;
 													// $$->addr=str_to_ch(string($1->addr)+string($3->addr));
 												;
     break;}
 case 97:
-#line 389 "main.y"
+#line 409 "main.y"
 {
 									yyval.elem = create_node ( 3 ,"FormalParameter", yyvsp[-1].elem, yyvsp[0].elem);
 									yyval.elem->addr = yyvsp[-1].elem->addr;
 								;
     break;}
 case 98:
-#line 393 "main.y"
+#line 413 "main.y"
 {
 										yyval.elem = create_node ( 4 ,"FormalParameter", yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem);
 										yyval.elem->addr = yyvsp[-2].elem->addr;
 									;
     break;}
 case 99:
-#line 400 "main.y"
+#line 420 "main.y"
 { yyval.elem = create_node ( 3 ,"Throws", yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 100:
-#line 404 "main.y"
+#line 424 "main.y"
 { yyval.elem = create_node(2,"Class_Type_List",yyvsp[0].elem) ; ;
     break;}
 case 101:
-#line 405 "main.y"
+#line 425 "main.y"
 { yyvsp[-2].elem->children.push_back(yyvsp[-1].elem);yyvsp[-2].elem->children.push_back(yyvsp[0].elem); yyval.elem =yyvsp[-2].elem ;;
     break;}
 case 102:
-#line 409 "main.y"
+#line 429 "main.y"
 {
 				yyval.elem = yyvsp[0].elem;
 				yyval.elem->ins = instCount+1;
@@ -2949,151 +2969,151 @@ case 102:
 			;
     break;}
 case 103:
-#line 415 "main.y"
+#line 435 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 104:
-#line 420 "main.y"
+#line 440 "main.y"
 { yyval.elem = create_node ( 3 ,"StaticInitializer", yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 105:
-#line 424 "main.y"
+#line 444 "main.y"
 { yyval.elem = create_node ( 5 ,"ConstructorDeclaration", yyvsp[-3].elem, yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 106:
-#line 425 "main.y"
+#line 445 "main.y"
 { yyval.elem = create_node ( 4 ,"ConstructorDeclaration", yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 107:
-#line 426 "main.y"
+#line 446 "main.y"
 { yyval.elem = create_node ( 4 ,"ConstructorDeclaration", yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 108:
-#line 427 "main.y"
+#line 447 "main.y"
 { yyval.elem = create_node ( 3 ,"ConstructorDeclaration", yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 109:
-#line 431 "main.y"
+#line 451 "main.y"
 { yyval.elem = create_node ( 5 ,"ConstructorDeclarator", yyvsp[-3].elem, yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 110:
-#line 432 "main.y"
+#line 452 "main.y"
 { yyval.elem = create_node ( 4 ,"ConstructorDeclarator", yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 111:
-#line 436 "main.y"
+#line 456 "main.y"
 { yyval.elem = create_node ( 5 ,"ConstructorBody", yyvsp[-3].elem, yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 112:
-#line 437 "main.y"
+#line 457 "main.y"
 { yyval.elem = create_node ( 4 ,"ConstructorBody", yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 113:
-#line 438 "main.y"
+#line 458 "main.y"
 { yyval.elem = create_node ( 4 ,"ConstructorBody", yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 114:
-#line 439 "main.y"
+#line 459 "main.y"
 { yyval.elem = create_node ( 3 ,"ConstructorBody", yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 115:
-#line 444 "main.y"
+#line 464 "main.y"
 { yyval.elem = create_node ( 6 ,"ExplicitConstructorInvocation", yyvsp[-4].elem, yyvsp[-3].elem, yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 116:
-#line 445 "main.y"
+#line 465 "main.y"
 { yyval.elem = create_node ( 5 ,"ExplicitConstructorInvocation", yyvsp[-3].elem, yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 117:
-#line 446 "main.y"
+#line 466 "main.y"
 { yyval.elem = create_node ( 6 ,"ExplicitConstructorInvocation", yyvsp[-4].elem, yyvsp[-3].elem, yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 118:
-#line 447 "main.y"
+#line 467 "main.y"
 { yyval.elem = create_node ( 5 ,"ExplicitConstructorInvocation", yyvsp[-3].elem, yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 119:
-#line 451 "main.y"
+#line 471 "main.y"
 { yyval.elem = create_node ( 6 ,"InterfaceDeclaration", yyvsp[-4].elem, yyvsp[-3].elem, yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 120:
-#line 452 "main.y"
+#line 472 "main.y"
 { yyval.elem = create_node ( 5 ,"InterfaceDeclaration", yyvsp[-3].elem, yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 121:
-#line 453 "main.y"
+#line 473 "main.y"
 { yyval.elem = create_node ( 5 ,"InterfaceDeclaration", yyvsp[-3].elem, yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 122:
-#line 454 "main.y"
+#line 474 "main.y"
 { yyval.elem = create_node ( 4 ,"InterfaceDeclaration", yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 123:
-#line 458 "main.y"
+#line 478 "main.y"
 { yyval.elem = create_node(3,"Extends_Interfaces",yyvsp[-1].elem,yyvsp[0].elem) ; ;
     break;}
 case 124:
-#line 459 "main.y"
+#line 479 "main.y"
 { yyvsp[-2].elem->children.push_back(yyvsp[-1].elem);yyvsp[-2].elem->children.push_back(yyvsp[0].elem); yyval.elem =yyvsp[-2].elem ; ;
     break;}
 case 125:
-#line 463 "main.y"
+#line 483 "main.y"
 { yyval.elem = create_node ( 4 ,"InterfaceBody", yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 126:
-#line 464 "main.y"
+#line 484 "main.y"
 { yyval.elem = create_node ( 3 ,"InterfaceBody", yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 127:
-#line 468 "main.y"
+#line 488 "main.y"
 {yyval.elem = create_node(2,"Interface_Member_Decalarations",yyvsp[0].elem) ; ;
     break;}
 case 128:
-#line 469 "main.y"
+#line 489 "main.y"
 { yyvsp[-1].elem->children.push_back(yyvsp[0].elem); yyval.elem =yyvsp[-1].elem ; ;
     break;}
 case 129:
-#line 473 "main.y"
+#line 493 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 130:
-#line 474 "main.y"
+#line 494 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 131:
-#line 478 "main.y"
+#line 498 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 132:
-#line 482 "main.y"
+#line 502 "main.y"
 { yyval.elem = create_node ( 3 ,"AbstractMethodDeclaration", yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 133:
-#line 487 "main.y"
+#line 507 "main.y"
 { yyval.elem = create_node ( 5 ,"ArrayInitializer", yyvsp[-3].elem, yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 134:
-#line 488 "main.y"
+#line 508 "main.y"
 { yyval.elem = create_node ( 4 ,"ArrayInitializer", yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 135:
-#line 489 "main.y"
+#line 509 "main.y"
 { yyval.elem = create_node ( 4 ,"ArrayInitializer", yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 136:
-#line 490 "main.y"
+#line 510 "main.y"
 { yyval.elem = create_node ( 3 ,"ArrayInitializer", yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 137:
-#line 494 "main.y"
+#line 514 "main.y"
 { yyval.elem = create_node(2,"Variable_Initializers",yyvsp[0].elem) ; ;
     break;}
 case 138:
-#line 495 "main.y"
+#line 515 "main.y"
 {yyvsp[-2].elem->children.push_back(yyvsp[-1].elem);yyvsp[-2].elem->children.push_back(yyvsp[0].elem); yyval.elem =yyvsp[-2].elem ; ;
     break;}
 case 139:
-#line 500 "main.y"
+#line 520 "main.y"
 {
 										yyval.elem = create_node ( 4 ,"Block", yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem);
 										yyval.elem->ins = yyvsp[-1].elem->ins;
@@ -3101,18 +3121,18 @@ case 139:
 									;
     break;}
 case 140:
-#line 505 "main.y"
+#line 525 "main.y"
 { yyval.elem = create_node ( 3 ,"Block", yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 141:
-#line 509 "main.y"
+#line 529 "main.y"
 {
 						yyval.elem = create_node(2,"Block_Statements",yyvsp[0].elem) ;
 						yyval.elem->ins = yyvsp[0].elem->ins;
 					;
     break;}
 case 142:
-#line 513 "main.y"
+#line 533 "main.y"
 {
 										yyvsp[-1].elem->children.push_back(yyvsp[0].elem); yyval.elem =yyvsp[-1].elem;
 										backpatch(yyvsp[-1].elem->nextlist,yyvsp[0].elem->ins);
@@ -3120,151 +3140,151 @@ case 142:
 									;
     break;}
 case 143:
-#line 521 "main.y"
+#line 541 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 144:
-#line 522 "main.y"
+#line 542 "main.y"
 { yyval.elem = yyvsp[0].elem;;
     break;}
 case 145:
-#line 526 "main.y"
+#line 546 "main.y"
 { yyval.elem = create_node ( 3 ,"LocalVariableDeclarationStatement", yyvsp[-1].elem, yyvsp[0].elem); yyval.elem->ins = yyvsp[-1].elem->ins; ;
     break;}
 case 146:
-#line 530 "main.y"
+#line 550 "main.y"
 { yyval.elem = create_node ( 3 ,"LocalVariableDeclaration", yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 147:
-#line 531 "main.y"
+#line 551 "main.y"
 { yyval.elem = create_node ( 4 ,"LocalVariableDeclaration", yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 148:
-#line 535 "main.y"
-{ yyval.elem = yyvsp[0].elem; ;
-    break;}
-case 149:
-#line 536 "main.y"
-{ yyval.elem = yyvsp[0].elem; ;
-    break;}
-case 150:
-#line 537 "main.y"
-{ yyval.elem = yyvsp[0].elem; ;
-    break;}
-case 151:
-#line 538 "main.y"
-{ yyval.elem = yyvsp[0].elem; ;
-    break;}
-case 152:
-#line 539 "main.y"
-{ yyval.elem = yyvsp[0].elem; ;
-    break;}
-case 153:
-#line 540 "main.y"
-{ yyval.elem = yyvsp[0].elem; ;
-    break;}
-case 154:
-#line 544 "main.y"
-{ yyval.elem = yyvsp[0].elem; ;
-    break;}
-case 155:
-#line 545 "main.y"
-{ yyval.elem = yyvsp[0].elem; ;
-    break;}
-case 156:
-#line 546 "main.y"
-{ yyval.elem = yyvsp[0].elem; ;
-    break;}
-case 157:
-#line 547 "main.y"
-{ yyval.elem = yyvsp[0].elem; ;
-    break;}
-case 158:
-#line 548 "main.y"
-{ yyval.elem = yyvsp[0].elem; ;
-    break;}
-case 159:
-#line 552 "main.y"
-{ yyval.elem = yyvsp[0].elem; ;
-    break;}
-case 160:
-#line 553 "main.y"
-{ yyval.elem = yyvsp[0].elem; ;
-    break;}
-case 161:
-#line 554 "main.y"
-{ yyval.elem = yyvsp[0].elem; ;
-    break;}
-case 162:
 #line 555 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
-case 163:
+case 149:
 #line 556 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
-case 164:
+case 150:
 #line 557 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
-case 165:
+case 151:
 #line 558 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
-case 166:
+case 152:
 #line 559 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
-case 167:
+case 153:
 #line 560 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
-case 168:
+case 154:
 #line 564 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
-case 169:
+case 155:
+#line 565 "main.y"
+{ yyval.elem = yyvsp[0].elem; ;
+    break;}
+case 156:
+#line 566 "main.y"
+{ yyval.elem = yyvsp[0].elem; ;
+    break;}
+case 157:
+#line 567 "main.y"
+{ yyval.elem = yyvsp[0].elem; ;
+    break;}
+case 158:
 #line 568 "main.y"
-{ yyval.elem = create_node ( 4 ,"LabeledStatement", yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem); ;
+{ yyval.elem = yyvsp[0].elem; ;
     break;}
-case 170:
+case 159:
 #line 572 "main.y"
-{ yyval.elem = create_node ( 4 ,"LabeledStatementNoShortIf", yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem); ;
+{ yyval.elem = yyvsp[0].elem; ;
     break;}
-case 171:
+case 160:
+#line 573 "main.y"
+{ yyval.elem = yyvsp[0].elem; ;
+    break;}
+case 161:
+#line 574 "main.y"
+{ yyval.elem = yyvsp[0].elem; ;
+    break;}
+case 162:
+#line 575 "main.y"
+{ yyval.elem = yyvsp[0].elem; ;
+    break;}
+case 163:
 #line 576 "main.y"
-{ yyval.elem = create_node ( 3 ,"ExpressionStatement", yyvsp[-1].elem, yyvsp[0].elem); yyval.elem->ins = yyvsp[-1].elem->ins; ;
+{ yyval.elem = yyvsp[0].elem; ;
     break;}
-case 172:
+case 164:
+#line 577 "main.y"
+{ yyval.elem = yyvsp[0].elem; ;
+    break;}
+case 165:
+#line 578 "main.y"
+{ yyval.elem = yyvsp[0].elem; ;
+    break;}
+case 166:
+#line 579 "main.y"
+{ yyval.elem = yyvsp[0].elem; ;
+    break;}
+case 167:
 #line 580 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
-case 173:
-#line 581 "main.y"
-{ yyval.elem = yyvsp[0].elem; ;
-    break;}
-case 174:
-#line 582 "main.y"
-{ yyval.elem = yyvsp[0].elem; ;
-    break;}
-case 175:
-#line 583 "main.y"
-{ yyval.elem = yyvsp[0].elem; ;
-    break;}
-case 176:
+case 168:
 #line 584 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
+case 169:
+#line 588 "main.y"
+{ yyval.elem = create_node ( 4 ,"LabeledStatement", yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem); ;
+    break;}
+case 170:
+#line 592 "main.y"
+{ yyval.elem = create_node ( 4 ,"LabeledStatementNoShortIf", yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem); ;
+    break;}
+case 171:
+#line 596 "main.y"
+{ yyval.elem = create_node ( 3 ,"ExpressionStatement", yyvsp[-1].elem, yyvsp[0].elem); yyval.elem->ins = yyvsp[-1].elem->ins; ;
+    break;}
+case 172:
+#line 600 "main.y"
+{ yyval.elem = yyvsp[0].elem; ;
+    break;}
+case 173:
+#line 601 "main.y"
+{ yyval.elem = yyvsp[0].elem; ;
+    break;}
+case 174:
+#line 602 "main.y"
+{ yyval.elem = yyvsp[0].elem; ;
+    break;}
+case 175:
+#line 603 "main.y"
+{ yyval.elem = yyvsp[0].elem; ;
+    break;}
+case 176:
+#line 604 "main.y"
+{ yyval.elem = yyvsp[0].elem; ;
+    break;}
 case 177:
-#line 585 "main.y"
+#line 605 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 178:
-#line 586 "main.y"
+#line 606 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 179:
-#line 590 "main.y"
+#line 610 "main.y"
 {
 												yyval.elem = create_node ( 6 ,"IfThenStatement", yyvsp[-4].elem, yyvsp[-3].elem, yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem);
 												yyval.elem->ins = instCount+1;
@@ -3273,7 +3293,7 @@ case 179:
 											;
     break;}
 case 180:
-#line 599 "main.y"
+#line 619 "main.y"
 {
 																		yyval.elem = create_node ( 8 ,"IfThenElseStatement", yyvsp[-6].elem, yyvsp[-5].elem, yyvsp[-4].elem, yyvsp[-3].elem, yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem);
 																		yyval.elem->ins = yyvsp[-4].elem->ins;
@@ -3283,7 +3303,7 @@ case 180:
 																	;
     break;}
 case 181:
-#line 609 "main.y"
+#line 629 "main.y"
 {
 																				yyval.elem = create_node ( 8 ,"IfThenElseStatementNoShortIf", yyvsp[-6].elem, yyvsp[-5].elem, yyvsp[-4].elem, yyvsp[-3].elem, yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem);
 																				yyval.elem->ins = instCount+1;
@@ -3293,7 +3313,7 @@ case 181:
 																			;
     break;}
 case 182:
-#line 619 "main.y"
+#line 639 "main.y"
 {
 													yyval.elem = create_node ( 6 ,"WhileStatement", yyvsp[-4].elem, yyvsp[-3].elem, yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem);
 													backpatch(yyvsp[0].elem->nextlist,yyvsp[-2].elem->ins);
@@ -3303,11 +3323,11 @@ case 182:
 												;
     break;}
 case 183:
-#line 629 "main.y"
+#line 649 "main.y"
 { yyval.elem = create_node ( 6 ,"WhileStatementNoShortIf", yyvsp[-4].elem, yyvsp[-3].elem, yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 184:
-#line 633 "main.y"
+#line 653 "main.y"
 {
 																						yyval.elem = create_node ( 10 ,"ForStatement", yyvsp[-8].elem, yyvsp[-7].elem, yyvsp[-6].elem, yyvsp[-5].elem, yyvsp[-4].elem, yyvsp[-3].elem, yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem);
 																						yyval.elem->ins = instCount+1;
@@ -3319,7 +3339,7 @@ case 184:
 																					;
     break;}
 case 185:
-#line 642 "main.y"
+#line 662 "main.y"
 {
 																			yyval.elem = create_node ( 9 ,"ForStatement", yyvsp[-7].elem, yyvsp[-6].elem, yyvsp[-5].elem, yyvsp[-4].elem, yyvsp[-3].elem, yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem);
 																			yyval.elem->ins = instCount+1;																																								yyval.elem->ins = instCount+1;
@@ -3329,7 +3349,7 @@ case 185:
 																		;
     break;}
 case 186:
-#line 649 "main.y"
+#line 669 "main.y"
 {
 																				yyval.elem = create_node ( 9 ,"ForStatement", yyvsp[-7].elem, yyvsp[-6].elem, yyvsp[-5].elem, yyvsp[-4].elem, yyvsp[-3].elem, yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem);
 																				yyval.elem->ins = instCount+1;
@@ -3341,7 +3361,7 @@ case 186:
 																			;
     break;}
 case 187:
-#line 658 "main.y"
+#line 678 "main.y"
 {
 																	yyval.elem = create_node ( 8 ,"ForStatement", yyvsp[-6].elem, yyvsp[-5].elem, yyvsp[-4].elem, yyvsp[-3].elem, yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem);
 																	yyval.elem->ins = instCount+1;																																						yyval.elem->ins = instCount+1;
@@ -3351,7 +3371,7 @@ case 187:
 																;
     break;}
 case 188:
-#line 665 "main.y"
+#line 685 "main.y"
 {
 																			yyval.elem = create_node ( 9 ,"ForStatement", yyvsp[-7].elem, yyvsp[-6].elem, yyvsp[-5].elem, yyvsp[-4].elem, yyvsp[-3].elem, yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem);
 																			yyval.elem->ins = instCount+1;
@@ -3362,7 +3382,7 @@ case 188:
 																		;
     break;}
 case 189:
-#line 673 "main.y"
+#line 693 "main.y"
 {
 																yyval.elem = create_node ( 8 ,"ForStatement", yyvsp[-6].elem, yyvsp[-5].elem, yyvsp[-4].elem, yyvsp[-3].elem, yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem);
 																yyval.elem->ins = instCount+1;
@@ -3371,7 +3391,7 @@ case 189:
 															;
     break;}
 case 190:
-#line 679 "main.y"
+#line 699 "main.y"
 {
 																	yyval.elem = create_node ( 8 ,"ForStatement", yyvsp[-6].elem, yyvsp[-5].elem, yyvsp[-4].elem, yyvsp[-3].elem, yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem);
 																	yyval.elem->ins = instCount+1;
@@ -3382,7 +3402,7 @@ case 190:
 																;
     break;}
 case 191:
-#line 687 "main.y"
+#line 707 "main.y"
 {
 														yyval.elem = create_node ( 7 ,"ForStatement", yyvsp[-5].elem, yyvsp[-4].elem, yyvsp[-3].elem, yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem);
 														yyval.elem->ins = instCount+1;
@@ -3391,7 +3411,7 @@ case 191:
 													;
     break;}
 case 192:
-#line 696 "main.y"
+#line 716 "main.y"
 {
 																								yyval.elem = create_node ( 10 ,"ForStatementNoShortIf", yyvsp[-8].elem, yyvsp[-7].elem, yyvsp[-6].elem, yyvsp[-5].elem, yyvsp[-4].elem, yyvsp[-3].elem, yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem);
 																								yyval.elem->ins = instCount+1;
@@ -3403,7 +3423,7 @@ case 192:
 																							;
     break;}
 case 193:
-#line 705 "main.y"
+#line 725 "main.y"
 {
 																					yyval.elem = create_node ( 9 ,"ForStatementNoShortIf", yyvsp[-7].elem, yyvsp[-6].elem, yyvsp[-5].elem, yyvsp[-4].elem, yyvsp[-3].elem, yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem);
 																					yyval.elem->ins = instCount+1;																																								yyval.elem->ins = instCount+1;
@@ -3413,7 +3433,7 @@ case 193:
 																				;
     break;}
 case 194:
-#line 712 "main.y"
+#line 732 "main.y"
 {
 																						yyval.elem = create_node ( 9 ,"ForStatementNoShortIf", yyvsp[-7].elem, yyvsp[-6].elem, yyvsp[-5].elem, yyvsp[-4].elem, yyvsp[-3].elem, yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem);
 																						yyval.elem->ins = instCount+1;
@@ -3425,7 +3445,7 @@ case 194:
 																					;
     break;}
 case 195:
-#line 721 "main.y"
+#line 741 "main.y"
 {
 																			yyval.elem = create_node ( 8 ,"ForStatementNoShortIf", yyvsp[-6].elem, yyvsp[-5].elem, yyvsp[-4].elem, yyvsp[-3].elem, yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem);
 																			yyval.elem->ins = instCount+1;																																						yyval.elem->ins = instCount+1;
@@ -3435,7 +3455,7 @@ case 195:
 																		;
     break;}
 case 196:
-#line 728 "main.y"
+#line 748 "main.y"
 {
 																					yyval.elem = create_node ( 9 ,"ForStatementNoShortIf", yyvsp[-7].elem, yyvsp[-6].elem, yyvsp[-5].elem, yyvsp[-4].elem, yyvsp[-3].elem, yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem);
 																					yyval.elem->ins = instCount+1;
@@ -3446,7 +3466,7 @@ case 196:
 																				;
     break;}
 case 197:
-#line 736 "main.y"
+#line 756 "main.y"
 {
 																			yyval.elem = create_node ( 8 ,"ForStatementNoShortIf", yyvsp[-6].elem, yyvsp[-5].elem, yyvsp[-4].elem, yyvsp[-3].elem, yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem);
 																			yyval.elem->ins = instCount+1;
@@ -3455,7 +3475,7 @@ case 197:
 																		;
     break;}
 case 198:
-#line 742 "main.y"
+#line 762 "main.y"
 {
 																			yyval.elem = create_node ( 8 ,"ForStatementNoShortIf", yyvsp[-6].elem, yyvsp[-5].elem, yyvsp[-4].elem, yyvsp[-3].elem, yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem);
 																			yyval.elem->ins = instCount+1;
@@ -3466,7 +3486,7 @@ case 198:
 																		;
     break;}
 case 199:
-#line 750 "main.y"
+#line 770 "main.y"
 {
 																	yyval.elem = create_node ( 7 ,"ForStatementNoShortIf", yyvsp[-5].elem, yyvsp[-4].elem, yyvsp[-3].elem, yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem);
 																	yyval.elem->ins = instCount+1;
@@ -3475,15 +3495,15 @@ case 199:
 																;
     break;}
 case 200:
-#line 759 "main.y"
+#line 779 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 201:
-#line 760 "main.y"
+#line 780 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 202:
-#line 764 "main.y"
+#line 784 "main.y"
 {
 								yyval.elem = yyvsp[0].elem;
 								yyval.elem->ins = yyvsp[0].elem->ins;
@@ -3492,34 +3512,34 @@ case 202:
 							;
     break;}
 case 203:
-#line 773 "main.y"
+#line 793 "main.y"
 {
 							yyval.elem = create_node(2,"Statement_Expression_List",yyvsp[0].elem) ;
 							yyval.elem->ins = yyvsp[0].elem->ins;
 						;
     break;}
 case 204:
-#line 777 "main.y"
+#line 797 "main.y"
 { yyvsp[-2].elem->children.push_back(yyvsp[-1].elem);yyvsp[-2].elem->children.push_back(yyvsp[0].elem); yyval.elem =yyvsp[-2].elem ; ;
     break;}
 case 205:
-#line 781 "main.y"
+#line 801 "main.y"
 { yyval.elem = create_node ( 4 ,"BreakStatement", yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 206:
-#line 782 "main.y"
+#line 802 "main.y"
 { yyval.elem = create_node ( 3 ,"BreakStatement", yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 207:
-#line 786 "main.y"
+#line 806 "main.y"
 { yyval.elem = create_node ( 4 ,"ContinueStatement", yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 208:
-#line 787 "main.y"
+#line 807 "main.y"
 { yyval.elem = create_node ( 3 ,"ContinueStatement", yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 209:
-#line 791 "main.y"
+#line 811 "main.y"
 {
 									yyval.elem = create_node ( 4 ,"ReturnStatement", yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem);
 									yyval.elem->ins = instCount+1;
@@ -3527,115 +3547,115 @@ case 209:
 								;
     break;}
 case 210:
-#line 796 "main.y"
+#line 816 "main.y"
 { yyval.elem = create_node ( 3 ,"ReturnStatement", yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 211:
-#line 800 "main.y"
+#line 820 "main.y"
 { yyval.elem = create_node ( 4 ,"ThrowStatement", yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 212:
-#line 804 "main.y"
+#line 824 "main.y"
 { yyval.elem = create_node ( 6 ,"SynchronizedStatement", yyvsp[-4].elem, yyvsp[-3].elem, yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 213:
-#line 808 "main.y"
+#line 828 "main.y"
 { yyval.elem = create_node ( 4 ,"TryStatement", yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 214:
-#line 809 "main.y"
+#line 829 "main.y"
 { yyval.elem = create_node ( 5 ,"TryStatement", yyvsp[-3].elem, yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 215:
-#line 810 "main.y"
+#line 830 "main.y"
 { yyval.elem = create_node ( 4 ,"TryStatement", yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 216:
-#line 815 "main.y"
+#line 835 "main.y"
 {yyval.elem = create_node(2,"Catches",yyvsp[0].elem) ; ;
     break;}
 case 217:
-#line 816 "main.y"
+#line 836 "main.y"
 { yyvsp[-1].elem->children.push_back(yyvsp[0].elem); yyval.elem =yyvsp[-1].elem ;;
     break;}
 case 218:
-#line 820 "main.y"
+#line 840 "main.y"
 { yyval.elem = create_node ( 6 ,"CatchClause", yyvsp[-4].elem, yyvsp[-3].elem, yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 219:
-#line 824 "main.y"
+#line 844 "main.y"
 { yyval.elem = create_node ( 3 ,"Finally", yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 220:
-#line 828 "main.y"
+#line 848 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 221:
-#line 829 "main.y"
+#line 849 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 222:
-#line 833 "main.y"
+#line 853 "main.y"
 { yyval.elem = yyvsp[0].elem; yyval.elem->addr = yyval.elem->val; yyvsp[0].elem->type=str_to_ch("null");;
     break;}
 case 223:
-#line 834 "main.y"
+#line 854 "main.y"
 { yyval.elem = yyvsp[0].elem; yyval.elem->addr = yyval.elem->val; yyvsp[0].elem->type=str_to_ch("char");;
     break;}
 case 224:
-#line 835 "main.y"
+#line 855 "main.y"
 { yyval.elem = yyvsp[0].elem; yyval.elem->addr = yyval.elem->val; yyvsp[0].elem->type=str_to_ch("float");;
     break;}
 case 225:
-#line 836 "main.y"
+#line 856 "main.y"
 { yyval.elem = yyvsp[0].elem; yyval.elem->addr = yyval.elem->val; yyval.elem->type=str_to_ch("int");;
     break;}
 case 226:
-#line 837 "main.y"
+#line 857 "main.y"
 { yyval.elem = yyvsp[0].elem; yyval.elem->addr = yyval.elem->val; yyvsp[0].elem->type=str_to_ch("boolean");;
     break;}
 case 227:
-#line 838 "main.y"
+#line 858 "main.y"
 { yyval.elem = yyvsp[0].elem; yyval.elem->addr = yyval.elem->val; yyvsp[0].elem->type=str_to_ch("String");;
     break;}
 case 228:
-#line 839 "main.y"
+#line 859 "main.y"
 { yyval.elem = yyvsp[0].elem; yyval.elem->addr = yyval.elem->val; yyvsp[0].elem->type=str_to_ch("text_block");;
     break;}
 case 229:
-#line 840 "main.y"
+#line 860 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 230:
-#line 841 "main.y"
+#line 861 "main.y"
 { yyval.elem = create_node ( 4 ,"PrimaryNoNewArray", yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 231:
-#line 842 "main.y"
+#line 862 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 232:
-#line 843 "main.y"
+#line 863 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 233:
-#line 844 "main.y"
+#line 864 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 234:
-#line 845 "main.y"
+#line 865 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 235:
-#line 849 "main.y"
+#line 869 "main.y"
 { yyval.elem = create_node ( 6 ,"ClassInstanceCreationExpression", yyvsp[-4].elem, yyvsp[-3].elem, yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 236:
-#line 850 "main.y"
+#line 870 "main.y"
 { yyval.elem = create_node ( 5 ,"ClassInstanceCreationExpression", yyvsp[-3].elem, yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 237:
-#line 854 "main.y"
+#line 874 "main.y"
 {
 					yyval.elem = create_node(2,"Argument_List",yyvsp[0].elem) ;
 					yyval.elem->ins = instCount+1;
@@ -3644,7 +3664,7 @@ case 237:
 				;
     break;}
 case 238:
-#line 860 "main.y"
+#line 880 "main.y"
 {
 										yyvsp[-2].elem->children.push_back(yyvsp[-1].elem);
 										yyvsp[-2].elem->children.push_back(yyvsp[0].elem);
@@ -3653,30 +3673,30 @@ case 238:
 									;
     break;}
 case 239:
-#line 869 "main.y"
+#line 889 "main.y"
 { yyval.elem = create_node ( 5 ,"ArrayCreationExpression", yyvsp[-3].elem, yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 240:
-#line 870 "main.y"
+#line 890 "main.y"
 { yyval.elem = create_node ( 4 ,"ArrayCreationExpression", yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 241:
-#line 871 "main.y"
+#line 891 "main.y"
 { yyval.elem = create_node ( 5 ,"ArrayCreationExpression", yyvsp[-3].elem, yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 242:
-#line 872 "main.y"
+#line 892 "main.y"
 { yyval.elem = create_node ( 4 ,"ArrayCreationExpression", yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 243:
-#line 876 "main.y"
+#line 896 "main.y"
 {
 				yyval.elem = create_node(2,"Dim_Expers",yyvsp[0].elem) ;
 				yyval.elem->addr = yyvsp[0].elem->addr;
 			;
     break;}
 case 244:
-#line 880 "main.y"
+#line 900 "main.y"
 {
 							yyvsp[-1].elem->children.push_back(yyvsp[0].elem); yyval.elem =yyvsp[-1].elem ;
 							yyval.elem->ins = instCount+1;
@@ -3685,27 +3705,27 @@ case 244:
 						;
     break;}
 case 245:
-#line 889 "main.y"
+#line 909 "main.y"
 { yyval.elem = create_node ( 4 ,"Dim_Expr", yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 246:
-#line 893 "main.y"
+#line 913 "main.y"
 { yyval.elem = create_node(3,"Dims",yyvsp[-1].elem,yyvsp[0].elem) ; ;
     break;}
 case 247:
-#line 894 "main.y"
+#line 914 "main.y"
 { yyvsp[-2].elem->children.push_back(yyvsp[-1].elem);yyvsp[-2].elem->children.push_back(yyvsp[0].elem); yyval.elem =yyvsp[-2].elem ; ;
     break;}
 case 248:
-#line 898 "main.y"
+#line 918 "main.y"
 { yyval.elem = create_node ( 4 ,"FieldAccess", yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 249:
-#line 899 "main.y"
+#line 919 "main.y"
 { yyval.elem = create_node ( 4 ,"FieldAccess", yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 250:
-#line 903 "main.y"
+#line 923 "main.y"
 {
 										yyval.elem = create_node ( 5 ,"MethodInvocation", yyvsp[-3].elem, yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem);
 										yyval.elem->ins = instCount+1;
@@ -3715,7 +3735,7 @@ case 250:
 									;
     break;}
 case 251:
-#line 910 "main.y"
+#line 930 "main.y"
 {
 							yyval.elem = create_node ( 4 ,"MethodInvocation", yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem);
 							yyval.elem->ins = instCount+1;
@@ -3725,7 +3745,7 @@ case 251:
 						;
     break;}
 case 252:
-#line 917 "main.y"
+#line 937 "main.y"
 {
 															yyval.elem = create_node ( 7 ,"MethodInvocation", yyvsp[-5].elem, yyvsp[-4].elem, yyvsp[-3].elem, yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem);
 															yyval.elem->ins = instCount+1;
@@ -3735,7 +3755,7 @@ case 252:
 														;
     break;}
 case 253:
-#line 924 "main.y"
+#line 944 "main.y"
 {
 												yyval.elem = create_node ( 6 ,"MethodInvocation", yyvsp[-4].elem, yyvsp[-3].elem, yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem);
 												yyval.elem->ins = instCount+1;
@@ -3745,7 +3765,7 @@ case 253:
 											;
     break;}
 case 254:
-#line 931 "main.y"
+#line 951 "main.y"
 {
 														yyval.elem = create_node ( 7 ,"MethodInvocation", yyvsp[-5].elem, yyvsp[-4].elem, yyvsp[-3].elem, yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem);
 														yyval.elem->ins = instCount+1;
@@ -3755,7 +3775,7 @@ case 254:
 													;
     break;}
 case 255:
-#line 938 "main.y"
+#line 958 "main.y"
 {
 											yyval.elem = create_node ( 6 ,"MethodInvocation", yyvsp[-4].elem, yyvsp[-3].elem, yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem);
 											yyval.elem->ins = instCount+1;
@@ -3765,7 +3785,7 @@ case 255:
 										;
     break;}
 case 256:
-#line 949 "main.y"
+#line 969 "main.y"
 {
 									yyval.elem = create_node ( 5 ,"ArrayAccess", yyvsp[-3].elem, yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem);
 									yyval.elem->ins = instCount+1;
@@ -3778,27 +3798,27 @@ case 256:
 								;
     break;}
 case 257:
-#line 959 "main.y"
+#line 979 "main.y"
 { yyval.elem = create_node ( 5 ,"ArrayAccess", yyvsp[-3].elem, yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 258:
-#line 963 "main.y"
+#line 983 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 259:
-#line 964 "main.y"
+#line 984 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 260:
-#line 965 "main.y"
+#line 985 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 261:
-#line 966 "main.y"
+#line 986 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 262:
-#line 970 "main.y"
+#line 990 "main.y"
 {
 									yyval.elem = create_node ( 2 ,yyvsp[0].elem->val, yyvsp[-1].elem);
 									yyval.elem->ins = instCount+1;
@@ -3810,7 +3830,7 @@ case 262:
 								;
     break;}
 case 263:
-#line 982 "main.y"
+#line 1002 "main.y"
 {
 										yyval.elem = create_node ( 2 ,yyvsp[0].elem->val, yyvsp[-1].elem);
 										yyval.elem->ins = instCount+1;
@@ -3821,15 +3841,15 @@ case 263:
 									;
     break;}
 case 264:
-#line 993 "main.y"
+#line 1013 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 265:
-#line 994 "main.y"
+#line 1014 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 266:
-#line 995 "main.y"
+#line 1015 "main.y"
 {
 								yyval.elem = create_node ( 2 ,yyvsp[-1].elem->val, yyvsp[0].elem);
 								yyval.elem->ins = instCount+1;
@@ -3837,7 +3857,7 @@ case 266:
 							;
     break;}
 case 267:
-#line 1000 "main.y"
+#line 1020 "main.y"
 { 
 								yyval.elem = create_node ( 2 ,yyvsp[-1].elem->val, yyvsp[0].elem);
 								yyval.elem->ins = instCount+1;
@@ -3845,11 +3865,11 @@ case 267:
 							;
     break;}
 case 268:
-#line 1005 "main.y"
+#line 1025 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 269:
-#line 1009 "main.y"
+#line 1029 "main.y"
 {
 									yyval.elem = create_node ( 2 ,yyvsp[-1].elem->val, yyvsp[0].elem);
 									yyval.elem->ins = instCount+1;
@@ -3862,7 +3882,7 @@ case 269:
 								;
     break;}
 case 270:
-#line 1022 "main.y"
+#line 1042 "main.y"
 {
 									yyval.elem = create_node ( 2 ,yyvsp[-1].elem->val, yyvsp[0].elem);
 									yyval.elem->ins = instCount+1;
@@ -3875,11 +3895,11 @@ case 270:
 								;
     break;}
 case 271:
-#line 1035 "main.y"
+#line 1055 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 272:
-#line 1036 "main.y"
+#line 1056 "main.y"
 {
 								yyval.elem = create_node ( 2 ,yyvsp[-1].elem->val , yyvsp[0].elem);
 								yyval.elem->ins = instCount+1;
@@ -3888,7 +3908,7 @@ case 272:
 							;
     break;}
 case 273:
-#line 1042 "main.y"
+#line 1062 "main.y"
 {
 							yyval.elem = create_node ( 2 ,yyvsp[-1].elem->val , yyvsp[0].elem);
 							yyval.elem->ins = instCount+1;
@@ -3897,31 +3917,31 @@ case 273:
 						;
     break;}
 case 274:
-#line 1048 "main.y"
+#line 1068 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 275:
-#line 1052 "main.y"
+#line 1072 "main.y"
 { yyval.elem = create_node ( 6 ,"CastExpression", yyvsp[-4].elem, yyvsp[-3].elem, yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 276:
-#line 1053 "main.y"
+#line 1073 "main.y"
 { yyval.elem = create_node ( 5 ,"CastExpression", yyvsp[-3].elem, yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 277:
-#line 1054 "main.y"
+#line 1074 "main.y"
 { yyval.elem = create_node ( 5 ,"CastExpression", yyvsp[-3].elem, yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 278:
-#line 1055 "main.y"
+#line 1075 "main.y"
 { yyval.elem = create_node ( 6 ,"CastExpression", yyvsp[-4].elem, yyvsp[-3].elem, yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem); ;
     break;}
 case 279:
-#line 1059 "main.y"
+#line 1079 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 280:
-#line 1060 "main.y"
+#line 1080 "main.y"
 {
 														yyval.elem = create_node ( 3 ,yyvsp[-1].elem->val, yyvsp[-2].elem, yyvsp[0].elem);
 														yyval.elem->ins = instCount+1;
@@ -3930,7 +3950,7 @@ case 280:
 													;
     break;}
 case 281:
-#line 1066 "main.y"
+#line 1086 "main.y"
 {
 														yyval.elem = create_node ( 3 ,yyvsp[-1].elem->val, yyvsp[-2].elem, yyvsp[0].elem);
 														yyval.elem->ins = instCount+1;
@@ -3939,7 +3959,7 @@ case 281:
 													;
     break;}
 case 282:
-#line 1072 "main.y"
+#line 1092 "main.y"
 {
 														yyval.elem = create_node ( 3 ,yyvsp[-1].elem->val, yyvsp[-2].elem, yyvsp[0].elem);
 														yyval.elem->ins = instCount+1;
@@ -3948,11 +3968,11 @@ case 282:
 													;
     break;}
 case 283:
-#line 1081 "main.y"
+#line 1101 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 284:
-#line 1082 "main.y"
+#line 1102 "main.y"
 {
 															yyval.elem = create_node ( 3 ,yyvsp[-1].elem->val, yyvsp[-2].elem, yyvsp[0].elem);
 															yyval.elem->ins = instCount+1;
@@ -3962,7 +3982,7 @@ case 284:
 														;
     break;}
 case 285:
-#line 1089 "main.y"
+#line 1109 "main.y"
 {
 															yyval.elem = create_node ( 3 ,yyvsp[-1].elem->val, yyvsp[-2].elem, yyvsp[0].elem);
 															yyval.elem->ins = instCount+1;
@@ -3971,11 +3991,11 @@ case 285:
 														;
     break;}
 case 286:
-#line 1098 "main.y"
+#line 1118 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 287:
-#line 1099 "main.y"
+#line 1119 "main.y"
 {
 														yyval.elem = create_node ( 3 ,yyvsp[-1].elem->val, yyvsp[-2].elem, yyvsp[0].elem);
 														yyval.elem->ins = instCount+1;
@@ -3984,7 +4004,7 @@ case 287:
 													;
     break;}
 case 288:
-#line 1105 "main.y"
+#line 1125 "main.y"
 {
 														yyval.elem = create_node ( 3 ,yyvsp[-1].elem->val, yyvsp[-2].elem, yyvsp[0].elem);
 														yyval.elem->ins = instCount+1;
@@ -3993,7 +4013,7 @@ case 288:
 													;
     break;}
 case 289:
-#line 1111 "main.y"
+#line 1131 "main.y"
 {
 																yyval.elem = create_node ( 3 ,yyvsp[-1].elem->val, yyvsp[-2].elem, yyvsp[0].elem);
 																yyval.elem->ins = instCount+1;
@@ -4002,36 +4022,10 @@ case 289:
 															;
     break;}
 case 290:
-#line 1120 "main.y"
+#line 1140 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 291:
-#line 1121 "main.y"
-{
-												yyval.elem = create_node ( 3 ,yyvsp[-1].elem->val, yyvsp[-2].elem, yyvsp[0].elem); 
-												yyval.elem->ins = instCount+1;
-												yyval.elem->addr = str_to_ch(newTemp());
-												create_ins(1,yyval.elem->addr,yyvsp[-1].elem->val,yyvsp[-2].elem->addr,yyvsp[0].elem->addr);
-												yyval.elem->truelist = makelist(instCount+1);
-												yyval.elem->falselist = makelist(instCount+2);
-												create_ins(0,"if",yyval.elem->addr,"goto","");
-												create_ins(0,"goto","","","");
-											;
-    break;}
-case 292:
-#line 1131 "main.y"
-{
-												yyval.elem = create_node ( 3 ,yyvsp[-1].elem->val, yyvsp[-2].elem, yyvsp[0].elem); 
-												yyval.elem->ins = instCount+1;
-												yyval.elem->addr = str_to_ch(newTemp());
-												create_ins(1,yyval.elem->addr,yyvsp[-1].elem->val,yyvsp[-2].elem->addr,yyvsp[0].elem->addr);
-												yyval.elem->truelist = makelist(instCount+1);
-												yyval.elem->falselist = makelist(instCount+2);
-												create_ins(0,"if",yyval.elem->addr,"goto","");
-												create_ins(0,"goto","","","");
-											;
-    break;}
-case 293:
 #line 1141 "main.y"
 {
 												yyval.elem = create_node ( 3 ,yyvsp[-1].elem->val, yyvsp[-2].elem, yyvsp[0].elem); 
@@ -4044,7 +4038,7 @@ case 293:
 												create_ins(0,"goto","","","");
 											;
     break;}
-case 294:
+case 292:
 #line 1151 "main.y"
 {
 												yyval.elem = create_node ( 3 ,yyvsp[-1].elem->val, yyvsp[-2].elem, yyvsp[0].elem); 
@@ -4057,16 +4051,42 @@ case 294:
 												create_ins(0,"goto","","","");
 											;
     break;}
-case 295:
+case 293:
 #line 1161 "main.y"
+{
+												yyval.elem = create_node ( 3 ,yyvsp[-1].elem->val, yyvsp[-2].elem, yyvsp[0].elem); 
+												yyval.elem->ins = instCount+1;
+												yyval.elem->addr = str_to_ch(newTemp());
+												create_ins(1,yyval.elem->addr,yyvsp[-1].elem->val,yyvsp[-2].elem->addr,yyvsp[0].elem->addr);
+												yyval.elem->truelist = makelist(instCount+1);
+												yyval.elem->falselist = makelist(instCount+2);
+												create_ins(0,"if",yyval.elem->addr,"goto","");
+												create_ins(0,"goto","","","");
+											;
+    break;}
+case 294:
+#line 1171 "main.y"
+{
+												yyval.elem = create_node ( 3 ,yyvsp[-1].elem->val, yyvsp[-2].elem, yyvsp[0].elem); 
+												yyval.elem->ins = instCount+1;
+												yyval.elem->addr = str_to_ch(newTemp());
+												create_ins(1,yyval.elem->addr,yyvsp[-1].elem->val,yyvsp[-2].elem->addr,yyvsp[0].elem->addr);
+												yyval.elem->truelist = makelist(instCount+1);
+												yyval.elem->falselist = makelist(instCount+2);
+												create_ins(0,"if",yyval.elem->addr,"goto","");
+												create_ins(0,"goto","","","");
+											;
+    break;}
+case 295:
+#line 1181 "main.y"
 { yyval.elem = create_node ( 3 ,yyvsp[-1].elem->val, yyvsp[-2].elem, yyvsp[0].elem); ;
     break;}
 case 296:
-#line 1165 "main.y"
+#line 1185 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 297:
-#line 1166 "main.y"
+#line 1186 "main.y"
 {
 																yyval.elem = create_node ( 3 ,yyvsp[-1].elem->val, yyvsp[-2].elem, yyvsp[0].elem);
 																yyval.elem->ins = instCount+1;
@@ -4079,7 +4099,7 @@ case 297:
 															;
     break;}
 case 298:
-#line 1176 "main.y"
+#line 1196 "main.y"
 {
 															yyval.elem = create_node ( 3 ,yyvsp[-1].elem->val, yyvsp[-2].elem, yyvsp[0].elem);
 															yyval.elem->ins = instCount+1;
@@ -4091,11 +4111,11 @@ case 298:
 														;
     break;}
 case 299:
-#line 1187 "main.y"
+#line 1207 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 300:
-#line 1188 "main.y"
+#line 1208 "main.y"
 {
 														yyval.elem = create_node ( 3 ,yyvsp[-1].elem->val, yyvsp[-2].elem, yyvsp[0].elem);
 														yyval.elem->ins = instCount+1;
@@ -4104,11 +4124,11 @@ case 300:
 													;
     break;}
 case 301:
-#line 1197 "main.y"
+#line 1217 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 302:
-#line 1198 "main.y"
+#line 1218 "main.y"
 {
 												yyval.elem = create_node ( 3 ,yyvsp[-1].elem->val, yyvsp[-2].elem, yyvsp[0].elem);
 												yyval.elem->ins = instCount+1;
@@ -4117,11 +4137,11 @@ case 302:
 											;
     break;}
 case 303:
-#line 1207 "main.y"
+#line 1227 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 304:
-#line 1208 "main.y"
+#line 1228 "main.y"
 {
 																yyval.elem = create_node ( 3 ,yyvsp[-1].elem->val, yyvsp[-2].elem, yyvsp[0].elem);
 																yyval.elem->ins = instCount+1;
@@ -4130,11 +4150,11 @@ case 304:
 															;
     break;}
 case 305:
-#line 1217 "main.y"
+#line 1237 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 306:
-#line 1218 "main.y"
+#line 1238 "main.y"
 {
 															yyval.elem = create_node ( 3 ,yyvsp[-1].elem->val, yyvsp[-2].elem, yyvsp[0].elem);
 															yyval.elem->ins = instCount+1;
@@ -4144,11 +4164,11 @@ case 306:
 														;
     break;}
 case 307:
-#line 1228 "main.y"
+#line 1248 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 308:
-#line 1229 "main.y"
+#line 1249 "main.y"
 {
 															yyval.elem = create_node ( 3 ,yyvsp[-1].elem->val, yyvsp[-2].elem, yyvsp[0].elem);
 															yyval.elem->ins = instCount+1;
@@ -4158,11 +4178,11 @@ case 308:
 														;
     break;}
 case 309:
-#line 1239 "main.y"
+#line 1259 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 310:
-#line 1240 "main.y"
+#line 1260 "main.y"
 {
 																				yyval.elem = create_node ( 6 ,"ConditionalExpression", yyvsp[-4].elem, yyvsp[-3].elem, yyvsp[-2].elem, yyvsp[-1].elem, yyvsp[0].elem);
 																				yyval.elem->ins = instCount+1;
@@ -4174,15 +4194,15 @@ case 310:
 																			;
     break;}
 case 311:
-#line 1252 "main.y"
+#line 1272 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 312:
-#line 1253 "main.y"
+#line 1273 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 313:
-#line 1257 "main.y"
+#line 1277 "main.y"
 {
 																yyval.elem = create_node ( 3 ,yyvsp[-1].elem->val, yyvsp[-2].elem, yyvsp[0].elem);
 																yyval.elem->ins = instCount+1;
@@ -4199,67 +4219,67 @@ case 313:
 															;
     break;}
 case 314:
-#line 1274 "main.y"
+#line 1294 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 315:
-#line 1275 "main.y"
+#line 1295 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 316:
-#line 1276 "main.y"
+#line 1296 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 317:
-#line 1280 "main.y"
+#line 1300 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 318:
-#line 1281 "main.y"
+#line 1301 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 319:
-#line 1282 "main.y"
+#line 1302 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 320:
-#line 1283 "main.y"
+#line 1303 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 321:
-#line 1284 "main.y"
+#line 1304 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 322:
-#line 1285 "main.y"
+#line 1305 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 323:
-#line 1286 "main.y"
+#line 1306 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 324:
-#line 1287 "main.y"
+#line 1307 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 325:
-#line 1288 "main.y"
+#line 1308 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 326:
-#line 1289 "main.y"
+#line 1309 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 327:
-#line 1290 "main.y"
+#line 1310 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 328:
-#line 1291 "main.y"
+#line 1311 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 case 329:
-#line 1295 "main.y"
+#line 1315 "main.y"
 { yyval.elem = yyvsp[0].elem; ;
     break;}
 }
@@ -4466,7 +4486,7 @@ YYLABEL(yyerrhandle)
 /* END */
 
  #line 1038 "/usr/share/bison++/bison.cc"
-#line 1298 "main.y"
+#line 1318 "main.y"
 
 
 

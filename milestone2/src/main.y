@@ -368,6 +368,26 @@ MethodDeclarator:
 									} 
 |	IDENTIFIER LPAREN RPAREN	{
 									$$ = create_node ( 4 ,"MethodDeclarator", $1, $2, $3);
+									$$->ins = instCount+1;
+									bool flag=false;
+									string funcName=string($1->addr);
+									for(auto class_ptr:classMap)
+									{
+										stme* temp=class_ptr.second;
+										while(temp!=NULL)
+										{
+											if($1->val==temp->id)
+											{
+												flag=true;
+												funcName+=class_ptr.first;
+												break;
+											}
+											temp=temp->next;
+										}
+										if(flag) break;
+									}
+									create_ins(0,funcName,":","","");
+									create_ins(0,"BeginFunc","","","");
 								}
 ;
 
