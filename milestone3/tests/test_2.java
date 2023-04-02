@@ -13,6 +13,8 @@ class Rectangle implements Polygon {
   public void getArea(int length, int breadth) {
     System.out.println("The area of the rectangle is " + (length * breadth));
     length=1;
+    this.test = 2;
+    this.getArea(1,2);
   }
   
 }

@@ -27,6 +27,7 @@
 	int instCount;
 	char * str_to_ch(string s);
 	string get_invocation_name(NODE* );
+	string handle_expression(NODE* );
 	string handle_array_access(NODE*);
 	string handle_arrayinit(NODE* );
 	string handle_array_creation_Expression(NODE* );
@@ -1408,6 +1409,28 @@ string handle_cast_expression(NODE* node){
 	return type;
 }
 
+string handle_field_access(NODE* node)
+{
+	NODE* left=node->children[0],*right=node->children[2];
+	string left_val=left->val,right_val=right->val;
+	if (left_val=="this")
+	{
+		stme* lookup_stme=lookupFunction(classMap[cur_class], cur_class+"-"+right->val);
+		if (lookup_stme==NULL)
+		{
+			string e_message="Error : Field " + (string) right->val + " not declared in Class "+cur_class;
+			lineno=node->lineno;
+			yerror(e_message);
+		}
+		else
+		{
+			return lookup_stme->entry->type;
+		}
+	}
+	return "int";
+	/* return handle_expression(node); */
+}
+
 string handle_expression(NODE* node)
 {
 	if (node->children.size()==0)
@@ -1451,6 +1474,10 @@ string handle_expression(NODE* node)
 	}
 	if(child_val=="CastExpression"){
 		return handle_cast_expression(node);
+	}
+	if (child_val=="FieldAccess")
+	{
+		return handle_field_access(node);
 	}
 	node->type=str_to_ch(handle_expression(node->children[0]));
 
@@ -1754,21 +1781,6 @@ void searchAST(NODE* node)
 		}
 		return;
 	}
-	else if (temp=="this")
-	{
-		string var_name = "this";
-		lineno=node->children[0]->lineno;
-		ste* new_ste= new ste;
-
-		current_ste->lexeme=var_name;
-		current_ste->type=cur_class;
-		current_ste->token="IDENTIFIER";
-		current_ste->lineno=lineno;
-
-		current_ste->next=new_ste;
-		new_ste->prev=current_ste;
-		current_ste=new_ste;
-	}
 	else if(temp=="ExpressionStatement")
 	{
 		string left_child_val=node->children[0]->val;
@@ -1907,9 +1919,14 @@ string handle_function(NODE* node){
 			ste* lookup_ste=lookup(current_ste,name.substr(0,dot_index));
 			if (lookup_ste!=NULL)
 				class_scope=lookup_ste->type;
-			else
+			else if (name.substr(0,dot_index)=="this"|| name.substr(0,dot_index)=="System")
+			{
+				class_scope=cur_class;
+			}
+			else 
 			{
 				string error_mesaage="Error : variable "+name.substr(0,dot_index)+" is not defined";
+				yerror(error_mesaage);
 			}
 			name=name.substr(dot_index+1);
 		}
@@ -1922,10 +1939,10 @@ string handle_function(NODE* node){
 		stme* class_head=classMap[class_scope];
 		while (class_head!=NULL)
 		{
-			if (class_head->id==name)
+			if (class_head->id==class_scope+"-"+(string)name)
 			{
-				string type=tableMap[name]->return_type;
-				int num_params=tableMap[name]->num_params;
+				string type=tableMap[class_scope+"-"+(string)name]->return_type;
+				int num_params=tableMap[class_scope+"-"+(string)name]->num_params;
 
 				int arg_flag=0;
 					
@@ -1951,7 +1968,7 @@ string handle_function(NODE* node){
 						}
 						else{
 
-							ste* entry_ste=tableMap[name]->entry;
+							ste* entry_ste=tableMap[class_scope+"-"+(string)name]->entry;
 							
 
 							for(int i=0;i<num_params;i++){
@@ -2054,7 +2071,7 @@ string handle_function(NODE* node){
 				stme* class_head=classMap[type];
 				while (class_head!=NULL)
 				{
-					if (class_head->id==second)
+					if (class_head->id==type+"-"+second)
 					{
 						string return_type=class_head->entry->type;
 						return return_type;
@@ -2253,7 +2270,7 @@ void fieldSymTable(NODE* node)
 				field_entry->entry=entry;
 				field_entry->next=classMap[cur_class];
 				classMap[cur_class]=field_entry;
-				classMap[cur_class]->id=entry->lexeme;
+				classMap[cur_class]->id=cur_class+"-"+(string)entry->lexeme;
 				
 			}
 			else if (var_id_child_val == "=")
@@ -2268,7 +2285,7 @@ void fieldSymTable(NODE* node)
 				field_entry->entry=entry;
 				field_entry->next=classMap[cur_class];
 				classMap[cur_class]=field_entry;
-				classMap[cur_class]->id=entry->lexeme;
+				classMap[cur_class]->id=cur_class+"-"+(string)entry->lexeme;
 				string right_type=handle_expression(var_id_child->children[1]);
 				if (typecast(type,right_type,"=")=="Error")
 				{
@@ -2289,7 +2306,7 @@ void fieldSymTable(NODE* node)
 			field_entry->entry=entry;
 			field_entry->next=classMap[cur_class];
 			classMap[cur_class]=field_entry;
-			classMap[cur_class]->id=entry->lexeme;
+			classMap[cur_class]->id=cur_class+"-"+(string)entry->lexeme;
 		}
 		else if (var_id_child_val == "=")
 		{
@@ -2300,7 +2317,7 @@ void fieldSymTable(NODE* node)
 			field_entry->entry=entry;
 			field_entry->next=classMap[cur_class];
 			classMap[cur_class]=field_entry;
-			classMap[cur_class]->id=entry->lexeme;
+			classMap[cur_class]->id=cur_class+"-"+(string)entry->lexeme;
 		}
 	}
 
@@ -2332,13 +2349,13 @@ void branchMethodSymtable(NODE* declaration_node)
 			if (decl_child_node_val=="ConstructorDeclarator")
 			{
 				NODE* identifier_node=decl_child_node->children[0];
-				if (lookupFunction(classMap[cur_class],identifier_node->val)!=NULL){
+				if (lookupFunction(classMap[cur_class],cur_class+"-"+(string)identifier_node->val)!=NULL){
 					lineno=identifier_node->lineno;
 					string e_message= "Error: Method "+ (string) identifier_node->val+ " redeclared";
 					yerror(e_message);
 				}
 				
-				string id_node_val=identifier_node->val;
+				string id_node_val=cur_class+"-"+(string)identifier_node->val;
 
 				stme* table_entry=new stme;
 				table_entry->entry=current_ste;
@@ -2399,14 +2416,14 @@ void branchMethodSymtable(NODE* declaration_node)
 		if(node_val == "MethodDeclarator")
 		{
 			NODE* identifier_node=node->children[0];
-			if (lookupFunction(classMap[cur_class],identifier_node->val)!=NULL){
+			if (lookupFunction(classMap[cur_class],cur_class+"-"+(string)identifier_node->val)!=NULL){
 				lineno=identifier_node->lineno;
 				string e_message= "Error: Method "+ (string) identifier_node->val+ " redeclared";
 				yerror(e_message);
 			}
 
 			// add map entry for the function
-			string id_node_val=identifier_node->val;
+			string id_node_val=cur_class+"-"+(string)identifier_node->val;
 			
 			stme* table_entry=new stme;
 			table_entry->entry=current_ste;
@@ -2473,19 +2490,15 @@ void check_interface()
 			}
 			stme* interface_mem=classMap[implement_class];
 			while(interface_mem->next!=NULL) {
-				/* if (interface_mem->num_params==-1)
-				{
-					interface_mem=interface_mem->next;
-					continue;
-				} */
-				stme* match=lookupFunction(classMap[class_->first],interface_mem->id);
+				string interface_mem_name= interface_mem->id.substr(implement_class.length()+1);
+				stme* match=lookupFunction(classMap[class_->first],class_->first+"-"+(string)interface_mem_name);
 				if (match==NULL){
 					lineno=interface_mem->entry->lineno;
 					string e_message="";
 					if (interface_mem->num_params==-1) 
-						e_message= "Error: Method "+ (string) interface_mem->id+ " not found in interface "+implement_class;
+						e_message= "Error: Method "+ (string) interface_mem->id+ " from "+implement_class+" not found in function";
 					else
-						e_message= "Error: Field "+ (string) interface_mem->id+ " not found in interface "+implement_class;
+						e_message= "Error: Field "+ (string) interface_mem->id+ " from "+implement_class+ "  not found in function definition";
 					yerror(e_message);
 				}
 
@@ -2749,10 +2762,6 @@ int main(int argc, char* argv[]){
 	printToCSV();
 	check_interface();
 	/* print_ste(start_ste); */
-
-	cout << classMap.size() << endl;
-	for(auto elem:classMap)
-		cout << elem.first << endl;
 	fp = fopen(("../tests/"+input_file).c_str(), "r");
 	if(!fp){
 		cout << "Error opening file: " << input_file << endl;
