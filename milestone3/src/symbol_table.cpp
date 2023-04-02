@@ -7,7 +7,6 @@ ste* insert_entry(ste* cur,string token,string lexeme,string type,int lineno,int
     new_entry->lexeme = lexeme;
     new_entry->type = type;
     new_entry->lineno = lineno;
-    new_entry->dim = dim;
     new_entry->next = NULL;
     new_entry->prev = cur;
     cur->next = new_entry;
@@ -40,10 +39,10 @@ ste* lookup(ste* node, string lexeme)
         return NULL;
     if (node->lexeme==lexeme)
         return node;
-    if (node->prev_scope!=NULL)
-        return lookup(node->prev_scope,lexeme);
     if (node->prev!=NULL)
         return lookup(node->prev,lexeme);
+    if (node->prev_scope!=NULL)
+        return lookup(node->prev_scope,lexeme);
     return NULL;
 }
 

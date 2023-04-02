@@ -1466,7 +1466,6 @@ ste* insert_var_id(NODE * node,string type)
 	if (lookup(current_ste,var_name)==NULL){
 		current_ste->lexeme=var_name;
 		current_ste->type=type;
-		current_ste->dim=dim;
 		current_ste->offset=offset;
 		current_ste->token="IDENTIFIER";
 		current_ste->lineno=lineno;
@@ -1745,7 +1744,6 @@ void searchAST(NODE* node)
 
 		current_ste->lexeme=var_name;
 		current_ste->type=cur_class;
-		current_ste->dim=0;
 		current_ste->token="IDENTIFIER";
 		current_ste->lineno=lineno;
 
@@ -2479,9 +2477,9 @@ void printToCSV(){
 			string filename = filePath + "/" + curr->id + ".csv";
 			fout.open(filename);
 			
-			fout<<"Function name:,Return Type, Number of Parameters ,Lexeme,Type,Line Number,Token"<<endl;
+			fout<<"Function name:,Return Type, Number of Parameters ,Lexeme,Type,Line Number,Token,Offset"<<endl;
 
-			fout<<curr->id<<","<<curr->return_type<<","<<curr->num_params<<",,,,"<<endl;
+			fout<<curr->id<<","<<curr->return_type<<","<<curr->num_params<<",,,,,"<<endl;
 			ste* current_ste = curr->entry;
 			while(current_ste->next!=NULL || current_ste->next_scope!=NULL || !branch.empty()){
 				if(current_ste->next==NULL && current_ste->next_scope==NULL){
@@ -2495,7 +2493,7 @@ void printToCSV(){
 					continue;
 				}
 
-				fout<<",,,"<<current_ste->lexeme<<","<<current_ste->type<<","<<current_ste->lineno<<","<<current_ste->token<<endl;
+				fout<<",,,"<<current_ste->lexeme<<","<<current_ste->type<<","<<current_ste->lineno<<","<<current_ste->token<<","<<current_ste->offset<<endl;
 				current_ste = current_ste->next;
 			}
 			
@@ -2508,9 +2506,9 @@ void printToCSV(){
 		string filename = filePath + "/FieldDeclarations"+ ".csv";
 		fout.open(filename);
 
-		fout<<"Field name:,Return Type, Number of Parameters"<<endl;
+		fout<<"Field name:,Return Type, Offset"<<endl;
 		for(auto it = v.begin(); it != v.end(); it++){
-			fout<<(*it)->id<<","<<(*it)->entry->type<<","<<(*it)->num_params<<endl;
+			fout<<(*it)->id<<","<<(*it)->entry->type<<","<<(*it)->entry->offset<<endl;
 		}
 		fout.close();
 	}
@@ -2663,6 +2661,6 @@ int main(int argc, char* argv[]){
 	current_ste->prev=start_ste;
 	searchAST(start_node);
 	printToCSV();
-	print_ste(start_ste);
+	/* print_ste(start_ste); */
     return 0;
 }

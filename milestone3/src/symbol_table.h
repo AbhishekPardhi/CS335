@@ -4,7 +4,7 @@ using namespace std;
 
 typedef struct symbol_table_entry{
     string token, lexeme, type;
-    int lineno,dim,offset;
+    int lineno,offset;
     vector < int > dims;
     struct symbol_table_entry* next;
     struct symbol_table_entry* prev;
