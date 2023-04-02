@@ -1728,8 +1728,6 @@ void searchAST(NODE* node)
 		}
 
 		if(flag==2) forFlag=1;
-
-		
 		return;
 	}
 	else if (temp=="}")
@@ -2638,8 +2636,10 @@ vector<int> merge(vector<int> p1, vector<int> p2){
 void backpatch(vector<int>p, int i)
 {
 	for(int j=0;j<p.size();j++){
-		// instructions[abs(p[j])-1].push_back(to_string(i));
-		*(instructions[abs(p[j])-1].end()-1)=to_string(i);
+		// instructions[abs(p[j])-1].push_back(to_string(i));s
+		if (abs(p[j])-1>0){
+			*(instructions[abs(p[j])-1].end()-1)=to_string(i);
+		}
 	}
 }
 
