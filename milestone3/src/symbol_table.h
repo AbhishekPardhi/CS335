@@ -4,7 +4,8 @@ using namespace std;
 
 typedef struct symbol_table_entry{
     string token, lexeme, type;
-    int lineno,dim;
+    int lineno,offset;
+    vector < int > dims;
     struct symbol_table_entry* next;
     struct symbol_table_entry* prev;
     struct symbol_table_entry* next_scope;
@@ -14,6 +15,7 @@ typedef struct symbol_table_entry{
 typedef struct symbol_table_map_entry {
     ste* entry;
     string return_type,id;
+    vector<string> implements;
     int num_params;
     struct symbol_table_map_entry * next;
 } stme;

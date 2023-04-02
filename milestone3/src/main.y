@@ -3,6 +3,8 @@
     #include <bits/stdc++.h>
     #include "data.h"
 	#include "symbol_table.cpp"
+	#include <sys/stat.h>
+
     using namespace std;
     int yylex();
     extern int yylineno;
@@ -28,9 +30,14 @@
 	string handle_array_access(NODE*);
 	string handle_arrayinit(NODE* );
 	string handle_array_creation_Expression(NODE* );
+	string handle_class_declaration(NODE* );
 	int lineno;
+	void print_ste(ste* ,int);
 	string cur_class;
-	bool firstRun;
+    NODE *start_node;
+	ste* start_ste = new ste;
+	ste * current_ste = start_ste;
+	int parsenum;
 
 	void yerror(string s)
 	{
@@ -42,20 +49,18 @@
         printf("Error: %s at line %d\n", s, yylineno);
         exit(1);
     }
-    NODE *start_node;
 	fstream fout;
 	fstream code_out;
 	extern FILE *yyin;
 
 	unordered_map <string, stme*> tableMap;
 
-	ste* start_ste = new ste;
 	
 	
-	ste * current_ste = start_ste;
 	stack<ste*> branch;
 
 	int forFlag = 0;
+	int offset = 0;
 	unordered_map <string,stme*> classMap;	
 
 	unordered_map <string, int> typeMap;
@@ -246,7 +251,7 @@ Super:
 ;
 
 Interfaces:
-	IMPLEMENTS InterfaceTypeList	{ $$ = create_node ( 3 ,"Interfaces", $1, $2); } 
+	IMPLEMENTS InterfaceTypeList	{ $$ = create_node ( 3 ,"Interfaces", $1, $2);} 
 ;
 
 InterfaceTypeList:
@@ -487,7 +492,7 @@ InterfaceBody:
 ;
 
 InterfaceMemberDeclarations:
-	InterfaceMemberDeclaration	{$$ = create_node(2,"Interface_Member_Decalarations",$1) ; }
+	InterfaceMemberDeclaration	{$$ = create_node(2,"Interface_Member_Declarations",$1) ; }
 |	InterfaceMemberDeclarations InterfaceMemberDeclaration	{ $1->children.push_back($2); $$ =$1 ; } 
 ;
 
@@ -1462,13 +1467,16 @@ ste* insert_var_id(NODE * node,string type)
 	if (lookup(current_ste,var_name)==NULL){
 		current_ste->lexeme=var_name;
 		current_ste->type=type;
-		current_ste->dim=dim;
+		current_ste->offset=offset;
 		current_ste->token="IDENTIFIER";
 		current_ste->lineno=lineno;
 		return_ste=current_ste;
 		current_ste->next=new_ste;
 		new_ste->prev=current_ste;
+		offset += getOffset(type,current_ste->dims);
+
 		current_ste=new_ste;
+
 	}
 	else{
 		string e_message= "Error: Variable "+var_name+ " redeclared";
@@ -1534,6 +1542,81 @@ int vardim(NODE* node)
 {
 	int len=node->children.size()-1;
 	return len/2;
+}
+
+
+void handle_interface_member_declaration(NODE* node)
+{
+	for(int i=0;i<node->children.size();i++)
+	{
+		string node_child_val=node->children[i]->val;
+		if(node_child_val=="FieldDeclaration")
+		{
+			fieldSymTable(node->children[i]);
+		}
+		else if (node_child_val=="AbstractMethodDeclaration"){
+			offset=0;
+			ste * new_ste = new ste;
+			current_ste->type="branch_head";
+
+			//save the branch header in the stack to return back to it later
+			branch.push(current_ste);
+
+			current_ste->next_scope=new_ste;
+			new_ste->prev_scope=current_ste;
+
+			// move current scope onto the new scope
+			current_ste=new_ste;
+			branchMethodSymtable(node->children[i]);
+			current_ste=branch.top();
+			branch.pop();
+			ste* new_ste1 = new ste;
+			current_ste->next=new_ste1;
+			new_ste1->prev=current_ste;
+			current_ste=new_ste1;
+		}
+	}
+}
+
+void handle_interface_declaration(NODE* node)
+{
+	for(int i=0;i<node->children.size();i++)
+	{
+		string node_child_val=node->children[i]->val;
+		if (node_child_val=="interface")
+		{
+			cur_class=node->children[i+1]->val;
+			ste * new_ste = new ste;
+			current_ste->type="branch_head";
+
+			//save the branch header in the stack to return back to it later
+			branch.push(current_ste);
+
+			current_ste->next_scope=new_ste;
+			new_ste->prev_scope=current_ste;
+
+			// move current scope onto the new scope
+			current_ste=new_ste;
+			classMap[cur_class]=new stme;
+		}
+		else if(node_child_val=="InterfaceBody")
+		{
+			NODE* interface_body=node->children[i];
+			for (auto child : interface_body->children)
+			{
+				string child_val=child->val;
+				if (child_val=="Interface_Member_Declarations")
+					handle_interface_member_declaration(child);
+			}
+		}
+	}
+	current_ste=branch.top();
+	branch.pop();
+	ste* new_ste1 = new ste;
+	current_ste->next=new_ste1;
+	new_ste1->prev=current_ste;
+	current_ste=new_ste1;
+	
 }
 
 void searchAST(NODE* node)
@@ -1619,11 +1702,16 @@ void searchAST(NODE* node)
 		insert_variable(node);
 	}
 	else if (temp=="FieldDeclaration")
-	{
+	{	
 		fieldSymTable(node);
 	}
-	else if(temp == "MethodDeclaration" || temp =="ConstructorDeclaration")
-	{
+	else if (temp=="InterfaceDeclaration")
+	{	
+		return handle_interface_declaration(node);
+	}
+	else if( temp == "MethodDeclaration" || temp =="ConstructorDeclaration")
+	{	
+		offset = 0;
 		// new node for the new branch and the branch header in the previous branch junction
 		ste * new_ste = new ste;
 		current_ste->type="branch_head";
@@ -1657,7 +1745,6 @@ void searchAST(NODE* node)
 
 		current_ste->lexeme=var_name;
 		current_ste->type=cur_class;
-		current_ste->dim=0;
 		current_ste->token="IDENTIFIER";
 		current_ste->lineno=lineno;
 
@@ -1675,16 +1762,39 @@ void searchAST(NODE* node)
 		else
 			handle_expression(node->children[0]);
 	}
-
+	else if (temp=="Class_Declaration"){
+		handle_class_declaration(node);
+	}
 	for(int i = 0; i < node->children.size(); i++)
 	{
-		string child_node_val=node->children[i]->val;
-		if (child_node_val=="class"){
-			cur_class=node->children[i+1]->val;
-			classMap[cur_class]= new stme;
-		}
 		searchAST(node->children[i]);
 	}
+}
+
+string handle_class_declaration( NODE * node){
+
+	for(int i=0;i<node->children.size();i++){
+		string node_val = node->children[i]->val;
+		if(node_val=="class"){
+			string class_name = node->children[i+1]->val;
+			if(classMap.find(class_name)!=classMap.end()){
+				lineno=node->children[i+1]->lineno;
+				yerror("Error: Class " + class_name + " redefined");
+			}
+
+			cur_class=class_name;
+			classMap[cur_class]= new stme;
+		}
+		else if (node_val=="Interfaces")
+		{
+			for (auto interface_child : node->children[i]->children[1]->children)
+			{
+				classMap[cur_class]->implements.push_back(interface_child->val);
+			}
+		}
+	}
+
+	return "";
 }
 
 string get_invocation_name(NODE* node){
@@ -1713,9 +1823,11 @@ string handle_array_creation_Expression(NODE* node){
 	for(auto array_child: node->children){
 		string array_child_val = array_child->val;
 		if(array_child_val=="Dim_Expers"){
+			vector < int > dims;
 			for(auto dim_child: array_child->children){
 				string dim_child_val=dim_child->val;
 				if(dim_child_val=="Dim_Expr"){
+					dims.push_back(atoi(dim_child->children[1]->val));
 					array_type=array_type+"[]";
 				}
 				if (handle_expression(dim_child->children[1])!="int")
@@ -1724,6 +1836,8 @@ string handle_array_creation_Expression(NODE* node){
 					yerror(error_message);
 				}
 			}
+			current_ste->prev->dims=dims;
+			offset+=getOffset(array_type,dims);
 		}
 		else if(array_child_val=="Dims"){
 			for(auto dim_child: array_child->children){
@@ -1856,7 +1970,6 @@ string handle_function(NODE* node){
 			}
 			return "void";
 		}
-
 		string e_message= "Error : Method " + name + " not declared before use ";
 		yerror(e_message);
 
@@ -1879,13 +1992,11 @@ string handle_function(NODE* node){
 	}
 
 	if(node_val=="Qualified_Name"){
-		string name = get_invocation_name(node);
-
-
-		
+		string name = get_invocation_name(node);		
 		string class_scope;
 		int dot_index=name.find(".");
-		string second=name.substr(dot_index+1);
+		string first=name.substr(0,dot_index);
+		string second=name.substr(dot_index+1);		 
 		if (second=="length")
 		{
 			ste* lookup_ste=lookup(current_ste,name.substr(0,dot_index));
@@ -1916,7 +2027,25 @@ string handle_function(NODE* node){
 		}
 		else
 		{
-			string e_message= "Error : variable " + name + " not declared before use ";
+			lookup_ste=lookup(current_ste,first);
+			if (lookup_ste!=NULL)
+			{
+				string type=lookup_ste->type;
+				if (classMap.find(type)==classMap.end())
+					yerror("Error : variable "+first+" does not have the method "+second);
+				stme* class_head=classMap[type];
+				while (class_head!=NULL)
+				{
+					if (class_head->id==second)
+					{
+						string return_type=class_head->entry->type;
+						return return_type;
+					}
+					class_head=class_head->next;
+				}
+				yerror("Error : variable "+first+" does not have the method "+second);
+			}
+			string e_message= "Error : variable " + name + " not declared before use";
 			yerror(e_message);
 		}
 	}
@@ -2168,7 +2297,7 @@ char* str_to_ch(string s)
 
 void create_ins(int type,string i,string op,string arg1,string arg2)
 {
-	if(!firstRun) return;
+	if(parsenum==1) return;
 	vector<string> instruction{to_string(type),i,op,arg1,arg2};
 	instructions.push_back(instruction);
 	instCount += 1;
@@ -2185,6 +2314,12 @@ void branchMethodSymtable(NODE* declaration_node)
 			if (decl_child_node_val=="ConstructorDeclarator")
 			{
 				NODE* identifier_node=decl_child_node->children[0];
+				if (lookupFunction(classMap[cur_class],identifier_node->val)!=NULL){
+					lineno=identifier_node->lineno;
+					string e_message= "Error: Method "+ (string) identifier_node->val+ " redeclared";
+					yerror(e_message);
+				}
+				
 				string id_node_val=identifier_node->val;
 
 				stme* table_entry=new stme;
@@ -2229,11 +2364,10 @@ void branchMethodSymtable(NODE* declaration_node)
 		string node_val=child_node->val;
 		if(node_val == "MethodDeclarator")
 		{
-			idx-=1;;
+			idx-=1;
 			break;
 		}
 	}
-
 	int index=0;
 	for (auto node : header_node->children)
 	{	
@@ -2247,6 +2381,12 @@ void branchMethodSymtable(NODE* declaration_node)
 		if(node_val == "MethodDeclarator")
 		{
 			NODE* identifier_node=node->children[0];
+			if (lookupFunction(classMap[cur_class],identifier_node->val)!=NULL){
+				lineno=identifier_node->lineno;
+				string e_message= "Error: Method "+ (string) identifier_node->val+ " redeclared";
+				yerror(e_message);
+			}
+
 			// add map entry for the function
 			string id_node_val=identifier_node->val;
 			
@@ -2296,6 +2436,60 @@ void ParameterSymtable(NODE* param_node)
 	insert_var_id(var_node,type);
 }
 
+void check_interface()
+{
+	for (auto class_ = classMap.begin();class_!=classMap.end(); class_++)
+	{
+		if(class_->first=="") continue;
+		stme* class_mem=class_->second;
+		while(class_mem->next!=NULL) class_mem=class_mem->next;
+		if (class_mem==NULL) cout<<"no";
+		if (class_mem->implements.size()==0) continue;
+		for (auto implement_class : class_mem->implements)
+		{
+			if (classMap.find(implement_class)==classMap.end())
+			{
+				lineno=class_mem->entry->lineno;
+				string e_message= "Error: Interface "+ implement_class+ " not found";
+				yerror(e_message);
+			}
+			stme* interface_mem=classMap[implement_class];
+			while(interface_mem->next!=NULL) {
+				/* if (interface_mem->num_params==-1)
+				{
+					interface_mem=interface_mem->next;
+					continue;
+				} */
+				stme* match=lookupFunction(classMap[class_->first],interface_mem->id);
+				if (match==NULL){
+					lineno=interface_mem->entry->lineno;
+					string e_message="";
+					if (interface_mem->num_params==-1) 
+						e_message= "Error: Method "+ (string) interface_mem->id+ " not found in interface "+implement_class;
+					else
+						e_message= "Error: Field "+ (string) interface_mem->id+ " not found in interface "+implement_class;
+					yerror(e_message);
+				}
+
+				ste* match_entry=match->entry;
+				ste* member_entry=interface_mem->entry;
+				for (int i=0;i<interface_mem->num_params;i++)
+				{
+					if (match_entry->type!=member_entry->type)
+					{
+						lineno=match_entry->lineno;
+						string e_message= "Error: Method "+match->id+" has "+ (string) match_entry->lexeme+ " contradicting type from interface "+implement_class;
+						yerror(e_message);
+					}
+					match_entry=match_entry->next;
+					member_entry=member_entry->next;
+				}
+				interface_mem=interface_mem->next;
+			}
+		} 
+	}
+}
+
 void MakeDOTFile(NODE*cell)
 {
     if(!cell)
@@ -2322,54 +2516,78 @@ void MakeIRFile()
 	for(int i=0;i<instructions.size();i++)
 	{
 		if(instructions[i][1]=="EndFunc") tabs--;
-		cout << i+1 << "\t" << string(tabs,'\t');
+		/* cout << i+1 << "\t" << string(tabs,'\t'); */
 		code_out << i+1 << "\t" << string(tabs,'\t');
 		if(instructions[i][0]=="0")
 		{
 			for(int j=1;j<instructions[i].size();j++)
 			{
-				cout << instructions[i][j] << (instructions[i][j].length()?" ":"");
+				/* cout << instructions[i][j] << (instructions[i][j].length()?" ":""); */
 				code_out << instructions[i][j] << (instructions[i][j].length()?" ":"");
 			}
 			if(instructions[i][1]=="BeginFunc") tabs++;
 		}
 		else
 		{
-			cout << instructions[i][1] << " = " << instructions[i][3] << " " << instructions[i][2] << " " << instructions[i][4];
+			/* cout << instructions[i][1] << " = " << instructions[i][3] << " " << instructions[i][2] << " " << instructions[i][4]; */
 			code_out << instructions[i][1] << " = " << instructions[i][3] << " " << instructions[i][2] << " " << instructions[i][4];
 		}
-		cout << endl;
+		/* cout << endl; */
 		code_out << endl;
 	}
 }
 
 void printToCSV(){
 	ofstream fout;
-
-	for(auto it = tableMap.begin(); it != tableMap.end(); it++){
-		string filename = "./output/Function-" + it->first + ".csv";
-		fout.open(filename);
-		
-		fout<<"Function name:,Return Type, Number of Parameters ,Lexeme,Type,Line Number,Token"<<endl;
-
-		fout<<it->first<<","<<it->second->return_type<<","<<it->second->num_params<<",,,,"<<endl;
-		ste* current_ste = it->second->entry;
-		while(current_ste->next!=NULL || current_ste->next_scope!=NULL || !branch.empty()){
-			if(current_ste->next==NULL && current_ste->next_scope==NULL){
-				current_ste = branch.top();
-				branch.pop();
+	for(auto it = classMap.begin(); it != classMap.end(); it++){
+		vector < stme* > v;
+		if(it->first=="") continue;
+		stme * curr = it->second;
+		string folderName = "Class-" + it->first;
+		string filePath = "./output/" + folderName;
+		mkdir(filePath.c_str(), 0777);
+		while(curr->next!=NULL){
+			if(curr->num_params==-1){
+				v.push_back(curr);
+				curr = curr->next;
 				continue;
 			}
-			if(current_ste->type=="branch_head"){
-				branch.push(current_ste->next);
-				current_ste = current_ste->next_scope;
-				continue;
-			}
+			string filename = filePath + "/" + curr->id + ".csv";
+			fout.open(filename);
+			
+			fout<<"Function name:,Return Type, Number of Parameters ,Lexeme,Type,Line Number,Token,Offset"<<endl;
 
-			fout<<",,,"<<current_ste->lexeme<<","<<current_ste->type<<","<<current_ste->lineno<<","<<current_ste->token<<endl;
-			current_ste = current_ste->next;
+			fout<<curr->id<<","<<curr->return_type<<","<<curr->num_params<<",,,,,"<<endl;
+			ste* current_ste = curr->entry;
+			while(current_ste->next!=NULL || current_ste->next_scope!=NULL || !branch.empty()){
+				if(current_ste->next==NULL && current_ste->next_scope==NULL){
+					current_ste = branch.top();
+					branch.pop();
+					continue;
+				}
+				if(current_ste->type=="branch_head"){
+					branch.push(current_ste->next);
+					current_ste = current_ste->next_scope;
+					continue;
+				}
+
+				fout<<",,,"<<current_ste->lexeme<<","<<current_ste->type<<","<<current_ste->lineno<<","<<current_ste->token<<","<<current_ste->offset<<endl;
+				current_ste = current_ste->next;
+			}
+			
+			fout.close();
+
+			curr = curr->next;
 		}
-		
+
+		if(v.size()==0) continue;
+		string filename = filePath + "/FieldDeclarations"+ ".csv";
+		fout.open(filename);
+
+		fout<<"Field name:,Return Type, Offset"<<endl;
+		for(auto it = v.begin(); it != v.end(); it++){
+			fout<<(*it)->id<<","<<(*it)->entry->type<<","<<(*it)->entry->offset<<endl;
+		}
 		fout.close();
 	}
 }
@@ -2400,6 +2618,8 @@ string newTemp(){
 
 int main(int argc, char* argv[]){
 
+	ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
 	typeMap["byte"] = 1;
 	typeMap["short"] = 2;
 	typeMap["char"] = 3;
@@ -2491,7 +2711,7 @@ int main(int argc, char* argv[]){
 
 	instCount=0;
 	tempCount=0;
-	firstRun=false;
+	parsenum=1;
 	yyparse();
 
 	/*--------------------------------------------------------------*/
@@ -2509,6 +2729,7 @@ int main(int argc, char* argv[]){
 	current_ste->prev=start_ste;
 	searchAST(start_node);
 	printToCSV();
+	check_interface();
 	/* print_ste(start_ste); */
 
 	cout << classMap.size() << endl;
@@ -2520,7 +2741,7 @@ int main(int argc, char* argv[]){
 	yyin = fp;
 	instCount=0;
 	tempCount=0;
-	firstRun=true;
+	parsenum=2;
 	yyparse();
 
 	/*--------------------------------------------------------------*/
