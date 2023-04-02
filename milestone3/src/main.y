@@ -30,6 +30,7 @@
 	string handle_array_creation_Expression(NODE* );
 	int lineno;
 	string cur_class;
+	bool firstRun;
 
 	void yerror(string s)
 	{
@@ -341,7 +342,7 @@ MethodDeclarator:
 														$$ = create_node ( 5 ,"MethodDeclarator", $1, $2, $3, $4);
 														$$->ins = instCount+1;
 														bool flag=false;
-														string funcName=string($1->addr);
+														string funcName="";
 														for(auto class_ptr:classMap)
 														{
 															stme* temp=class_ptr.second;
@@ -350,13 +351,14 @@ MethodDeclarator:
 																if($1->val==temp->id)
 																{
 																	flag=true;
-																	funcName+=class_ptr.first;
+																	funcName+=class_ptr.first+".";
 																	break;
 																}
 																temp=temp->next;
 															}
 															if(flag) break;
 														}
+														funcName+=string($1->addr);
 														// funcName+=string($3->addr);
 														create_ins(0,funcName,":","","");
 														create_ins(0,"BeginFunc","","","");
@@ -369,7 +371,7 @@ MethodDeclarator:
 									$$ = create_node ( 4 ,"MethodDeclarator", $1, $2, $3);
 									$$->ins = instCount+1;
 									bool flag=false;
-									string funcName=string($1->addr);
+									string funcName="";
 									for(auto class_ptr:classMap)
 									{
 										stme* temp=class_ptr.second;
@@ -378,13 +380,14 @@ MethodDeclarator:
 											if($1->val==temp->id)
 											{
 												flag=true;
-												funcName+=class_ptr.first;
+												funcName+=class_ptr.first+".";
 												break;
 											}
 											temp=temp->next;
 										}
 										if(flag) break;
 									}
+									funcName+=string($1->addr);
 									create_ins(0,funcName,":","","");
 									create_ins(0,"BeginFunc","","","");
 								} 
@@ -393,14 +396,14 @@ MethodDeclarator:
 FormalParameterList:
 	FormalParameter	{
 						$$ = create_node(2,"Formal_Parameter_List",$1) ;
-						// $$->addr = str_to_ch(string(""+*string($1->addr).begin()));
-						// string str="";
-						// str.push_back(*string($1->addr).begin());
-						// $$->addr = str_to_ch(str);
+						$$->addr = str_to_ch(string(""+*string($1->addr).begin()));
+						string str="";
+						str.push_back(*string($1->addr).begin());
+						$$->addr = str_to_ch(str);
 					}
 |	FormalParameterList COMMA FormalParameter	{
 													$1->children.push_back($2);$1->children.push_back($3); $$ =$1 ;
-													// $$->addr=str_to_ch(string($1->addr)+string($3->addr));
+													$$->addr=str_to_ch(string($1->addr)+string($3->addr));
 												} 
 ;
 
@@ -1015,10 +1018,8 @@ ArrayAccess:
 									$$->ins = instCount+1;
 									string reg1 = newTemp();
 									create_ins(1,reg1,"*",$3->addr,"4");
-									string reg2 = newTemp();
-									create_ins(1,reg2,"+",$1->addr,reg1);
 									$$->addr = str_to_ch(newTemp());
-									create_ins(0,$$->addr,"=","*",reg2);
+									create_ins(0,string($$->addr),"=",string($1->addr)+" [ "+reg1+" ] ","");
 								}
 |	PrimaryNoNewArray LSPAR Expression RSPAR	{ $$ = create_node ( 5 ,"ArrayAccess", $1, $2, $3, $4); } 
 ;
@@ -2167,6 +2168,7 @@ char* str_to_ch(string s)
 
 void create_ins(int type,string i,string op,string arg1,string arg2)
 {
+	if(!firstRun) return;
 	vector<string> instruction{to_string(type),i,op,arg1,arg2};
 	instructions.push_back(instruction);
 	instCount += 1;
@@ -2489,10 +2491,8 @@ int main(int argc, char* argv[]){
 
 	instCount=0;
 	tempCount=0;
+	firstRun=false;
 	yyparse();
-
-	// Close the input file
-	fclose(fp);
 
 	/*--------------------------------------------------------------*/
 
@@ -2500,16 +2500,6 @@ int main(int argc, char* argv[]){
     MakeDOTFile(start_node);
     fout << "}";
 
-	// Close the output file
-    fout.close();
-
-	/*--------------------------------------------------------------*/
-
-	// Create 3AC file
-    MakeIRFile();
-
-	// Close the output file
-    code_out.close();
 
 	/*--------------------------------------------------------------*/
 
@@ -2520,5 +2510,32 @@ int main(int argc, char* argv[]){
 	searchAST(start_node);
 	printToCSV();
 	/* print_ste(start_ste); */
+
+	cout << classMap.size() << endl;
+	fp = fopen(("../tests/"+input_file).c_str(), "r");
+	if(!fp){
+		cout << "Error opening file: " << input_file << endl;
+		return 0;
+	}
+	yyin = fp;
+	instCount=0;
+	tempCount=0;
+	firstRun=true;
+	yyparse();
+
+	/*--------------------------------------------------------------*/
+
+	// Create 3AC file
+    MakeIRFile();
+
+	/*--------------------------------------------------------------*/
+
+	// Close the input file
+	fclose(fp);
+	// Close the output file
+    fout.close();
+	// Close the output file
+    code_out.close();
+
     return 0;
 }
