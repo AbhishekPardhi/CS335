@@ -7,261 +7,353 @@ digraph G{
     
     node   [ fontname="Cascadia code" ]
 
-	133		[ style = solid label = "Goal"  ];
-	133 -> 32
-	32		[ style = solid label = "Type_Declarations"  ];
-	32 -> 31
-	31		[ style = solid label = "Class_Declaration"  ];
-	31 -> 1
+	181		[ style = solid label = "Goal"  ];
+	181 -> 40
+	40		[ style = solid label = "Type_Declarations"  ];
+	40 -> 39
+	39		[ style = solid label = "Class_Declaration"  ];
+	39 -> 1
 	1		[ style = solid label = "Modifiers"  ];
 	1 -> 0
 	0		[ style = solid label = "public"  ];
-	31 -> 2
+	39 -> 2
 	2		[ style = solid label = "class"  ];
-	31 -> 3
+	39 -> 3
 	3		[ style = solid label = "MyClass"  ];
-	31 -> 30
-	30		[ style = solid label = "ClassBody"  ];
-	30 -> 4
+	39 -> 38
+	38		[ style = solid label = "ClassBody"  ];
+	38 -> 4
 	4		[ style = solid label = "{"  ];
-	30 -> 28
-	28		[ style = solid label = "Class_Body_Declarations"  ];
-	28 -> 27
-	27		[ style = solid label = "MethodDeclaration"  ];
-	27 -> 13
-	13		[ style = solid label = "MethodHeader"  ];
-	13 -> 6
+	38 -> 13
+	13		[ style = solid label = "Class_Body_Declarations"  ];
+	13 -> 12
+	12		[ style = solid label = "FieldDeclaration"  ];
+	12 -> 6
 	6		[ style = solid label = "Modifiers"  ];
 	6 -> 5
 	5		[ style = solid label = "public"  ];
-	13 -> 7
-	7		[ style = solid label = "void"  ];
-	13 -> 11
-	11		[ style = solid label = "MethodDeclarator"  ];
-	11 -> 8
-	8		[ style = solid label = "sayHello"  ];
-	11 -> 9
-	9		[ style = solid label = "("  ];
+	12 -> 7
+	7		[ style = solid label = "int"  ];
+	12 -> 11
+	11		[ style = solid label = "Variable_declarators"  ];
 	11 -> 10
-	10		[ style = solid label = ")"  ];
-	27 -> 26
-	26		[ style = solid label = "Block"  ];
-	26 -> 12
-	12		[ style = solid label = "{"  ];
-	26 -> 24
-	24		[ style = solid label = "Block_Statements"  ];
-	24 -> 23
-	23		[ style = solid label = "LocalVariableDeclarationStatement"  ];
-	23 -> 22
-	22		[ style = solid label = "LocalVariableDeclaration"  ];
-	22 -> 14
-	14		[ style = solid label = "int"  ];
-	22 -> 21
-	21		[ style = solid label = "Variable_declarators"  ];
-	21 -> 20
-	20		[ style = solid label = "="  ];
-	20 -> 16
-	16		[ style = solid label = "Variable_Declarator_Id"  ];
-	16 -> 15
-	15		[ style = solid label = "acha"  ];
+	10		[ style = solid label = "Variable_Declarator_Id"  ];
+	10 -> 8
+	8		[ style = solid label = "ankur"  ];
+	12 -> 9
+	9		[ style = solid label = ";"  ];
+	13 -> 36
+	36		[ style = solid label = "MethodDeclaration"  ];
+	36 -> 22
+	22		[ style = solid label = "MethodHeader"  ];
+	22 -> 15
+	15		[ style = solid label = "Modifiers"  ];
+	15 -> 14
+	14		[ style = solid label = "public"  ];
+	22 -> 16
+	16		[ style = solid label = "void"  ];
+	22 -> 20
+	20		[ style = solid label = "MethodDeclarator"  ];
+	20 -> 17
+	17		[ style = solid label = "sayHello"  ];
 	20 -> 18
-	18		[ style = solid label = "2"  ];
-	23 -> 19
-	19		[ style = solid label = ";"  ];
-	26 -> 25
-	25		[ style = solid label = "}"  ];
+	18		[ style = solid label = "("  ];
+	20 -> 19
+	19		[ style = solid label = ")"  ];
+	36 -> 35
+	35		[ style = solid label = "Block"  ];
+	35 -> 21
+	21		[ style = solid label = "{"  ];
+	35 -> 33
+	33		[ style = solid label = "Block_Statements"  ];
+	33 -> 32
+	32		[ style = solid label = "LocalVariableDeclarationStatement"  ];
+	32 -> 31
+	31		[ style = solid label = "LocalVariableDeclaration"  ];
+	31 -> 23
+	23		[ style = solid label = "int"  ];
+	31 -> 30
+	30		[ style = solid label = "Variable_declarators"  ];
 	30 -> 29
-	29		[ style = solid label = "}"  ];
-	32 -> 132
-	132		[ style = solid label = "Class_Declaration"  ];
-	132 -> 34
-	34		[ style = solid label = "Modifiers"  ];
-	34 -> 33
-	33		[ style = solid label = "public"  ];
-	132 -> 35
-	35		[ style = solid label = "class"  ];
-	132 -> 36
-	36		[ style = solid label = "ExampleExpression"  ];
-	132 -> 131
-	131		[ style = solid label = "ClassBody"  ];
-	131 -> 37
-	37		[ style = solid label = "{"  ];
-	131 -> 63
-	63		[ style = solid label = "Class_Body_Declarations"  ];
-	63 -> 62
-	62		[ style = solid label = "MethodDeclaration"  ];
-	62 -> 52
-	52		[ style = solid label = "MethodHeader"  ];
-	52 -> 39
-	39		[ style = solid label = "Modifiers"  ];
-	39 -> 38
-	38		[ style = solid label = "public"  ];
-	39 -> 40
-	40		[ style = solid label = "static"  ];
-	52 -> 41
-	41		[ style = solid label = "int"  ];
-	52 -> 50
-	50		[ style = solid label = "MethodDeclarator"  ];
-	50 -> 42
-	42		[ style = solid label = "something"  ];
-	50 -> 43
-	43		[ style = solid label = "("  ];
-	50 -> 49
-	49		[ style = solid label = "Formal_Parameter_List"  ];
-	49 -> 48
-	48		[ style = solid label = "FormalParameter"  ];
-	48 -> 44
-	44		[ style = solid label = "int"  ];
-	48 -> 46
-	46		[ style = solid label = "Variable_Declarator_Id"  ];
-	46 -> 45
-	45		[ style = solid label = "a"  ];
-	50 -> 47
-	47		[ style = solid label = ")"  ];
-	62 -> 61
-	61		[ style = solid label = "Block"  ];
-	61 -> 51
-	51		[ style = solid label = "{"  ];
-	61 -> 59
-	59		[ style = solid label = "Block_Statements"  ];
-	59 -> 58
-	58		[ style = solid label = "ReturnStatement"  ];
-	58 -> 53
-	53		[ style = solid label = "return"  ];
-	58 -> 56
-	56		[ style = solid label = "++"  ];
-	56 -> 54
-	54		[ style = solid label = "a"  ];
+	29		[ style = solid label = "="  ];
+	29 -> 25
+	25		[ style = solid label = "Variable_Declarator_Id"  ];
+	25 -> 24
+	24		[ style = solid label = "acha"  ];
+	29 -> 27
+	27		[ style = solid label = "2"  ];
+	32 -> 28
+	28		[ style = solid label = ";"  ];
+	35 -> 34
+	34		[ style = solid label = "}"  ];
+	38 -> 37
+	37		[ style = solid label = "}"  ];
+	40 -> 180
+	180		[ style = solid label = "Class_Declaration"  ];
+	180 -> 42
+	42		[ style = solid label = "Modifiers"  ];
+	42 -> 41
+	41		[ style = solid label = "public"  ];
+	180 -> 43
+	43		[ style = solid label = "class"  ];
+	180 -> 44
+	44		[ style = solid label = "ExampleExpression"  ];
+	180 -> 179
+	179		[ style = solid label = "ClassBody"  ];
+	179 -> 45
+	45		[ style = solid label = "{"  ];
+	179 -> 71
+	71		[ style = solid label = "Class_Body_Declarations"  ];
+	71 -> 70
+	70		[ style = solid label = "MethodDeclaration"  ];
+	70 -> 60
+	60		[ style = solid label = "MethodHeader"  ];
+	60 -> 47
+	47		[ style = solid label = "Modifiers"  ];
+	47 -> 46
+	46		[ style = solid label = "public"  ];
+	47 -> 48
+	48		[ style = solid label = "static"  ];
+	60 -> 49
+	49		[ style = solid label = "int"  ];
+	60 -> 58
+	58		[ style = solid label = "MethodDeclarator"  ];
+	58 -> 50
+	50		[ style = solid label = "something"  ];
+	58 -> 51
+	51		[ style = solid label = "("  ];
 	58 -> 57
-	57		[ style = solid label = ";"  ];
-	61 -> 60
-	60		[ style = solid label = "}"  ];
-	63 -> 129
-	129		[ style = solid label = "MethodDeclaration"  ];
-	129 -> 81
-	81		[ style = solid label = "MethodHeader"  ];
-	81 -> 65
-	65		[ style = solid label = "Modifiers"  ];
-	65 -> 64
-	64		[ style = solid label = "public"  ];
-	65 -> 66
-	66		[ style = solid label = "static"  ];
-	81 -> 67
-	67		[ style = solid label = "void"  ];
-	81 -> 79
-	79		[ style = solid label = "MethodDeclarator"  ];
-	79 -> 68
-	68		[ style = solid label = "main"  ];
-	79 -> 69
-	69		[ style = solid label = "("  ];
-	79 -> 78
-	78		[ style = solid label = "Formal_Parameter_List"  ];
-	78 -> 77
-	77		[ style = solid label = "FormalParameter"  ];
-	77 -> 73
-	73		[ style = solid label = "Array_Type"  ];
-	73 -> 70
-	70		[ style = solid label = "String"  ];
-	73 -> 71
-	71		[ style = solid label = "["  ];
+	57		[ style = solid label = "Formal_Parameter_List"  ];
+	57 -> 56
+	56		[ style = solid label = "FormalParameter"  ];
+	56 -> 52
+	52		[ style = solid label = "int"  ];
+	56 -> 54
+	54		[ style = solid label = "Variable_Declarator_Id"  ];
+	54 -> 53
+	53		[ style = solid label = "a"  ];
+	58 -> 55
+	55		[ style = solid label = ")"  ];
+	70 -> 69
+	69		[ style = solid label = "Block"  ];
+	69 -> 59
+	59		[ style = solid label = "{"  ];
+	69 -> 67
+	67		[ style = solid label = "Block_Statements"  ];
+	67 -> 66
+	66		[ style = solid label = "ReturnStatement"  ];
+	66 -> 61
+	61		[ style = solid label = "return"  ];
+	66 -> 64
+	64		[ style = solid label = "++"  ];
+	64 -> 62
+	62		[ style = solid label = "a"  ];
+	66 -> 65
+	65		[ style = solid label = ";"  ];
+	69 -> 68
+	68		[ style = solid label = "}"  ];
+	71 -> 177
+	177		[ style = solid label = "MethodDeclaration"  ];
+	177 -> 89
+	89		[ style = solid label = "MethodHeader"  ];
+	89 -> 73
+	73		[ style = solid label = "Modifiers"  ];
 	73 -> 72
-	72		[ style = solid label = "]"  ];
-	77 -> 75
-	75		[ style = solid label = "Variable_Declarator_Id"  ];
-	75 -> 74
-	74		[ style = solid label = "args"  ];
-	79 -> 76
-	76		[ style = solid label = ")"  ];
-	129 -> 128
-	128		[ style = solid label = "Block"  ];
-	128 -> 80
-	80		[ style = solid label = "{"  ];
-	128 -> 92
-	92		[ style = solid label = "Block_Statements"  ];
+	72		[ style = solid label = "public"  ];
+	73 -> 74
+	74		[ style = solid label = "static"  ];
+	89 -> 75
+	75		[ style = solid label = "void"  ];
+	89 -> 87
+	87		[ style = solid label = "MethodDeclarator"  ];
+	87 -> 76
+	76		[ style = solid label = "main"  ];
+	87 -> 77
+	77		[ style = solid label = "("  ];
+	87 -> 86
+	86		[ style = solid label = "Formal_Parameter_List"  ];
+	86 -> 85
+	85		[ style = solid label = "FormalParameter"  ];
+	85 -> 81
+	81		[ style = solid label = "Array_Type"  ];
+	81 -> 78
+	78		[ style = solid label = "String"  ];
+	81 -> 79
+	79		[ style = solid label = "["  ];
+	81 -> 80
+	80		[ style = solid label = "]"  ];
+	85 -> 83
+	83		[ style = solid label = "Variable_Declarator_Id"  ];
+	83 -> 82
+	82		[ style = solid label = "args"  ];
+	87 -> 84
+	84		[ style = solid label = ")"  ];
+	177 -> 176
+	176		[ style = solid label = "Block"  ];
+	176 -> 88
+	88		[ style = solid label = "{"  ];
+	176 -> 100
+	100		[ style = solid label = "Block_Statements"  ];
+	100 -> 99
+	99		[ style = solid label = "LocalVariableDeclarationStatement"  ];
+	99 -> 98
+	98		[ style = solid label = "LocalVariableDeclaration"  ];
+	98 -> 90
+	90		[ style = solid label = "int"  ];
+	98 -> 97
+	97		[ style = solid label = "Variable_declarators"  ];
+	97 -> 96
+	96		[ style = solid label = "="  ];
+	96 -> 92
+	92		[ style = solid label = "Variable_Declarator_Id"  ];
 	92 -> 91
-	91		[ style = solid label = "LocalVariableDeclarationStatement"  ];
-	91 -> 90
-	90		[ style = solid label = "LocalVariableDeclaration"  ];
-	90 -> 82
-	82		[ style = solid label = "int"  ];
-	90 -> 89
-	89		[ style = solid label = "Variable_declarators"  ];
-	89 -> 88
-	88		[ style = solid label = "="  ];
-	88 -> 84
-	84		[ style = solid label = "Variable_Declarator_Id"  ];
-	84 -> 83
-	83		[ style = solid label = "x"  ];
-	88 -> 86
-	86		[ style = solid label = "0"  ];
-	91 -> 87
-	87		[ style = solid label = ";"  ];
-	92 -> 111
-	111		[ style = solid label = "LocalVariableDeclarationStatement"  ];
-	111 -> 110
-	110		[ style = solid label = "LocalVariableDeclaration"  ];
-	110 -> 93
-	93		[ style = solid label = "int"  ];
-	110 -> 109
-	109		[ style = solid label = "Variable_declarators"  ];
-	109 -> 108
-	108		[ style = solid label = "="  ];
-	108 -> 95
-	95		[ style = solid label = "Variable_Declarator_Id"  ];
-	95 -> 94
-	94		[ style = solid label = "arr"  ];
-	95 -> 96
-	96		[ style = solid label = "["  ];
-	95 -> 97
-	97		[ style = solid label = "]"  ];
-	108 -> 107
-	107		[ style = solid label = "ArrayCreationExpression"  ];
-	107 -> 99
-	99		[ style = solid label = "new"  ];
-	107 -> 100
-	100		[ style = solid label = "int"  ];
-	107 -> 105
-	105		[ style = solid label = "Dim_Expers"  ];
-	105 -> 104
-	104		[ style = solid label = "Dim_Expr"  ];
-	104 -> 101
-	101		[ style = solid label = "["  ];
-	104 -> 102
-	102		[ style = solid label = "3"  ];
-	104 -> 103
-	103		[ style = solid label = "]"  ];
-	111 -> 106
-	106		[ style = solid label = ";"  ];
-	92 -> 126
-	126		[ style = solid label = "ExpressionStatement"  ];
-	126 -> 125
-	125		[ style = solid label = "="  ];
-	125 -> 112
-	112		[ style = solid label = "x"  ];
-	125 -> 123
-	123		[ style = solid label = "MethodInvocation"  ];
-	123 -> 114
-	114		[ style = solid label = "something"  ];
-	123 -> 115
-	115		[ style = solid label = "("  ];
-	123 -> 122
-	122		[ style = solid label = "Argument_List"  ];
-	122 -> 120
-	120		[ style = solid label = "ArrayAccess"  ];
-	120 -> 116
-	116		[ style = solid label = "arr"  ];
-	120 -> 117
-	117		[ style = solid label = "["  ];
-	120 -> 118
-	118		[ style = solid label = "2"  ];
-	120 -> 119
-	119		[ style = solid label = "]"  ];
-	123 -> 121
-	121		[ style = solid label = ")"  ];
-	126 -> 124
-	124		[ style = solid label = ";"  ];
-	128 -> 127
-	127		[ style = solid label = "}"  ];
+	91		[ style = solid label = "x"  ];
+	96 -> 94
+	94		[ style = solid label = "0"  ];
+	99 -> 95
+	95		[ style = solid label = ";"  ];
+	100 -> 119
+	119		[ style = solid label = "LocalVariableDeclarationStatement"  ];
+	119 -> 118
+	118		[ style = solid label = "LocalVariableDeclaration"  ];
+	118 -> 101
+	101		[ style = solid label = "int"  ];
+	118 -> 117
+	117		[ style = solid label = "Variable_declarators"  ];
+	117 -> 116
+	116		[ style = solid label = "="  ];
+	116 -> 103
+	103		[ style = solid label = "Variable_Declarator_Id"  ];
+	103 -> 102
+	102		[ style = solid label = "arr"  ];
+	103 -> 104
+	104		[ style = solid label = "["  ];
+	103 -> 105
+	105		[ style = solid label = "]"  ];
+	116 -> 115
+	115		[ style = solid label = "ArrayCreationExpression"  ];
+	115 -> 107
+	107		[ style = solid label = "new"  ];
+	115 -> 108
+	108		[ style = solid label = "int"  ];
+	115 -> 113
+	113		[ style = solid label = "Dim_Expers"  ];
+	113 -> 112
+	112		[ style = solid label = "Dim_Expr"  ];
+	112 -> 109
+	109		[ style = solid label = "["  ];
+	112 -> 110
+	110		[ style = solid label = "3"  ];
+	112 -> 111
+	111		[ style = solid label = "]"  ];
+	119 -> 114
+	114		[ style = solid label = ";"  ];
+	100 -> 134
+	134		[ style = solid label = "ExpressionStatement"  ];
+	134 -> 133
+	133		[ style = solid label = "="  ];
+	133 -> 120
+	120		[ style = solid label = "x"  ];
+	133 -> 131
+	131		[ style = solid label = "MethodInvocation"  ];
+	131 -> 122
+	122		[ style = solid label = "something"  ];
+	131 -> 123
+	123		[ style = solid label = "("  ];
 	131 -> 130
-	130		[ style = solid label = "}"  ];
+	130		[ style = solid label = "Argument_List"  ];
+	130 -> 128
+	128		[ style = solid label = "ArrayAccess"  ];
+	128 -> 124
+	124		[ style = solid label = "arr"  ];
+	128 -> 125
+	125		[ style = solid label = "["  ];
+	128 -> 126
+	126		[ style = solid label = "2"  ];
+	128 -> 127
+	127		[ style = solid label = "]"  ];
+	131 -> 129
+	129		[ style = solid label = ")"  ];
+	134 -> 132
+	132		[ style = solid label = ";"  ];
+	100 -> 148
+	148		[ style = solid label = "LocalVariableDeclarationStatement"  ];
+	148 -> 147
+	147		[ style = solid label = "LocalVariableDeclaration"  ];
+	147 -> 135
+	135		[ style = solid label = "MyClass"  ];
+	147 -> 146
+	146		[ style = solid label = "Variable_declarators"  ];
+	146 -> 145
+	145		[ style = solid label = "="  ];
+	145 -> 137
+	137		[ style = solid label = "Variable_Declarator_Id"  ];
+	137 -> 136
+	136		[ style = solid label = "myObject"  ];
+	145 -> 143
+	143		[ style = solid label = "ClassInstanceCreationExpression"  ];
+	143 -> 139
+	139		[ style = solid label = "new"  ];
+	143 -> 140
+	140		[ style = solid label = "MyClass"  ];
+	143 -> 141
+	141		[ style = solid label = "("  ];
+	143 -> 142
+	142		[ style = solid label = ")"  ];
+	148 -> 144
+	144		[ style = solid label = ";"  ];
+	100 -> 157
+	157		[ style = solid label = "ExpressionStatement"  ];
+	157 -> 156
+	156		[ style = solid label = "="  ];
+	156 -> 152
+	152		[ style = solid label = "Qualified_Name"  ];
+	152 -> 149
+	149		[ style = solid label = "myObject"  ];
+	152 -> 150
+	150		[ style = solid label = "."  ];
+	152 -> 151
+	151		[ style = solid label = "ankur"  ];
+	156 -> 154
+	154		[ style = solid label = "0"  ];
+	157 -> 155
+	155		[ style = solid label = ";"  ];
+	100 -> 174
+	174		[ style = solid label = "ExpressionStatement"  ];
+	174 -> 172
+	172		[ style = solid label = "MethodInvocation"  ];
+	172 -> 164
+	164		[ style = solid label = "Qualified_Name"  ];
+	164 -> 161
+	161		[ style = solid label = "Qualified_Name"  ];
+	161 -> 158
+	158		[ style = solid label = "System"  ];
+	161 -> 159
+	159		[ style = solid label = "."  ];
+	161 -> 160
+	160		[ style = solid label = "out"  ];
+	164 -> 162
+	162		[ style = solid label = "."  ];
+	164 -> 163
+	163		[ style = solid label = "println"  ];
+	172 -> 165
+	165		[ style = solid label = "("  ];
+	172 -> 171
+	171		[ style = solid label = "Argument_List"  ];
+	171 -> 169
+	169		[ style = solid label = "Qualified_Name"  ];
+	169 -> 166
+	166		[ style = solid label = "myObject"  ];
+	169 -> 167
+	167		[ style = solid label = "."  ];
+	169 -> 168
+	168		[ style = solid label = "ankur"  ];
+	172 -> 170
+	170		[ style = solid label = ")"  ];
+	174 -> 173
+	173		[ style = solid label = ";"  ];
+	176 -> 175
+	175		[ style = solid label = "}"  ];
+	179 -> 178
+	178		[ style = solid label = "}"  ];
 }
