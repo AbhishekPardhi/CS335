@@ -1,1 +1,2 @@
-offset
+->offset: class obj , this
+->seg fault : handle_expression
