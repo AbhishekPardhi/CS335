@@ -1,5 +1,0 @@
-Function name:,Return Type, Number of Parameters ,Lexeme,Type,Line Number,Token
-main,void,1,,,,
-,,,args,String[],11,IDENTIFIER
-,,,x,int,12,IDENTIFIER
-,,,arr,int[],13,IDENTIFIER
