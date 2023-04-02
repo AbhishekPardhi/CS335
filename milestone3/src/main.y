@@ -164,6 +164,14 @@ QualifiedName:
 	Name DOT IDENTIFIER	{
 							$$ = create_node ( 4 ,"Qualified_Name", $1, $2, $3);
 							$$->addr = str_to_ch(string($1->addr)+string($3->addr));
+							$$->ins = instCount+1;
+							string reg1 = newTemp();
+							create_ins(0,reg1,"=","symtable("+string($1->addr)+","+string($3->addr)+")","");
+							// find offset
+							string reg2 = newTemp();
+							create_ins(1,reg2,"+",string($1->addr),reg1);
+							$$->addr = str_to_ch(newTemp());
+							create_ins(0,string($$->addr),"=","*",reg2);
 						} 
 ;
 
@@ -914,6 +922,16 @@ PrimaryNoNewArray:
 ClassInstanceCreationExpression:
 	NEW ClassType LPAREN ArgumentList RPAREN	{
 													$$ = create_node ( 6 ,"ClassInstanceCreationExpression", $1, $2, $3, $4, $5);
+													$$->ins = instCount+1;
+													// offset
+													string reg1 = newTemp();
+													create_ins(0,reg1,"=","offset","");
+													create_ins(0,"PushParam",reg1,"","");
+													create_ins(0,"stackpointer","+xxx","","");
+													create_ins(0,"call","allocmem","1","");
+													create_ins(0,"stackpointer","-yyy","","");
+													$$->addr = str_to_ch(newTemp());
+													create_ins(0,string($$->addr),"=","popparam","");
 												} 
 |	NEW ClassType LPAREN RPAREN	{
 									$$ = create_node ( 5 ,"ClassInstanceCreationExpression", $1, $2, $3, $4);
@@ -927,13 +945,13 @@ ArgumentList:
 					$$ = create_node(2,"Argument_List",$1) ;
 					$$->ins = instCount+1;
 					create_ins(0,"PushParam",$1->addr,"","");
-					$$->addr = str_to_ch(to_string(4));
+					$$->addr = str_to_ch(to_string(1));
 				}
 |	ArgumentList COMMA Expression	{
 										$1->children.push_back($2);
 										$1->children.push_back($3);
 										$$ =$1;
-										$$->addr = str_to_ch(string(to_string(stoi(string($1->addr))+1)));
+										$$->addr = str_to_ch(to_string(stoi(string($1->addr))+1));
 									}
 ;
 
@@ -984,7 +1002,6 @@ MethodInvocation:
 							$$->ins = instCount+1;
 							$$->addr = str_to_ch(newTemp());
 							create_ins(0,$$->addr,"=","call",$1->addr);
-							create_ins(0,"PopParam",$3->addr,"","");
 						} 
 |	Primary DOT IDENTIFIER LPAREN ArgumentList RPAREN	{
 															$$ = create_node ( 7 ,"MethodInvocation", $1, $2, $3, $4, $5, $6);

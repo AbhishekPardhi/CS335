@@ -14,3 +14,4 @@ Type casting
 (lite) print statements
 break(done), continue(remaining)
 Print statement
+Get offset for qulaified name
