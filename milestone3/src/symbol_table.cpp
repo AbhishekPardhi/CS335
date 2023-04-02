@@ -65,20 +65,15 @@ int getOffset(string type, vector < int > dims ){
     typeSize["double"] = 8;
     typeSize["boolean"] = 1;
     typeSize["char"] = 2;
-
     typeSize["void"] = 0;
+    typeSize["ptr"] = 4;
 
     while(type[type.size()-1]==']'){
         type = type.substr(0,type.size()-2);
     }
 
-    if(dims.size()!=0){
-        int size = 1;
-        for(int i=0;i<dims.size();i++){
-            size *= dims[i];
-        }
-        return size*typeSize[type]-typeSize[type];
-    }
+    if (typeSize.find(type)==typeSize.end())
+        return typeSize["ptr"];
 
     return typeSize[type];
 }

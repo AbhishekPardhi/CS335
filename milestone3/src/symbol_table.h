@@ -15,6 +15,7 @@ typedef struct symbol_table_entry{
 typedef struct symbol_table_map_entry {
     ste* entry;
     string return_type,id;
+    vector<string> implements;
     int num_params;
     struct symbol_table_map_entry * next;
 } stme;

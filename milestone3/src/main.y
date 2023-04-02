@@ -37,6 +37,7 @@
     NODE *start_node;
 	ste* start_ste = new ste;
 	ste * current_ste = start_ste;
+	int parsenum;
 
 	void yerror(string s)
 	{
@@ -250,7 +251,7 @@ Super:
 ;
 
 Interfaces:
-	IMPLEMENTS InterfaceTypeList	{ $$ = create_node ( 3 ,"Interfaces", $1, $2); } 
+	IMPLEMENTS InterfaceTypeList	{ $$ = create_node ( 3 ,"Interfaces", $1, $2);} 
 ;
 
 InterfaceTypeList:
@@ -1784,6 +1785,13 @@ string handle_class_declaration( NODE * node){
 			cur_class=class_name;
 			classMap[cur_class]= new stme;
 		}
+		else if (node_val=="Interfaces")
+		{
+			for (auto interface_child : node->children[i]->children[1]->children)
+			{
+				classMap[cur_class]->implements.push_back(interface_child->val);
+			}
+		}
 	}
 
 	return "";
@@ -2412,6 +2420,56 @@ void ParameterSymtable(NODE* param_node)
 	insert_var_id(var_node,type);
 }
 
+void check_interface()
+{
+	for (auto class_ = classMap.begin();class_!=classMap.end(); class_++)
+	{
+		if(class_->first=="") continue;
+		stme* class_mem=class_->second;
+		while(class_mem->next!=NULL) class_mem=class_mem->next;
+		if (class_mem==NULL) cout<<"no";
+		if (class_mem->implements.size()==0) continue;
+		for (auto implement_class : class_mem->implements)
+		{
+			if (classMap.find(implement_class)==classMap.end())
+			{
+				lineno=class_mem->entry->lineno;
+				string e_message= "Error: Interface "+ implement_class+ " not found";
+				yerror(e_message);
+			}
+			stme* interface_mem=classMap[implement_class];
+			while(interface_mem->next!=NULL) {
+				if (interface_mem->num_params==-1)
+				{
+					interface_mem=interface_mem->next;
+					continue;
+				}
+				stme* match=lookupFunction(classMap[class_->first],interface_mem->id);
+				if (match==NULL){
+					lineno=interface_mem->entry->lineno;
+					string e_message= "Error: Method "+ (string) interface_mem->id+ " not found in interface "+implement_class;
+					yerror(e_message);
+				}
+
+				ste* match_entry=match->entry;
+				ste* member_entry=interface_mem->entry;
+				for (int i=0;i<interface_mem->num_params;i++)
+				{
+					if (match_entry->type!=member_entry->type)
+					{
+						lineno=match_entry->lineno;
+						string e_message= "Error: Method "+match->id+" has "+ (string) match_entry->lexeme+ " contradicting type from interface "+implement_class;
+						yerror(e_message);
+					}
+					match_entry=match_entry->next;
+					member_entry=member_entry->next;
+				}
+				interface_mem=interface_mem->next;
+			}
+		} 
+	}
+}
+
 void MakeDOTFile(NODE*cell)
 {
     if(!cell)
@@ -2540,6 +2598,8 @@ string newTemp(){
 
 int main(int argc, char* argv[]){
 
+	ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
 	typeMap["byte"] = 1;
 	typeMap["short"] = 2;
 	typeMap["char"] = 3;
@@ -2631,10 +2691,17 @@ int main(int argc, char* argv[]){
 
 	instCount=0;
 	tempCount=0;
+	parsenum=1;
+	yyparse();
+	parsenum=2;
+	FILE* fp2 = fopen(("../tests/"+input_file).c_str(), "r");
+	yyin = fp2;
+	yylineno=1;
 	yyparse();
 
 	// Close the input file
 	fclose(fp);
+	fclose(fp2);
 
 	/*--------------------------------------------------------------*/
 
@@ -2648,7 +2715,7 @@ int main(int argc, char* argv[]){
 	/*--------------------------------------------------------------*/
 
 	// Create 3AC file
-    MakeIRFile();
+    /* MakeIRFile(); */
 
 	// Close the output file
     code_out.close();
@@ -2661,6 +2728,7 @@ int main(int argc, char* argv[]){
 	current_ste->prev=start_ste;
 	searchAST(start_node);
 	printToCSV();
-	/* print_ste(start_ste); */
+	check_interface();
+	print_ste(start_ste);
     return 0;
 }
