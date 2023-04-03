@@ -1524,7 +1524,7 @@ ste* insert_var_id(NODE * node,string type)
 	ste* new_ste= new ste;
 
 
-	if (lookup(current_ste,var_name)==NULL){
+	if (lookup(current_ste,var_name)==NULL || lookup(current_ste,var_name)->class_entry!=NULL){
 		current_ste->lexeme=var_name;
 		current_ste->type=type;
 		current_ste->offset=offset;
@@ -2285,6 +2285,7 @@ void fieldSymTable(NODE* node)
 				field_entry->next=classMap[cur_class];
 				classMap[cur_class]=field_entry;
 				classMap[cur_class]->id=cur_class+"-"+(string)entry->lexeme;
+				entry->class_entry=field_entry;
 				
 			}
 			else if (var_id_child_val == "=")
@@ -2300,6 +2301,7 @@ void fieldSymTable(NODE* node)
 				field_entry->next=classMap[cur_class];
 				classMap[cur_class]=field_entry;
 				classMap[cur_class]->id=cur_class+"-"+(string)entry->lexeme;
+				entry->class_entry=field_entry;
 				string right_type=handle_expression(var_id_child->children[1]);
 				if (typecast(type,right_type,"=")=="Error")
 				{
@@ -2321,6 +2323,7 @@ void fieldSymTable(NODE* node)
 			field_entry->next=classMap[cur_class];
 			classMap[cur_class]=field_entry;
 			classMap[cur_class]->id=cur_class+"-"+(string)entry->lexeme;
+			entry->class_entry=field_entry;
 		}
 		else if (var_id_child_val == "=")
 		{
@@ -2332,6 +2335,7 @@ void fieldSymTable(NODE* node)
 			field_entry->next=classMap[cur_class];
 			classMap[cur_class]=field_entry;
 			classMap[cur_class]->id=cur_class+"-"+(string)entry->lexeme;
+			entry->class_entry=field_entry;
 		}
 	}
 

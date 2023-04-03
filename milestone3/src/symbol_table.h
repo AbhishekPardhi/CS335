@@ -2,6 +2,8 @@
 
 using namespace std;
 
+typedef struct symbol_table_map_entry stme;
+
 typedef struct symbol_table_entry{
     string token, lexeme, type;
     int lineno,offset;
@@ -10,6 +12,7 @@ typedef struct symbol_table_entry{
     struct symbol_table_entry* prev;
     struct symbol_table_entry* next_scope;
     struct symbol_table_entry* prev_scope;    
+    stme * class_entry;
 } ste ;
 
 typedef struct symbol_table_map_entry {
