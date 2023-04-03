@@ -2,7 +2,7 @@
 // searching Algorithm
 class FiniteAutomata {
 	
-	static int NO_OF_CHARS = 256;
+	int NO_OF_CHARS = 256;
 	static int getNextState(char[] pat, int M,
 							int state, int x)
 	{
@@ -71,8 +71,33 @@ class FiniteAutomata {
 	// Driver code
 	public static void main(String[] args)
 	{
-		char[] pat = "AABAACAADAABAAABAA";
-		char[] txt = "AABA";
+		char[] pat = new char[18];
+		pat[0] = 'A';
+		pat[1] = 'A';
+		pat[2] = 'B';
+		pat[3] = 'A';
+		pat[4] = 'A';
+		pat[5] = 'C';
+		pat[6] = 'A';
+		pat[7] = 'A';
+		pat[8] = 'D';
+		pat[9] = 'A';
+		pat[10] = 'A';
+		pat[11] = 'B';
+		pat[12] = 'A';
+		pat[13] = 'A';
+		pat[14] = 'A';
+		pat[15] = 'B';
+		pat[16] = 'A';
+		pat[17] = 'A';
+
+		char[] txt = new char[4];
+		txt[0] = 'A';
+		txt[1] = 'A';
+		txt[2] = 'B';
+		txt[3] = 'A';
+
+
 		search(txt,pat);
 	}
 }

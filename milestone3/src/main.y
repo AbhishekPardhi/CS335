@@ -1968,6 +1968,7 @@ void searchAST(NODE* node)
 		{		
 			NODE* for_statement_child = node->children[i];
 			if(i==node->children.size()-1){
+				forFlag=1;
 				searchAST(for_statement_child);
 				string for_statement_child_val = for_statement_child->children[0]->val;
 				if (for_statement_child_val!="{")
@@ -2125,7 +2126,7 @@ string handle_array_creation_Expression(NODE* node){
 					dims.push_back(atoi(dim_child->children[1]->val));
 					array_type=array_type+"[]";
 				}
-				if (handle_expression(dim_child->children[1])!="int")
+				if (typecast(handle_expression(dim_child->children[1]),"int","+")!="int")
 				{
 					string error_message="Error : array index must be an integer";
 					yerror(error_message);
@@ -2162,7 +2163,7 @@ string handle_array_access(NODE* node){
 		string error_message="Error : "+first_child_val+" is not an array";
 		yerror(error_message);
 	}
-	if (handle_expression(node->children[2])!="int")
+	if (typecast(handle_expression(node->children[2]),"int","+")!="int")
 	{
 		string error_message="Error : array index must be an integer";
 		yerror(error_message);
@@ -3054,7 +3055,7 @@ int main(int argc, char* argv[]){
 	classoffset();
 	printToCSV();
 	current_ste=start_ste->next;
-	/* print_ste(start_ste); */
+	print_ste(start_ste);
 	fp = fopen(("../tests/"+input_file).c_str(), "r");
 	if(!fp){
 		cout << "Error opening file: " << input_file << endl;
