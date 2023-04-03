@@ -24,4 +24,6 @@ class Main {
     obj.square(obj.add(15, 9));
 
   }
+  int s;
+  int t;
 }

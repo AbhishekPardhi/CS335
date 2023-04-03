@@ -23,14 +23,14 @@ class MergeSort {
 		// Initial index of merged subarray array
 		int k = l;
 		while (i < n1 && j < n2) {
-			if (L[i] <= R[j]) {
-				arr[k] = L[i];
-				i++;
-			}
-			else {
-				arr[k] = R[j];
-				j++;
-			}
+			// if (L[i] <= R[j]) {
+			// 	arr[k] = L[i];
+			// 	i++;
+			// }
+			// else {
+			// 	arr[k] = R[j];
+			// 	j++;
+			// }
 			k++;
 		}
 

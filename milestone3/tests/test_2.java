@@ -8,13 +8,16 @@ interface Polygon {
 // implement the Polygon interface
 class Rectangle implements Polygon {
 
-  int dim;
+  int no;
   // implementation of abstract method
   public void getArea(int length, int breadth) {
     System.out.println("The area of the rectangle is " + (length * breadth));
-    this.dim = 2;
-    this.getArea(1,2);
   }  
+  int dim;
+  Rectangle(int s){
+    this.dim = s;
+    int x = 20;
+  }
 }
 
 class Main {

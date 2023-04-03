@@ -42,6 +42,7 @@
 
 	void yerror(string s)
 	{
+		print_ste(start_ste);
 		cout<<s<<" at line number "<<lineno<<endl;
 		exit(1);
 	}
@@ -62,6 +63,7 @@
 
 	int forFlag = 0;
 	int offset = 0;
+	int scopeFlag=0; // 1 if lmpara needs to skip else 0
 	unordered_map <string,stme*> classMap;	
 
 	unordered_map <string, int> typeMap;
@@ -73,13 +75,13 @@
 }
 
 %token <elem>  BITWISE_AND BITWISE_OR COMMA FINALLY LPAREN RPAREN IDENTIFIER EQUALS DOT CLASS PUBLIC PRIVATE SEMICOLON COLON OR RETURN TRY SYNCHRONIZED THROW BREAK CONTINUE CATCH FINAL IF ELSE WHILE FOR LSPAR RSPAR TIMES_EQUALS DIVIDE_EQUALS MOD_EQUALS PLUS_EQUALS MINUS_EQUALS LEFT_SHIFT_EQUALS RIGHT_SHIFT_EQUALS UNSIGNED_RIGHT_SHIFT_EQUALS AND_EQUALS XOR_EQUALS OR_EQUALS QUESTION NOT_EQUALS LT GT LE GE INSTANCEOF AND XOR PLUS MINUS TIMES DIVIDE MOD PLUS_PLUS MINUS_MINUS TILDE THIS SUPER INT LONG SHORT BYTE CHAR IMPLEMENTS FLOAT DOUBLE BOOLEAN VOID NOT EXTENDS RMPARA LMPARA STATIC LEFT_SHIFT RIGHT_SHIFT UNSIGNED_RIGHT_SHIFT NULL_LITERAL CHAR_LITERAL STRING_LITERAL TEXTBLOCK_LITERAL FLOAT_LITERAL INTEGER_LITERAL BOOLEAN_LITERAL THROWS NEW IMPORT PACKAGE INTERFACE EQUALS_EQUALS 
-%type <elem> Goal CompilationUnit Type PrimitiveType NumericType IntegralType FloatingPointType ReferenceType ClassOrInterfaceType ClassType InterfaceType ArrayType Name SimpleName QualifiedName ImportDeclarations TypeDeclarations PackageDeclaration ImportDeclaration TypeDeclaration Modifiers Modifier ClassDeclaration Super Interfaces ClassBody ClassBodyDeclarations ClassBodyDeclaration ClassMemberDeclaration FieldDeclaration VariableDeclarators VariableDeclarator VariableDeclaratorId VariableInitializer MethodDeclaration MethodHeader MethodDeclarator FormalParameterList Throws ClassTypeList MethodBody StaticInitializer ConstructorDeclaration ConstructorDeclarator ConstructorBody InterfaceDeclaration Expression ArrayInitializer FormalParameter Block SingleTypeImportDeclaration TypeImportOnDemandDeclaration AssignmentExpression ConditionalExpression Assignment ConditionalOrExpression LeftHandSide ConditionalAndExpression InclusiveOrExpression ExclusiveOrExpression AndExpression EqualityExpression RelationalExpression ShiftExpression AdditiveExpression MultiplicativeExpression UnaryExpression PreIncrementExpression PreDecrementExpression UnaryExpressionNotPlusMinus PostIncrementExpression PostDecrementExpression CastExpression Primary PrimaryNoNewArray ArrayCreationExpression ArrayAccess FieldAccess MethodInvocation ClassInstanceCreationExpression ArgumentList PostfixExpression InterfaceTypeList ExplicitConstructorInvocation InterfaceBody InterfaceMemberDeclarations InterfaceMemberDeclaration ConstantDeclaration AbstractMethodDeclaration ExtendsInterfaces AssignmentOperator Dims DimExprs DimExpr VariableInitializers BlockStatements BlockStatement LocalVariableDeclarationStatement Statement StatementNoShortIf StatementWithoutTrailingSubstatement IfThenStatement IfThenElseStatement IfThenElseStatementNoShortIf WhileStatement WhileStatementNoShortIf ForStatement ForStatementNoShortIf ForInit ForUpdate StatementExpression StatementExpressionList LocalVariableDeclaration EmptyStatement LabeledStatement ExpressionStatement BreakStatement ContinueStatement ReturnStatement ThrowStatement SynchronizedStatement TryStatement Catches CatchClause Finally LabeledStatementNoShortIf Else
+%type <elem> for lmpara rmpara Goal CompilationUnit Type PrimitiveType NumericType IntegralType FloatingPointType ReferenceType ClassOrInterfaceType ClassType InterfaceType ArrayType Name SimpleName QualifiedName ImportDeclarations TypeDeclarations PackageDeclaration ImportDeclaration TypeDeclaration Modifiers Modifier ClassDeclaration Super Interfaces ClassBody ClassBodyDeclarations ClassBodyDeclaration ClassMemberDeclaration FieldDeclaration VariableDeclarators VariableDeclarator VariableDeclaratorId VariableInitializer MethodDeclaration MethodHeader MethodDeclarator FormalParameterList Throws ClassTypeList MethodBody StaticInitializer ConstructorDeclaration ConstructorDeclarator ConstructorBody InterfaceDeclaration Expression ArrayInitializer FormalParameter Block SingleTypeImportDeclaration TypeImportOnDemandDeclaration AssignmentExpression ConditionalExpression Assignment ConditionalOrExpression LeftHandSide ConditionalAndExpression InclusiveOrExpression ExclusiveOrExpression AndExpression EqualityExpression RelationalExpression ShiftExpression AdditiveExpression MultiplicativeExpression UnaryExpression PreIncrementExpression PreDecrementExpression UnaryExpressionNotPlusMinus PostIncrementExpression PostDecrementExpression CastExpression Primary PrimaryNoNewArray ArrayCreationExpression ArrayAccess FieldAccess MethodInvocation ClassInstanceCreationExpression ArgumentList PostfixExpression InterfaceTypeList ExplicitConstructorInvocation InterfaceBody InterfaceMemberDeclarations InterfaceMemberDeclaration ConstantDeclaration AbstractMethodDeclaration ExtendsInterfaces AssignmentOperator Dims DimExprs DimExpr VariableInitializers BlockStatements BlockStatement LocalVariableDeclarationStatement Statement StatementNoShortIf StatementWithoutTrailingSubstatement IfThenStatement IfThenElseStatement IfThenElseStatementNoShortIf WhileStatement WhileStatementNoShortIf ForStatement ForStatementNoShortIf ForInit ForUpdate StatementExpression StatementExpressionList LocalVariableDeclaration EmptyStatement LabeledStatement ExpressionStatement BreakStatement ContinueStatement ReturnStatement ThrowStatement SynchronizedStatement TryStatement Catches CatchClause Finally LabeledStatementNoShortIf Else
 
 %%
 // Grammer
 // Start
 Goal:
-	CompilationUnit	{ $$ = create_node ( 2 ,"Goal", $1); start_node=$$; } 
+	CompilationUnit	{ $$ = create_node ( 2 ,"Goal", $1); start_node=$$;}
 ;
 
 Type:
@@ -255,6 +257,14 @@ ClassDeclaration:
 											}
 ;
 
+lmpara:
+	LMPARA	{ $$ = $1; if (parsenum==2 && scopeFlag==0) {cout<<"branch "<<current_ste->type<<endl;branch.push(current_ste);current_ste=current_ste->next_scope;} scopeFlag=0;}
+;
+
+rmpara:
+	RMPARA	{ $$ = $1; if (parsenum==2 && forFlag==0) {cout<<"end--branch "<<branch.top()->type<<endl; current_ste=branch.top(); branch.pop();}}
+;
+
 Super:
 	EXTENDS ClassType	{ $$ = create_node ( 3 ,"Super", $1, $2); } 
 ;
@@ -269,13 +279,13 @@ InterfaceTypeList:
 ;
 
 ClassBody:
-	LMPARA ClassBodyDeclarations RMPARA	{ $$ = create_node ( 4 ,"ClassBody", $1, $2, $3); } 
-|	LMPARA RMPARA	{ $$ = create_node ( 3 ,"ClassBody", $1, $2); } 
+	lmpara ClassBodyDeclarations rmpara	{ $$ = create_node ( 4 ,"ClassBody", $1, $2, $3);if (parsenum==2){current_ste=current_ste->next;}} 
+|	lmpara rmpara	{ $$ = create_node ( 3 ,"ClassBody", $1, $2);if (parsenum==2){current_ste=current_ste->next;}} 
 ;
 
 ClassBodyDeclarations:
-	ClassBodyDeclaration	{$$ = create_node(2,"Class_Body_Declarations",$1) ; }
-|	ClassBodyDeclarations ClassBodyDeclaration	{ $1->children.push_back($2); $$ =$1 ; } 
+	ClassBodyDeclaration	{$$ = create_node(2,"Class_Body_Declarations",$1) ; if (parsenum==2) {cout<<"nextcd "<<current_ste->lexeme<<endl;}}
+|	ClassBodyDeclarations ClassBodyDeclaration	{ $1->children.push_back($2); $$ =$1 ;if (parsenum==2) {cout<<"nextcd "<<current_ste->lexeme<<endl; } } 
 ;
 
 ClassBodyDeclaration:
@@ -285,7 +295,7 @@ ClassBodyDeclaration:
 ;
 
 ClassMemberDeclaration:
-	FieldDeclaration	{ $$ = $1; }
+	FieldDeclaration	{ $$ = $1; if (parsenum==2) {current_ste=current_ste->next;} }
 |	MethodDeclaration	{ $$ = $1; }
 ;
 
@@ -295,8 +305,8 @@ FieldDeclaration:
 ;
 
 VariableDeclarators:
-	VariableDeclarator	{ $$ = create_node(2,"Variable_declarators",$1) ; }
-|	VariableDeclarators COMMA VariableDeclarator	{ $1->children.push_back($2);$1->children.push_back($3); $$ =$1 ;} 
+	VariableDeclarator	{ $$ = create_node(2,"Variable_declarators",$1) ; if(parsenum==2){ cout<<"vardec "<<current_ste->lexeme<<endl; current_ste=current_ste->next;}}
+|	VariableDeclarators COMMA VariableDeclarator	{ $1->children.push_back($2);$1->children.push_back($3); $$ =$1 ;if (parsenum==2){ cout<<"vardec "<<current_ste->lexeme<<endl; current_ste=current_ste->next; } }
 ;
 
 VariableDeclarator:
@@ -414,10 +424,25 @@ FormalParameterList:
 						string str="";
 						str.push_back(*string($1->addr).begin());
 						$$->addr = str_to_ch(str);
+						if (parsenum==2){
+							scopeFlag=1;
+							cout<<"branching "<<current_ste->type<<" "<<current_ste->lexeme <<endl;
+							branch.push(current_ste);
+							current_ste=current_ste->next_scope;
+							cout<<"FP ";
+							cout<<current_ste->lexeme<<endl;
+							current_ste=current_ste->next;
+						}
 					}
 |	FormalParameterList COMMA FormalParameter	{
 													$1->children.push_back($2);$1->children.push_back($3); $$ =$1 ;
 													$$->addr=str_to_ch(string($1->addr)+string($3->addr));
+													if (parsenum==2){
+														scopeFlag=1;
+														cout<<"FP ";
+														cout<<current_ste->lexeme<<endl;
+														current_ste=current_ste->next;
+													}
 												} 
 ;
 
@@ -464,15 +489,15 @@ ConstructorDeclaration:
 ;
 
 ConstructorDeclarator:
-	SimpleName LPAREN FormalParameterList RPAREN	{ $$ = create_node ( 5 ,"ConstructorDeclarator", $1, $2, $3, $4); } 
-|	SimpleName LPAREN RPAREN	{ $$ = create_node ( 4 ,"ConstructorDeclarator", $1, $2, $3); } 
+	SimpleName LPAREN FormalParameterList RPAREN	{ $$ = create_node ( 5 ,"ConstructorDeclarator", $1, $2, $3, $4);} 
+|	SimpleName LPAREN RPAREN	{ $$ = create_node ( 4 ,"ConstructorDeclarator", $1, $2, $3);} 
 ;
 
 ConstructorBody:
-	LMPARA ExplicitConstructorInvocation BlockStatements RMPARA	{ $$ = create_node ( 5 ,"ConstructorBody", $1, $2, $3, $4); } 
-|	LMPARA ExplicitConstructorInvocation RMPARA	{ $$ = create_node ( 4 ,"ConstructorBody", $1, $2, $3); } 
-|	LMPARA BlockStatements RMPARA	{ $$ = create_node ( 4 ,"ConstructorBody", $1, $2, $3); } 
-|	LMPARA RMPARA	{ $$ = create_node ( 3 ,"ConstructorBody", $1, $2); } 
+	lmpara ExplicitConstructorInvocation BlockStatements rmpara	{ $$ = create_node ( 5 ,"ConstructorBody", $1, $2, $3, $4); if (parsenum==2){current_ste=current_ste->next;}} 
+|	lmpara ExplicitConstructorInvocation rmpara	{ $$ = create_node ( 4 ,"ConstructorBody", $1, $2, $3); if (parsenum==2){current_ste=current_ste->next;}} 
+|	lmpara BlockStatements rmpara	{ $$ = create_node ( 4 ,"ConstructorBody", $1, $2, $3); if (parsenum==2){current_ste=current_ste->next;}} 
+|	lmpara rmpara	{ $$ = create_node ( 3 ,"ConstructorBody", $1, $2); if (parsenum==2){current_ste=current_ste->next;}} 
 ;
 
 
@@ -496,13 +521,13 @@ ExtendsInterfaces:
 ;
 
 InterfaceBody:
-	LMPARA InterfaceMemberDeclarations RMPARA	{ $$ = create_node ( 4 ,"InterfaceBody", $1, $2, $3); } 
-|	LMPARA RMPARA	{ $$ = create_node ( 3 ,"InterfaceBody", $1, $2); } 
+	lmpara InterfaceMemberDeclarations rmpara	{ $$ = create_node ( 4 ,"InterfaceBody", $1, $2, $3); if (parsenum==2){current_ste=current_ste->next;}} 
+|	lmpara rmpara	{ $$ = create_node ( 3 ,"InterfaceBody", $1, $2);if (parsenum==2){current_ste=current_ste->next;}} 
 ;
 
 InterfaceMemberDeclarations:
-	InterfaceMemberDeclaration	{$$ = create_node(2,"Interface_Member_Declarations",$1) ; }
-|	InterfaceMemberDeclarations InterfaceMemberDeclaration	{ $1->children.push_back($2); $$ =$1 ; } 
+	InterfaceMemberDeclaration	{$$ = create_node(2,"Interface_Member_Declarations",$1) ;if (parsenum==2){cout<<"intfa "<<current_ste->lexeme<<endl;current_ste=current_ste->next;}} 
+|	InterfaceMemberDeclarations InterfaceMemberDeclaration	{ $1->children.push_back($2); $$ =$1 ;if (parsenum==2){cout<<"intfa "<<current_ste->lexeme<<endl;current_ste=current_ste->next;} } 
 ;
 
 InterfaceMemberDeclaration:
@@ -515,7 +540,7 @@ ConstantDeclaration:
 ;
 
 AbstractMethodDeclaration:
-	MethodHeader SEMICOLON	{ $$ = create_node ( 3 ,"AbstractMethodDeclaration", $1, $2); } 
+	MethodHeader SEMICOLON	{ $$ = create_node ( 3 ,"AbstractMethodDeclaration", $1, $2); if (parsenum==2){cout<<"endbranch "<<branch.top()->type<<endl ;current_ste=branch.top();branch.pop(); scopeFlag=0;}} 
 ;
 
 
@@ -533,13 +558,16 @@ VariableInitializers:
 
 
 Block:
-	LMPARA BlockStatements RMPARA	{
+	lmpara BlockStatements rmpara	{
 										$$ = create_node ( 4 ,"Block", $1, $2, $3);
 										$$->ins = $2->ins;
 										$$->nextlist = $2->nextlist;
 										$$->falselist = $2->falselist;
+										if (parsenum==2) {
+											current_ste=current_ste->next;
+										}
 									} 
-|	LMPARA RMPARA	{ $$ = create_node ( 3 ,"Block", $1, $2); } 
+|	lmpara rmpara	{ $$ = create_node ( 3 ,"Block", $1, $2); } 
 ;
 
 BlockStatements:
@@ -569,7 +597,7 @@ BlockStatement:
 ;
 
 LocalVariableDeclarationStatement:
-	LocalVariableDeclaration SEMICOLON	{ $$ = create_node ( 3 ,"LocalVariableDeclarationStatement", $1, $2); $$->ins = $1->ins; } 
+	LocalVariableDeclaration SEMICOLON	{ $$ = create_node ( 3 ,"LocalVariableDeclarationStatement", $1, $2); $$->ins = $1->ins;}
 ;
 
 LocalVariableDeclaration:
@@ -665,7 +693,7 @@ IfThenElseStatementNoShortIf:
 ;
 
 WhileStatement:
-	WHILE LPAREN Expression RPAREN Statement	{
+	WHILE LPAREN Expression RPAREN Statement	{	cout<<"WhileStatement"<<endl;
 													$$ = create_node ( 6 ,"WhileStatement", $1, $2, $3, $4, $5);
 													backpatch($5->nextlist,$3->ins);
 													backpatch($3->truelist,$5->ins);
@@ -685,7 +713,7 @@ WhileStatementNoShortIf:
 ;
 
 ForStatement:
-	FOR LPAREN ForInit SEMICOLON Expression SEMICOLON ForUpdate RPAREN Statement	{
+	for LPAREN ForInit SEMICOLON Expression SEMICOLON ForUpdate RPAREN Statement	{
 																						$$ = create_node ( 10 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7, $8, $9);
 																						$$->ins = instCount+1;
 																						backpatch($9->nextlist,$7->ins); // statement,forupdate
@@ -698,16 +726,18 @@ ForStatement:
 																								}
 																						}
 																						create_ins(0,"goto",to_string($7->ins),"",""); // forupdate
+																						if (forFlag==1){scopeFlag=0;forFlag=0;cout<<"endbranch "<<branch.top()->type<<endl; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
 																					} 
-|	FOR LPAREN ForInit SEMICOLON SEMICOLON ForUpdate RPAREN Statement	{
+|	for LPAREN ForInit SEMICOLON SEMICOLON ForUpdate RPAREN Statement	{
 																			$$ = create_node ( 9 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7, $8);
 																			$$->ins = instCount+1;																																								$$->ins = instCount+1;
 																			backpatch($8->nextlist,$6->ins);
 																			backpatch($6->truelist,$8->ins);
 																			$$->nextlist = $8->nextlist;
 																			create_ins(0,"goto",to_string($6->ins),"","");
+																			if (forFlag==1){scopeFlag=0;forFlag=0;cout<<"endbranch "<<branch.top()->type<<endl; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
 																		} 
-|	FOR LPAREN SEMICOLON Expression SEMICOLON ForUpdate RPAREN Statement	{
+|	for LPAREN SEMICOLON Expression SEMICOLON ForUpdate RPAREN Statement	{
 																				$$ = create_node ( 9 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7, $8);
 																				$$->ins = instCount+1;
 																				backpatch($8->nextlist,$6->ins);
@@ -715,49 +745,55 @@ ForStatement:
 																				backpatch($6->truelist,$4->ins);
 																				$$->nextlist = $4->falselist;
 																				create_ins(0,"goto",to_string($6->ins),"","");
+																				if (forFlag==1){scopeFlag=0;forFlag=0;cout<<"endbranch "<<branch.top()->type<<endl; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
 																			} 
-|	FOR LPAREN SEMICOLON SEMICOLON ForUpdate RPAREN Statement	{
+|	for LPAREN SEMICOLON SEMICOLON ForUpdate RPAREN Statement	{
 																	$$ = create_node ( 8 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7);
 																	$$->ins = instCount+1;																																						$$->ins = instCount+1;
 																	backpatch($7->nextlist,$5->ins);
 																	backpatch($5->truelist,$7->ins);
 																	$$->nextlist = $7->nextlist;
 																	create_ins(0,"goto",to_string($5->ins),"","");
+																	if (forFlag==1){scopeFlag=0;forFlag=0;cout<<"endbranch "<<branch.top()->type<<endl; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
 																} 
-|	FOR LPAREN ForInit SEMICOLON Expression SEMICOLON RPAREN Statement	{
+|	for LPAREN ForInit SEMICOLON Expression SEMICOLON RPAREN Statement	{
 																			$$ = create_node ( 9 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7, $8);
 																			$$->ins = instCount+1;
 																			backpatch($8->nextlist,$5->ins);
 																			backpatch($5->truelist,$8->ins);
 																			$$->nextlist = merge($5->falselist,$8->nextlist);
 																			create_ins(0,"goto",to_string($5->ins),"","");
+																			if (forFlag==1){scopeFlag=0;forFlag=0;cout<<"endbranch "<<branch.top()->type<<endl; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
 																		} 
-|	FOR LPAREN ForInit SEMICOLON SEMICOLON RPAREN Statement	{
+|	for LPAREN ForInit SEMICOLON SEMICOLON RPAREN Statement	{
 																$$ = create_node ( 8 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7);
 																$$->ins = instCount+1;
 																backpatch($7->nextlist,$7->ins);
 																$$->nextlist = $7->nextlist;
 																create_ins(0,"goto",to_string($7->ins),"","");
+																if (forFlag==1){scopeFlag=0;forFlag=0;cout<<"endbranch "<<branch.top()->type<<endl; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
 															} 
-|	FOR LPAREN SEMICOLON Expression SEMICOLON RPAREN Statement	{
+|	for LPAREN SEMICOLON Expression SEMICOLON RPAREN Statement	{
 																	$$ = create_node ( 8 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7);
 																	$$->ins = instCount+1;
 																	backpatch($7->nextlist,$7->ins);
 																	backpatch($4->truelist,$7->ins);
 																	$$->nextlist = merge($4->falselist,$7->nextlist);
 																	create_ins(0,"goto",to_string($4->ins),"","");
+																	if (forFlag==1){scopeFlag=0;forFlag=0;cout<<"endbranch "<<branch.top()->type<<endl; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
 																} 
-|	FOR LPAREN SEMICOLON SEMICOLON RPAREN Statement	{
+|	for LPAREN SEMICOLON SEMICOLON RPAREN Statement	{
 														$$ = create_node ( 7 ,"ForStatement", $1, $2, $3, $4, $5, $6);
 														$$->ins = instCount+1;
 														backpatch($6->nextlist,$6->ins);
 														$$->nextlist = $6->nextlist;
 														create_ins(0,"goto",to_string($6->ins),"","");
+														if (forFlag==1){scopeFlag=0;forFlag=0;cout<<"endbranch "<<branch.top()->type<<endl; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
 													} 
 ;
 
 ForStatementNoShortIf:
-	FOR LPAREN ForInit SEMICOLON Expression SEMICOLON ForUpdate RPAREN StatementNoShortIf	{
+	for LPAREN ForInit SEMICOLON Expression SEMICOLON ForUpdate RPAREN StatementNoShortIf	{
 																								$$ = create_node ( 10 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6, $7, $8, $9);
 																								$$->ins = instCount+1;
 																								backpatch($9->nextlist,$7->ins); // statement,forupdate
@@ -765,16 +801,18 @@ ForStatementNoShortIf:
 																								backpatch($7->truelist,$5->ins); // forupdate,expression
 																								$$->nextlist = $5->falselist;    // lhs,expression
 																								create_ins(0,"goto",to_string($7->ins),"",""); // forupdate
+																								if (forFlag==1){scopeFlag=0;forFlag=0;cout<<"endbranch "<<branch.top()->type<<endl; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
 																							} 
-|	FOR LPAREN ForInit SEMICOLON SEMICOLON ForUpdate RPAREN StatementNoShortIf	{
+|	for LPAREN ForInit SEMICOLON SEMICOLON ForUpdate RPAREN StatementNoShortIf	{
 																					$$ = create_node ( 9 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6, $7, $8);
 																					$$->ins = instCount+1;																																								$$->ins = instCount+1;
 																					backpatch($8->nextlist,$6->ins);
 																					backpatch($6->truelist,$8->ins);
 																					$$->nextlist = $8->nextlist;
 																					create_ins(0,"goto",to_string($6->ins),"","");
+																					if (forFlag==1){scopeFlag=0;forFlag=0;cout<<"endbranch "<<branch.top()->type<<endl; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
 																				} 
-|	FOR LPAREN SEMICOLON Expression SEMICOLON ForUpdate RPAREN StatementNoShortIf	{
+|	for LPAREN SEMICOLON Expression SEMICOLON ForUpdate RPAREN StatementNoShortIf	{
 																						$$ = create_node ( 9 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6, $7, $8);
 																						$$->ins = instCount+1;
 																						backpatch($8->nextlist,$6->ins);
@@ -782,50 +820,60 @@ ForStatementNoShortIf:
 																						backpatch($6->truelist,$4->ins);
 																						$$->nextlist = $4->falselist;
 																						create_ins(0,"goto",to_string($6->ins),"","");
+																						if (forFlag==1){scopeFlag=0;forFlag=0;cout<<"endbranch "<<branch.top()->type<<endl; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
 																					} 
-|	FOR LPAREN SEMICOLON SEMICOLON ForUpdate RPAREN StatementNoShortIf	{
+|	for LPAREN SEMICOLON SEMICOLON ForUpdate RPAREN StatementNoShortIf	{
 																			$$ = create_node ( 8 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6, $7);
 																			$$->ins = instCount+1;																																						$$->ins = instCount+1;
 																			backpatch($7->nextlist,$5->ins);
 																			backpatch($5->truelist,$7->ins);
 																			$$->nextlist = $7->nextlist;
 																			create_ins(0,"goto",to_string($5->ins),"","");
+																			if (forFlag==1){scopeFlag=0;forFlag=0;cout<<"endbranch "<<branch.top()->type<<endl; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
 																		} 
-|	FOR LPAREN ForInit SEMICOLON Expression SEMICOLON RPAREN StatementNoShortIf	{
+|	for LPAREN ForInit SEMICOLON Expression SEMICOLON RPAREN StatementNoShortIf	{
 																					$$ = create_node ( 9 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6, $7, $8);
 																					$$->ins = instCount+1;
 																					backpatch($8->nextlist,$5->ins);
 																					backpatch($5->truelist,$8->ins);
 																					$$->nextlist = merge($5->falselist,$8->nextlist);
 																					create_ins(0,"goto",to_string($5->ins),"","");
+																					if (forFlag==1){scopeFlag=0;forFlag=0;cout<<"endbranch "<<branch.top()->type<<endl; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
 																				} 
-|	FOR LPAREN ForInit SEMICOLON SEMICOLON RPAREN StatementNoShortIf	{
+|	for LPAREN ForInit SEMICOLON SEMICOLON RPAREN StatementNoShortIf	{
 																			$$ = create_node ( 8 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6, $7);
 																			$$->ins = instCount+1;
 																			backpatch($7->nextlist,$7->ins);
 																			$$->nextlist = $7->nextlist;
 																			create_ins(0,"goto",to_string($7->ins),"","");
+																			if (forFlag==1){scopeFlag=0;forFlag=0;cout<<"endbranch "<<branch.top()->type<<endl; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
 																		} 
-|	FOR LPAREN SEMICOLON Expression SEMICOLON RPAREN StatementNoShortIf	{
+|	for LPAREN SEMICOLON Expression SEMICOLON RPAREN StatementNoShortIf	{
 																			$$ = create_node ( 8 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6, $7);
 																			$$->ins = instCount+1;
 																			backpatch($7->nextlist,$7->ins);
 																			backpatch($4->truelist,$7->ins);
 																			$$->nextlist = merge($4->falselist,$7->nextlist);
 																			create_ins(0,"goto",to_string($4->ins),"","");
+																			if (forFlag==1){scopeFlag=0;forFlag=0;cout<<"endbranch "<<branch.top()->type<<endl; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
 																		} 
-|	FOR LPAREN SEMICOLON SEMICOLON RPAREN StatementNoShortIf	{
+|	for LPAREN SEMICOLON SEMICOLON RPAREN StatementNoShortIf	{
 																	$$ = create_node ( 7 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6);
 																	$$->ins = instCount+1;
 																	backpatch($6->nextlist,$6->ins);
 																	$$->nextlist = $6->nextlist;
 																	create_ins(0,"goto",to_string($6->ins),"","");
+																	if (forFlag==1){scopeFlag=0;forFlag=0;cout<<"endbranch "<<branch.top()->type<<endl; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
 																} 
 ;
 
+for:
+	FOR {$$ = $1; if (parsenum==2){forFlag=1; scopeFlag=1;cout<<"branch "<<current_ste->type<<endl; branch.push(current_ste); current_ste=current_ste->next_scope;}}
+;
+
 ForInit:
-	StatementExpressionList	{ $$ = $1; }
-|	LocalVariableDeclaration	{ $$ = $1; }
+	StatementExpressionList	{ $$ = $1;}
+|	LocalVariableDeclaration	{ $$ = $1;}
 ;
 
 ForUpdate:
@@ -989,7 +1037,7 @@ Dims:
 ;
 
 FieldAccess:
-	Primary DOT IDENTIFIER	{ $$ = create_node ( 4 ,"FieldAccess", $1, $2, $3); } 
+	Primary DOT IDENTIFIER	{ $$ = create_node ( 4 ,"FieldAccess", $1, $2, $3); if (parsenum==2){cout<<"Fieldaces "<<current_ste->lexeme<<endl; current_ste=current_ste->next;} } 
 |	SUPER DOT IDENTIFIER	{ $$ = create_node ( 4 ,"FieldAccess", $1, $2, $3); } 
 ;
 
@@ -1688,7 +1736,7 @@ void searchAST(NODE* node)
 
 	if (temp=="{")
 	{	
-		if(temp=="{" && forFlag==1){
+		if(forFlag==1){
 			forFlag=0;
 			return;
 		}
@@ -1704,7 +1752,6 @@ void searchAST(NODE* node)
 		current_ste=new_ste;
 	}
 	else if(temp=="ForStatementNoShortIf" || temp=="ForStatement"){
-		int flag=0;
 		ste * new_ste = new ste;
 		
 		current_ste->type="branch_head";
@@ -1721,18 +1768,23 @@ void searchAST(NODE* node)
 			NODE* for_statement_child = node->children[i];
 			if(i==node->children.size()-1){
 				searchAST(for_statement_child);
-				current_ste=branch.top();
-				branch.pop();
-				ste* new_ste1 = new ste;
-				current_ste->next=new_ste1;
-				new_ste1->prev=current_ste;
-				current_ste=new_ste1;
+				string for_statement_child_val = for_statement_child->children[0]->val;
+				if (for_statement_child_val!="{")
+				{
+					current_ste=branch.top();
+					branch.pop();
+					ste* new_ste = new ste;
+					current_ste->next=new_ste;
+					new_ste->prev=current_ste;
+					current_ste=new_ste;
+				}
+				forFlag=0;
 				return;
 			}
 			string for_statement_child_val = for_statement_child->val;
 			if (for_statement_child_val == "LocalVariableDeclaration")
 			{
-				flag+=1;
+				forFlag=1;
 				searchAST(for_statement_child);
 			}
 			else if ( for_statement_child_val=="for" || for_statement_child_val=="(" || for_statement_child_val==")" || for_statement_child_val==";" ){
@@ -1743,7 +1795,6 @@ void searchAST(NODE* node)
 			}
 		}
 
-		if(flag==2) forFlag=1;
 		return;
 	}
 	else if (temp=="}")
@@ -2802,7 +2853,8 @@ int main(int argc, char* argv[]){
 	check_interface();
 	classoffset();
 	printToCSV();
-	/* print_ste(start_ste); */
+	current_ste=start_ste->next;
+	print_ste(start_ste);
 	fp = fopen(("../tests/"+input_file).c_str(), "r");
 	if(!fp){
 		cout << "Error opening file: " << input_file << endl;
