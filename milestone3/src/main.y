@@ -1422,7 +1422,7 @@ string handle_field_access(NODE* node)
 		if (lookup_stme==NULL)
 		{
 			string e_message="Error : Field " + (string) right->val + " not declared in Class "+cur_class;
-			lineno=node->lineno;
+			lineno=node->children[0]->lineno;
 			yerror(e_message);
 		}
 		else
@@ -1520,7 +1520,7 @@ ste* insert_var_id(NODE * node,string type)
 		return_ste=current_ste;
 		current_ste->next=new_ste;
 		new_ste->prev=current_ste;
-		offset += getOffset(type,current_ste->dims);
+		offset += getOffset(type);
 
 		current_ste=new_ste;
 
@@ -1868,7 +1868,7 @@ string handle_array_creation_Expression(NODE* node){
 				}
 			}
 			current_ste->prev->dims=dims;
-			offset+=getOffset(array_type,dims);
+			offset+=getOffset(array_type);
 		}
 		else if(array_child_val=="Dims"){
 			for(auto dim_child: array_child->children){
@@ -2472,6 +2472,24 @@ void ParameterSymtable(NODE* param_node)
 	insert_var_id(var_node,type);
 }
 
+void classoffset(){
+	for (auto class_pair : classMap)
+	{
+		if (class_pair.first=="") continue;
+		int class_offset=0;
+		stme* class_member= class_pair.second;
+		while(class_member!=NULL)
+		{
+			if (class_member->num_params==-1)
+			{
+				class_member->entry->offset=class_offset;
+				class_offset+= getOffset(class_member->entry->type);
+			}
+			class_member= class_member->next;
+		}
+	}
+}
+
 void check_interface()
 {
 	for (auto class_ = classMap.begin();class_!=classMap.end(); class_++)
@@ -2764,8 +2782,9 @@ int main(int argc, char* argv[]){
 	start_ste->next=current_ste;
 	current_ste->prev=start_ste;
 	searchAST(start_node);
-	printToCSV();
 	check_interface();
+	classoffset();
+	printToCSV();
 	/* print_ste(start_ste); */
 	fp = fopen(("../tests/"+input_file).c_str(), "r");
 	if(!fp){

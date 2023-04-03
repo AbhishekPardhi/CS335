@@ -54,7 +54,7 @@ stme* lookupFunction(stme* node, string funcName){
     return NULL;
 }
 
-int getOffset(string type, vector < int > dims ){
+int getOffset(string type){
 
     unordered_map < string, int > typeSize;
     typeSize["byte"] = 1;
