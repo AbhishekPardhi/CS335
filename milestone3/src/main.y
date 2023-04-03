@@ -31,6 +31,7 @@
 	string handle_arrayinit(NODE* );
 	string handle_array_creation_Expression(NODE* );
 	string handle_class_declaration(NODE* );
+	int fetchOffset(string ,string );
 	int lineno;
 	void print_ste(ste* ,int);
 	string cur_class;
@@ -66,6 +67,8 @@
 	unordered_map <string,stme*> classMap;	
 
 	unordered_map <string, int> typeMap;
+	
+	int paramCount = 0;
 
 %}
 
@@ -255,13 +258,36 @@ ClassDeclaration:
 ;
 
 lmpara:
-	LMPARA	{ $$ = $1; if (parsenum==2 && scopeFlag==0) {branch.push(current_ste);current_ste=current_ste->next_scope;} scopeFlag=0;}
+	LMPARA	{ 
+				$$ = $1; 
+				if(forFlag>0 && scopeFlag==0) 
+					paramCount++; 
+				if (parsenum==2 && scopeFlag==0) 
+				{
+					branch.push(current_ste);
+					current_ste=current_ste->next_scope;
+				} 
+				scopeFlag=0;
+			}
 ;
 
 rmpara:
-	RMPARA	{ $$ = $1; if (parsenum==2 && forFlag==0) { current_ste=branch.top(); branch.pop();}}
+	RMPARA	{ 
+				$$ = $1; 
+				if(forFlag>0 && paramCount>0) 
+				{
+					paramCount--; 
+					current_ste=branch.top(); 
+					branch.pop();
+				} 
+				else if (parsenum==2 && forFlag==0 ) 
+				{ 
+					current_ste=branch.top(); 
+					branch.pop();
+				}
+			}
 ;
-
+;
 Super:
 	EXTENDS ClassType	{ $$ = create_node ( 3 ,"Super", $1, $2); } 
 ;
@@ -763,7 +789,12 @@ ForStatement:
 																								}
 																						}
 																						create_ins(0,"goto",to_string($7->ins),"",""); // forupdate
-																						if (forFlag==1){scopeFlag=0;forFlag=0; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
+																						if (forFlag>0){
+																							scopeFlag=0;forFlag--; 
+																							current_ste=branch.top(); 
+																							branch.pop();
+																							current_ste=current_ste->next;
+																						}
 																					} 
 |	for LPAREN ForInit SEMICOLON SEMICOLON ForUpdate RPAREN Statement	{
 																			$$ = create_node ( 9 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7, $8);
@@ -772,7 +803,12 @@ ForStatement:
 																			backpatch($6->truelist,$8->ins);
 																			$$->nextlist = $8->nextlist;
 																			create_ins(0,"goto",to_string($6->ins),"","");
-																			if (forFlag==1){scopeFlag=0;forFlag=0; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
+																			if (forFlag>0){
+																				scopeFlag=0;forFlag--; 
+																				current_ste=branch.top(); 
+																				branch.pop();
+																				current_ste=current_ste->next;
+																			}
 																		} 
 |	for LPAREN SEMICOLON Expression SEMICOLON ForUpdate RPAREN Statement	{
 																				$$ = create_node ( 9 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7, $8);
@@ -782,7 +818,12 @@ ForStatement:
 																				backpatch($6->truelist,$4->ins);
 																				$$->nextlist = $4->falselist;
 																				create_ins(0,"goto",to_string($6->ins),"","");
-																				if (forFlag==1){scopeFlag=0;forFlag=0; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
+																				if (forFlag>0){
+																					scopeFlag=0;forFlag--; 
+																					current_ste=branch.top(); 
+																					branch.pop();
+																					current_ste=current_ste->next;
+																				}
 																			} 
 |	for LPAREN SEMICOLON SEMICOLON ForUpdate RPAREN Statement	{
 																	$$ = create_node ( 8 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7);
@@ -791,7 +832,12 @@ ForStatement:
 																	backpatch($5->truelist,$7->ins);
 																	$$->nextlist = $7->nextlist;
 																	create_ins(0,"goto",to_string($5->ins),"","");
-																	if (forFlag==1){scopeFlag=0;forFlag=0; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
+																	if (forFlag>0){
+																		scopeFlag=0;forFlag--; 
+																		current_ste=branch.top(); 
+																		branch.pop();
+																		current_ste=current_ste->next;
+																	}
 																} 
 |	for LPAREN ForInit SEMICOLON Expression SEMICOLON RPAREN Statement	{
 																			$$ = create_node ( 9 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7, $8);
@@ -800,7 +846,12 @@ ForStatement:
 																			backpatch($5->truelist,$8->ins);
 																			$$->nextlist = merge($5->falselist,$8->nextlist);
 																			create_ins(0,"goto",to_string($5->ins),"","");
-																			if (forFlag==1){scopeFlag=0;forFlag=0; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
+																			if (forFlag>0){
+																				scopeFlag=0;forFlag--; 
+																				current_ste=branch.top(); 
+																				branch.pop();
+																				current_ste=current_ste->next;
+																			}
 																		} 
 |	for LPAREN ForInit SEMICOLON SEMICOLON RPAREN Statement	{
 																$$ = create_node ( 8 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7);
@@ -808,7 +859,12 @@ ForStatement:
 																backpatch($7->nextlist,$7->ins);
 																$$->nextlist = $7->nextlist;
 																create_ins(0,"goto",to_string($7->ins),"","");
-																if (forFlag==1){scopeFlag=0;forFlag=0; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
+																if (forFlag>0){
+																	scopeFlag=0;forFlag--; 
+																	current_ste=branch.top(); 
+																	branch.pop();
+																	current_ste=current_ste->next;
+																}
 															} 
 |	for LPAREN SEMICOLON Expression SEMICOLON RPAREN Statement	{
 																	$$ = create_node ( 8 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7);
@@ -817,7 +873,12 @@ ForStatement:
 																	backpatch($4->truelist,$7->ins);
 																	$$->nextlist = merge($4->falselist,$7->nextlist);
 																	create_ins(0,"goto",to_string($4->ins),"","");
-																	if (forFlag==1){scopeFlag=0;forFlag=0; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
+																	if (forFlag>0){
+																		scopeFlag=0;forFlag--; 
+																		current_ste=branch.top(); 
+																		branch.pop();
+																		current_ste=current_ste->next;
+																	}
 																} 
 |	for LPAREN SEMICOLON SEMICOLON RPAREN Statement	{
 														$$ = create_node ( 7 ,"ForStatement", $1, $2, $3, $4, $5, $6);
@@ -825,7 +886,12 @@ ForStatement:
 														backpatch($6->nextlist,$6->ins);
 														$$->nextlist = $6->nextlist;
 														create_ins(0,"goto",to_string($6->ins),"","");
-														if (forFlag==1){scopeFlag=0;forFlag=0; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
+														if (forFlag>0){
+															scopeFlag=0;forFlag--; 
+															current_ste=branch.top(); 
+															branch.pop();
+															current_ste=current_ste->next;
+														}
 													} 
 ;
 
@@ -838,7 +904,12 @@ ForStatementNoShortIf:
 																								backpatch($7->truelist,$5->ins); // forupdate,expression
 																								$$->nextlist = $5->falselist;    // lhs,expression
 																								create_ins(0,"goto",to_string($7->ins),"",""); // forupdate
-																								if (forFlag==1){scopeFlag=0;forFlag=0; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
+																								if (forFlag>0){
+																									scopeFlag=0;forFlag--; 
+																									current_ste=branch.top(); 
+																									branch.pop();
+																									current_ste=current_ste->next;
+																								}
 																							} 
 |	for LPAREN ForInit SEMICOLON SEMICOLON ForUpdate RPAREN StatementNoShortIf	{
 																					$$ = create_node ( 9 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6, $7, $8);
@@ -847,8 +918,14 @@ ForStatementNoShortIf:
 																					backpatch($6->truelist,$8->ins);
 																					$$->nextlist = $8->nextlist;
 																					create_ins(0,"goto",to_string($6->ins),"","");
-																					if (forFlag==1){scopeFlag=0;forFlag=0; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
+																					if (forFlag>0){
+																						scopeFlag=0;forFlag--; 
+																						current_ste=branch.top(); 
+																						branch.pop();
+																						current_ste=current_ste->next;
+																					}
 																				} 
+
 |	for LPAREN SEMICOLON Expression SEMICOLON ForUpdate RPAREN StatementNoShortIf	{
 																						$$ = create_node ( 9 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6, $7, $8);
 																						$$->ins = instCount+1;
@@ -857,7 +934,12 @@ ForStatementNoShortIf:
 																						backpatch($6->truelist,$4->ins);
 																						$$->nextlist = $4->falselist;
 																						create_ins(0,"goto",to_string($6->ins),"","");
-																						if (forFlag==1){scopeFlag=0;forFlag=0; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
+																						if (forFlag>0){
+																							scopeFlag=0;forFlag--; 
+																							current_ste=branch.top(); 
+																							branch.pop();
+																							current_ste=current_ste->next;
+																						}
 																					} 
 |	for LPAREN SEMICOLON SEMICOLON ForUpdate RPAREN StatementNoShortIf	{
 																			$$ = create_node ( 8 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6, $7);
@@ -866,7 +948,12 @@ ForStatementNoShortIf:
 																			backpatch($5->truelist,$7->ins);
 																			$$->nextlist = $7->nextlist;
 																			create_ins(0,"goto",to_string($5->ins),"","");
-																			if (forFlag==1){scopeFlag=0;forFlag=0; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
+																			if (forFlag>0){
+																				scopeFlag=0;forFlag--; 
+																				current_ste=branch.top(); 
+																				branch.pop();
+																				current_ste=current_ste->next;
+																			}
 																		} 
 |	for LPAREN ForInit SEMICOLON Expression SEMICOLON RPAREN StatementNoShortIf	{
 																					$$ = create_node ( 9 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6, $7, $8);
@@ -875,7 +962,12 @@ ForStatementNoShortIf:
 																					backpatch($5->truelist,$8->ins);
 																					$$->nextlist = merge($5->falselist,$8->nextlist);
 																					create_ins(0,"goto",to_string($5->ins),"","");
-																					if (forFlag==1){scopeFlag=0;forFlag=0; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
+																					if (forFlag>0){
+																						scopeFlag=0;forFlag--; 
+																						current_ste=branch.top(); 
+																						branch.pop();
+																						current_ste=current_ste->next;
+																					}
 																				} 
 |	for LPAREN ForInit SEMICOLON SEMICOLON RPAREN StatementNoShortIf	{
 																			$$ = create_node ( 8 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6, $7);
@@ -883,7 +975,12 @@ ForStatementNoShortIf:
 																			backpatch($7->nextlist,$7->ins);
 																			$$->nextlist = $7->nextlist;
 																			create_ins(0,"goto",to_string($7->ins),"","");
-																			if (forFlag==1){scopeFlag=0;forFlag=0; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
+																			if (forFlag>0){
+																				scopeFlag=0;forFlag--; 
+																				current_ste=branch.top(); 
+																				branch.pop();
+																				current_ste=current_ste->next;
+																			}
 																		} 
 |	for LPAREN SEMICOLON Expression SEMICOLON RPAREN StatementNoShortIf	{
 																			$$ = create_node ( 8 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6, $7);
@@ -892,7 +989,12 @@ ForStatementNoShortIf:
 																			backpatch($4->truelist,$7->ins);
 																			$$->nextlist = merge($4->falselist,$7->nextlist);
 																			create_ins(0,"goto",to_string($4->ins),"","");
-																			if (forFlag==1){scopeFlag=0;forFlag=0; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
+																			if (forFlag>0){
+																				scopeFlag=0;forFlag--; 
+																				current_ste=branch.top(); 
+																				branch.pop();
+																				current_ste=current_ste->next;
+																			}
 																		} 
 |	for LPAREN SEMICOLON SEMICOLON RPAREN StatementNoShortIf	{
 																	$$ = create_node ( 7 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6);
@@ -900,12 +1002,26 @@ ForStatementNoShortIf:
 																	backpatch($6->nextlist,$6->ins);
 																	$$->nextlist = $6->nextlist;
 																	create_ins(0,"goto",to_string($6->ins),"","");
-																	if (forFlag==1){scopeFlag=0;forFlag=0; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
+																	if (forFlag>0){
+																		scopeFlag=0;forFlag--; 
+																		current_ste=branch.top(); 
+																		branch.pop();
+																		current_ste=current_ste->next;
+																	}
 																} 
 ;
 
 for:
-	FOR {$$ = $1; if (parsenum==2){forFlag=1; scopeFlag=1; branch.push(current_ste); current_ste=current_ste->next_scope;}}
+	FOR {
+			$$ = $1; 
+			if (parsenum==2)
+			{
+				forFlag++; 
+				scopeFlag=1; 
+				branch.push(current_ste); 
+				current_ste=current_ste->next_scope;
+			}
+		}
 ;
 
 ForInit:
@@ -1493,6 +1609,36 @@ Expression:
 %%
 
 
+int fetchOffset(string className, string id){
+	if(className==""){
+		ste* lookup_ste=lookup(current_ste,id);
+		if(lookup_ste==NULL){
+			return -1;
+		}
+
+		return lookup_ste->offset;
+	}
+	
+	ste* lookup_ste=lookup(current_ste,className);
+	if(lookup_ste==NULL){
+		return -1;
+	}
+	stme* id_class = classMap[lookup_ste->type];
+	int offset = 0;
+
+	while(id_class->next!=NULL){
+		string id_name = id_class->id;
+		int index = id_name.find("-");
+		id_name = id_name.substr(index+1);
+		if(id_name==id){
+			return id_class->entry->offset;
+		}
+		id_class = id_class->next;
+	}
+
+	return offset;
+}
+
 string handle_cast_expression(NODE* node){
 	int num_children=node->children.size();
 	ste* lookup_ste=lookup(current_ste,node->children[num_children-1]->val);
@@ -1791,7 +1937,7 @@ void searchAST(NODE* node)
 
 	if (temp=="{")
 	{	
-		if(forFlag==1){
+		if(forFlag>0){
 			forFlag=0;
 			return;
 		}
