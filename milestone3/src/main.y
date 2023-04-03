@@ -1427,7 +1427,20 @@ string handle_field_access(NODE* node)
 		}
 		else
 		{
-			return lookup_stme->entry->type;
+			ste* new_ste = new ste;
+			string type= lookup_stme->entry->type;
+			current_ste->lexeme="this";
+			current_ste->type=cur_class;
+			current_ste->offset=offset;
+			current_ste->token="IDENTIFIER";
+			current_ste->lineno=lineno;
+			current_ste->next=new_ste;
+			new_ste->prev=current_ste;
+			offset += getOffset(cur_class);
+
+			current_ste=new_ste;
+
+			return type;
 		}
 	}
 	return "int";
@@ -1814,7 +1827,6 @@ string handle_class_declaration( NODE * node){
 
 			cur_class=class_name;
 			classMap[cur_class]= new stme;
-			// cout << "parenum:" << cur_class << classMap.size() << endl;
 		}
 		else if (node_val=="Interfaces")
 		{
@@ -1936,6 +1948,19 @@ string handle_function(NODE* node){
 			class_scope=cur_class;
 		}
 
+		if (name=="out.println" || name=="out.print")
+		{
+			//check child node for "argumentList"
+			for(auto node_child: node->children){
+				string node_child_val = node_child->val;
+
+				if(node_child_val=="Argument_List"){
+					handle_expression(node_child);
+				}
+			}
+			return "void";
+		}
+
 		//find name in classMap
 		stme* class_head=classMap[class_scope];
 		while (class_head!=NULL)
@@ -1994,18 +2019,6 @@ string handle_function(NODE* node){
 			class_head=class_head->next;
 		}
 
-		if (name=="out.println" || name=="out.print")
-		{
-			//check child node for "argumentList"
-			for(auto node_child: node->children){
-				string node_child_val = node_child->val;
-
-				if(node_child_val=="Argument_List"){
-					handle_expression(node_child);
-				}
-			}
-			return "void";
-		}
 		string e_message= "Error : Method " + name + " not declared before use ";
 		yerror(e_message);
 

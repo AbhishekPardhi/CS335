@@ -61,6 +61,7 @@ class MergeSort {
 			sort(arr, l, m);
 			sort(arr, m + 1, r);
 
+			merge(arr,l,m,r);
 		}
 	}
 

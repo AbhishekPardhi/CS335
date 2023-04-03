@@ -12,12 +12,9 @@ class Rectangle implements Polygon {
   // implementation of abstract method
   public void getArea(int length, int breadth) {
     System.out.println("The area of the rectangle is " + (length * breadth));
-    length=1;
     this.dim = 2;
     this.getArea(1,2);
-  }
-  int l;
-  
+  }  
 }
 
 class Main {
