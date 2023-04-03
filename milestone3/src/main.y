@@ -637,6 +637,9 @@ IfThenStatement:
 												$$ = create_node ( 6 ,"IfThenStatement", $1, $2, $3, $4, $5);
 												$$->ins = instCount+1;
 												backpatch($3->truelist,$5->ins);
+												// for(auto x:$3->truelist)
+												// 	cout << x << " ";
+												// cout << endl;
 												$$->nextlist = merge($3->falselist,$5->nextlist);
 											} 
 ;
@@ -2622,10 +2625,12 @@ void printToCSV(){
 }
 
 vector<int> makelist(int i){
+	if(parsenum==1) return vector<int>();
 	return vector<int>{i};
 }
 
 vector<int> merge(vector<int> p1, vector<int> p2){
+	if(parsenum==1) return vector<int>();
 	vector<int> merged;
     merged.reserve(p1.size() + p2.size());
     merged.insert(merged.end(), p1.begin(), p1.end());
@@ -2635,11 +2640,11 @@ vector<int> merge(vector<int> p1, vector<int> p2){
 
 void backpatch(vector<int>p, int i)
 {
+	if(parsenum==1) return;
 	for(int j=0;j<p.size();j++){
-		// instructions[abs(p[j])-1].push_back(to_string(i));s
-		if (abs(p[j])-1>0){
-			*(instructions[abs(p[j])-1].end()-1)=to_string(i);
-		}
+		// instructions[abs(p[j])-1].push_back(to_string(i));
+		if(instructions[abs(p[j])-1].size()>0)
+			instructions[abs(p[j])-1].back()=to_string(i);
 	}
 }
 
