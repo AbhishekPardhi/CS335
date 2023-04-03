@@ -15,3 +15,9 @@ Type casting
 break(done), continue(remaining)
 Print statement
 Get offset for qulaified name
+
+- Features to flex
+- [] Function call - QualifiedName
+- [] Function call - Parameters
+- [] Instance creation using offset
+- [] Field Access using offset

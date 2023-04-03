@@ -21,7 +21,6 @@
 	void backpatch(vector<int> p,int i);
 	vector<vector<string>> instructions;
 	void create_ins(int type,string i,string op,string arg1,string arg2); // type = 1=>normal 0=>abnormal
-
 	int tempCount;
 	string newTemp();
 	int instCount;
@@ -166,15 +165,13 @@ SimpleName:
 QualifiedName:
 	Name DOT IDENTIFIER	{
 							$$ = create_node ( 4 ,"Qualified_Name", $1, $2, $3);
-							$$->addr = str_to_ch(string($1->addr)+string($3->addr));
 							$$->ins = instCount+1;
 							string reg1 = newTemp();
 							create_ins(0,reg1,"=","symtable("+string($1->addr)+","+string($3->addr)+")","");
 							// find offset
 							string reg2 = newTemp();
 							create_ins(1,reg2,"+",string($1->addr),reg1);
-							$$->addr = str_to_ch(newTemp());
-							create_ins(0,string($$->addr),"=","*",reg2);
+							$$->addr = str_to_ch("* "+reg2);
 						} 
 ;
 
@@ -489,15 +486,63 @@ ConstructorDeclaration:
 ;
 
 ConstructorDeclarator:
-	SimpleName LPAREN FormalParameterList RPAREN	{ $$ = create_node ( 5 ,"ConstructorDeclarator", $1, $2, $3, $4);} 
-|	SimpleName LPAREN RPAREN	{ $$ = create_node ( 4 ,"ConstructorDeclarator", $1, $2, $3);} 
+
+SimpleName LPAREN FormalParameterList RPAREN	{
+														$$ = create_node ( 5 ,"ConstructorDeclarator", $1, $2, $3, $4);
+														$$->ins = instCount+1;
+														bool flag=false;
+														string funcName="";
+														for(auto class_ptr:classMap)
+														{
+															stme* temp=class_ptr.second;
+															while(temp!=NULL)
+															{
+																if($1->val==temp->id)
+																{
+																	flag=true;
+																	funcName+=class_ptr.first+".";
+																	break;
+																}
+																temp=temp->next;
+															}
+															if(flag) break;
+														}
+														funcName+=string($1->addr);
+														// funcName+=string($3->addr);
+														create_ins(0,funcName,":","","");
+														create_ins(0,"BeginFunc","","","");
+													} 
+|	SimpleName LPAREN RPAREN	{ $$ = create_node ( 4 ,"ConstructorDeclarator", $1, $2, $3); } 
 ;
 
 ConstructorBody:
-	lmpara ExplicitConstructorInvocation BlockStatements rmpara	{ $$ = create_node ( 5 ,"ConstructorBody", $1, $2, $3, $4); if (parsenum==2){current_ste=current_ste->next;}} 
-|	lmpara ExplicitConstructorInvocation rmpara	{ $$ = create_node ( 4 ,"ConstructorBody", $1, $2, $3); if (parsenum==2){current_ste=current_ste->next;}} 
-|	lmpara BlockStatements rmpara	{ $$ = create_node ( 4 ,"ConstructorBody", $1, $2, $3); if (parsenum==2){current_ste=current_ste->next;}} 
-|	lmpara rmpara	{ $$ = create_node ( 3 ,"ConstructorBody", $1, $2); if (parsenum==2){current_ste=current_ste->next;}} 
+	lmpara ExplicitConstructorInvocation BlockStatements rmpara	{
+																	$$ = create_node ( 5 ,"ConstructorBody", $1, $2, $3, $4);
+																	$$->ins = instCount+1;
+																	create_ins(0,"EndFunc","","","");
+																	backpatch($3->nextlist,$$->ins);
+																	if (parsenum==2){current_ste=current_ste->next;}
+																}
+|	lmpara ExplicitConstructorInvocation rmpara	{
+													$$ = create_node ( 4 ,"ConstructorBody", $1, $2, $3);
+													$$->ins = instCount+1;
+													create_ins(0,"EndFunc","","","");
+													backpatch($2->nextlist,$$->ins);
+													if (parsenum==2){current_ste=current_ste->next;}
+												} 
+|	lmpara BlockStatements rmpara	{
+										$$ = create_node ( 4 ,"ConstructorBody", $1, $2, $3);
+										$$->ins = instCount+1;
+										create_ins(0,"EndFunc","","","");
+										backpatch($2->nextlist,$$->ins);
+										if (parsenum==2){current_ste=current_ste->next;}
+									} 
+|	lmpara rmpara	{
+						$$ = create_node ( 3 ,"ConstructorBody", $1, $2);
+						$$->ins = instCount+1;
+						create_ins(0,"EndFunc","","","");
+						if (parsenum==2){current_ste=current_ste->next;}
+					}
 ;
 
 
@@ -988,7 +1033,15 @@ ClassInstanceCreationExpression:
 |	NEW ClassType LPAREN RPAREN	{
 									$$ = create_node ( 5 ,"ClassInstanceCreationExpression", $1, $2, $3, $4);
 									$$->ins = instCount+1;
-
+									// offset
+									string reg1 = newTemp();
+									create_ins(0,reg1,"=","offset","");
+									create_ins(0,"PushParam",reg1,"","");
+									create_ins(0,"stackpointer","+xxx","","");
+									create_ins(0,"call","allocmem","1","");
+									create_ins(0,"stackpointer","-yyy","","");
+									$$->addr = str_to_ch(newTemp());
+									create_ins(0,string($$->addr),"=","popparam","");
 								} 
 ;
 
@@ -1037,7 +1090,17 @@ Dims:
 ;
 
 FieldAccess:
-	Primary DOT IDENTIFIER	{ $$ = create_node ( 4 ,"FieldAccess", $1, $2, $3); if (parsenum==2){cout<<"Fieldaces "<<current_ste->lexeme<<endl; current_ste=current_ste->next;} } 
+	Primary DOT IDENTIFIER	{
+								$$ = create_node ( 4 ,"FieldAccess", $1, $2, $3);
+								$$->ins = instCount+1;
+								string reg1 = newTemp();
+								create_ins(0,reg1,"=","symtable("+string($1->addr)+","+string($3->addr)+")","");
+								// find offset
+								string reg2 = newTemp();
+								create_ins(1,reg2,"+",string($1->addr),reg1);
+								$$->addr = str_to_ch("* "+reg2);
+								if (parsenum==2){cout<<"Fieldaces "<<current_ste->lexeme<<endl; current_ste=current_ste->next;}
+							}
 |	SUPER DOT IDENTIFIER	{ $$ = create_node ( 4 ,"FieldAccess", $1, $2, $3); } 
 ;
 
