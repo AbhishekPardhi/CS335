@@ -2748,14 +2748,21 @@ void classoffset(){
 		if (class_pair.first=="") continue;
 		int class_offset=0;
 		stme* class_member= class_pair.second;
+		stack<stme*> class_stack;
 		while(class_member!=NULL)
 		{
+			class_stack.push(class_member);
+			class_member= class_member->next;
+		}
+		while(class_stack.size()!=0)
+		{
+			class_member=class_stack.top();
+			class_stack.pop();
 			if (class_member->num_params==-1)
 			{
 				class_member->entry->offset=class_offset;
 				class_offset+= getOffset(class_member->entry->type);
 			}
-			class_member= class_member->next;
 		}
 	}
 }

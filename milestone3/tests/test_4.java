@@ -1,5 +1,8 @@
 /* Type coercion (casting) */
 public class TypeCoercion {
+    int a;
+    int b;
+    int c;
     public static void main(String[] args) {
         int intVar = 100;
         long longVar = intVar;
