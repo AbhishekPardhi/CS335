@@ -255,11 +255,11 @@ ClassDeclaration:
 ;
 
 lmpara:
-	LMPARA	{ $$ = $1; if (parsenum==2 && scopeFlag==0) {cout<<"branch "<<current_ste->type<<endl;branch.push(current_ste);current_ste=current_ste->next_scope;} scopeFlag=0;}
+	LMPARA	{ $$ = $1; if (parsenum==2 && scopeFlag==0) {branch.push(current_ste);current_ste=current_ste->next_scope;} scopeFlag=0;}
 ;
 
 rmpara:
-	RMPARA	{ $$ = $1; if (parsenum==2 && forFlag==0) {cout<<"end--branch "<<branch.top()->type<<endl; current_ste=branch.top(); branch.pop();}}
+	RMPARA	{ $$ = $1; if (parsenum==2 && forFlag==0) { current_ste=branch.top(); branch.pop();}}
 ;
 
 Super:
@@ -281,8 +281,8 @@ ClassBody:
 ;
 
 ClassBodyDeclarations:
-	ClassBodyDeclaration	{$$ = create_node(2,"Class_Body_Declarations",$1) ; if (parsenum==2) {cout<<"nextcd "<<current_ste->lexeme<<endl;}}
-|	ClassBodyDeclarations ClassBodyDeclaration	{ $1->children.push_back($2); $$ =$1 ;if (parsenum==2) {cout<<"nextcd "<<current_ste->lexeme<<endl; } } 
+	ClassBodyDeclaration	{$$ = create_node(2,"Class_Body_Declarations",$1) ; }
+|	ClassBodyDeclarations ClassBodyDeclaration	{ $1->children.push_back($2); $$ =$1 ; } 
 ;
 
 ClassBodyDeclaration:
@@ -302,8 +302,8 @@ FieldDeclaration:
 ;
 
 VariableDeclarators:
-	VariableDeclarator	{ $$ = create_node(2,"Variable_declarators",$1) ; if(parsenum==2){ cout<<"vardec "<<current_ste->lexeme<<endl; current_ste=current_ste->next;}}
-|	VariableDeclarators COMMA VariableDeclarator	{ $1->children.push_back($2);$1->children.push_back($3); $$ =$1 ;if (parsenum==2){ cout<<"vardec "<<current_ste->lexeme<<endl; current_ste=current_ste->next; } }
+	VariableDeclarator	{ $$ = create_node(2,"Variable_declarators",$1) ; if(parsenum==2){ current_ste=current_ste->next;}}
+|	VariableDeclarators COMMA VariableDeclarator	{ $1->children.push_back($2);$1->children.push_back($3); $$ =$1 ;if (parsenum==2){ current_ste=current_ste->next; } }
 ;
 
 VariableDeclarator:
@@ -423,11 +423,8 @@ FormalParameterList:
 						$$->addr = str_to_ch(str);
 						if (parsenum==2){
 							scopeFlag=1;
-							cout<<"branching "<<current_ste->type<<" "<<current_ste->lexeme <<endl;
 							branch.push(current_ste);
 							current_ste=current_ste->next_scope;
-							cout<<"FP ";
-							cout<<current_ste->lexeme<<endl;
 							current_ste=current_ste->next;
 						}
 					}
@@ -436,8 +433,6 @@ FormalParameterList:
 													$$->addr=str_to_ch(string($1->addr)+string($3->addr));
 													if (parsenum==2){
 														scopeFlag=1;
-														cout<<"FP ";
-														cout<<current_ste->lexeme<<endl;
 														current_ste=current_ste->next;
 													}
 												} 
@@ -571,8 +566,8 @@ InterfaceBody:
 ;
 
 InterfaceMemberDeclarations:
-	InterfaceMemberDeclaration	{$$ = create_node(2,"Interface_Member_Declarations",$1) ;if (parsenum==2){cout<<"intfa "<<current_ste->lexeme<<endl;current_ste=current_ste->next;}} 
-|	InterfaceMemberDeclarations InterfaceMemberDeclaration	{ $1->children.push_back($2); $$ =$1 ;if (parsenum==2){cout<<"intfa "<<current_ste->lexeme<<endl;current_ste=current_ste->next;} } 
+	InterfaceMemberDeclaration	{$$ = create_node(2,"Interface_Member_Declarations",$1) ;if (parsenum==2){current_ste=current_ste->next;}} 
+|	InterfaceMemberDeclarations InterfaceMemberDeclaration	{ $1->children.push_back($2); $$ =$1 ;if (parsenum==2){current_ste=current_ste->next;} } 
 ;
 
 InterfaceMemberDeclaration:
@@ -585,7 +580,7 @@ ConstantDeclaration:
 ;
 
 AbstractMethodDeclaration:
-	MethodHeader SEMICOLON	{ $$ = create_node ( 3 ,"AbstractMethodDeclaration", $1, $2); if (parsenum==2){cout<<"endbranch "<<branch.top()->type<<endl ;current_ste=branch.top();branch.pop(); scopeFlag=0;}} 
+	MethodHeader SEMICOLON	{ $$ = create_node ( 3 ,"AbstractMethodDeclaration", $1, $2); if (parsenum==2){current_ste=branch.top();branch.pop(); scopeFlag=0;}} 
 ;
 
 
@@ -710,9 +705,6 @@ IfThenStatement:
 												$$ = create_node ( 6 ,"IfThenStatement", $1, $2, $3, $4, $5);
 												$$->ins = instCount+1;
 												backpatch($3->truelist,$5->ins);
-												// for(auto x:$3->truelist)
-												// 	cout << x << " ";
-												// cout << endl;
 												$$->nextlist = merge($3->falselist,$5->nextlist);
 											} 
 ;
@@ -738,7 +730,7 @@ IfThenElseStatementNoShortIf:
 ;
 
 WhileStatement:
-	WHILE LPAREN Expression RPAREN Statement	{	cout<<"WhileStatement"<<endl;
+	WHILE LPAREN Expression RPAREN Statement	{	
 													$$ = create_node ( 6 ,"WhileStatement", $1, $2, $3, $4, $5);
 													backpatch($5->nextlist,$3->ins);
 													backpatch($3->truelist,$5->ins);
@@ -771,7 +763,7 @@ ForStatement:
 																								}
 																						}
 																						create_ins(0,"goto",to_string($7->ins),"",""); // forupdate
-																						if (forFlag==1){scopeFlag=0;forFlag=0;cout<<"endbranch "<<branch.top()->type<<endl; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
+																						if (forFlag==1){scopeFlag=0;forFlag=0; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
 																					} 
 |	for LPAREN ForInit SEMICOLON SEMICOLON ForUpdate RPAREN Statement	{
 																			$$ = create_node ( 9 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7, $8);
@@ -780,7 +772,7 @@ ForStatement:
 																			backpatch($6->truelist,$8->ins);
 																			$$->nextlist = $8->nextlist;
 																			create_ins(0,"goto",to_string($6->ins),"","");
-																			if (forFlag==1){scopeFlag=0;forFlag=0;cout<<"endbranch "<<branch.top()->type<<endl; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
+																			if (forFlag==1){scopeFlag=0;forFlag=0; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
 																		} 
 |	for LPAREN SEMICOLON Expression SEMICOLON ForUpdate RPAREN Statement	{
 																				$$ = create_node ( 9 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7, $8);
@@ -790,7 +782,7 @@ ForStatement:
 																				backpatch($6->truelist,$4->ins);
 																				$$->nextlist = $4->falselist;
 																				create_ins(0,"goto",to_string($6->ins),"","");
-																				if (forFlag==1){scopeFlag=0;forFlag=0;cout<<"endbranch "<<branch.top()->type<<endl; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
+																				if (forFlag==1){scopeFlag=0;forFlag=0; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
 																			} 
 |	for LPAREN SEMICOLON SEMICOLON ForUpdate RPAREN Statement	{
 																	$$ = create_node ( 8 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7);
@@ -799,7 +791,7 @@ ForStatement:
 																	backpatch($5->truelist,$7->ins);
 																	$$->nextlist = $7->nextlist;
 																	create_ins(0,"goto",to_string($5->ins),"","");
-																	if (forFlag==1){scopeFlag=0;forFlag=0;cout<<"endbranch "<<branch.top()->type<<endl; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
+																	if (forFlag==1){scopeFlag=0;forFlag=0; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
 																} 
 |	for LPAREN ForInit SEMICOLON Expression SEMICOLON RPAREN Statement	{
 																			$$ = create_node ( 9 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7, $8);
@@ -808,7 +800,7 @@ ForStatement:
 																			backpatch($5->truelist,$8->ins);
 																			$$->nextlist = merge($5->falselist,$8->nextlist);
 																			create_ins(0,"goto",to_string($5->ins),"","");
-																			if (forFlag==1){scopeFlag=0;forFlag=0;cout<<"endbranch "<<branch.top()->type<<endl; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
+																			if (forFlag==1){scopeFlag=0;forFlag=0; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
 																		} 
 |	for LPAREN ForInit SEMICOLON SEMICOLON RPAREN Statement	{
 																$$ = create_node ( 8 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7);
@@ -816,7 +808,7 @@ ForStatement:
 																backpatch($7->nextlist,$7->ins);
 																$$->nextlist = $7->nextlist;
 																create_ins(0,"goto",to_string($7->ins),"","");
-																if (forFlag==1){scopeFlag=0;forFlag=0;cout<<"endbranch "<<branch.top()->type<<endl; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
+																if (forFlag==1){scopeFlag=0;forFlag=0; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
 															} 
 |	for LPAREN SEMICOLON Expression SEMICOLON RPAREN Statement	{
 																	$$ = create_node ( 8 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7);
@@ -825,7 +817,7 @@ ForStatement:
 																	backpatch($4->truelist,$7->ins);
 																	$$->nextlist = merge($4->falselist,$7->nextlist);
 																	create_ins(0,"goto",to_string($4->ins),"","");
-																	if (forFlag==1){scopeFlag=0;forFlag=0;cout<<"endbranch "<<branch.top()->type<<endl; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
+																	if (forFlag==1){scopeFlag=0;forFlag=0; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
 																} 
 |	for LPAREN SEMICOLON SEMICOLON RPAREN Statement	{
 														$$ = create_node ( 7 ,"ForStatement", $1, $2, $3, $4, $5, $6);
@@ -833,7 +825,7 @@ ForStatement:
 														backpatch($6->nextlist,$6->ins);
 														$$->nextlist = $6->nextlist;
 														create_ins(0,"goto",to_string($6->ins),"","");
-														if (forFlag==1){scopeFlag=0;forFlag=0;cout<<"endbranch "<<branch.top()->type<<endl; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
+														if (forFlag==1){scopeFlag=0;forFlag=0; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
 													} 
 ;
 
@@ -846,7 +838,7 @@ ForStatementNoShortIf:
 																								backpatch($7->truelist,$5->ins); // forupdate,expression
 																								$$->nextlist = $5->falselist;    // lhs,expression
 																								create_ins(0,"goto",to_string($7->ins),"",""); // forupdate
-																								if (forFlag==1){scopeFlag=0;forFlag=0;cout<<"endbranch "<<branch.top()->type<<endl; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
+																								if (forFlag==1){scopeFlag=0;forFlag=0; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
 																							} 
 |	for LPAREN ForInit SEMICOLON SEMICOLON ForUpdate RPAREN StatementNoShortIf	{
 																					$$ = create_node ( 9 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6, $7, $8);
@@ -855,7 +847,7 @@ ForStatementNoShortIf:
 																					backpatch($6->truelist,$8->ins);
 																					$$->nextlist = $8->nextlist;
 																					create_ins(0,"goto",to_string($6->ins),"","");
-																					if (forFlag==1){scopeFlag=0;forFlag=0;cout<<"endbranch "<<branch.top()->type<<endl; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
+																					if (forFlag==1){scopeFlag=0;forFlag=0; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
 																				} 
 |	for LPAREN SEMICOLON Expression SEMICOLON ForUpdate RPAREN StatementNoShortIf	{
 																						$$ = create_node ( 9 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6, $7, $8);
@@ -865,7 +857,7 @@ ForStatementNoShortIf:
 																						backpatch($6->truelist,$4->ins);
 																						$$->nextlist = $4->falselist;
 																						create_ins(0,"goto",to_string($6->ins),"","");
-																						if (forFlag==1){scopeFlag=0;forFlag=0;cout<<"endbranch "<<branch.top()->type<<endl; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
+																						if (forFlag==1){scopeFlag=0;forFlag=0; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
 																					} 
 |	for LPAREN SEMICOLON SEMICOLON ForUpdate RPAREN StatementNoShortIf	{
 																			$$ = create_node ( 8 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6, $7);
@@ -874,7 +866,7 @@ ForStatementNoShortIf:
 																			backpatch($5->truelist,$7->ins);
 																			$$->nextlist = $7->nextlist;
 																			create_ins(0,"goto",to_string($5->ins),"","");
-																			if (forFlag==1){scopeFlag=0;forFlag=0;cout<<"endbranch "<<branch.top()->type<<endl; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
+																			if (forFlag==1){scopeFlag=0;forFlag=0; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
 																		} 
 |	for LPAREN ForInit SEMICOLON Expression SEMICOLON RPAREN StatementNoShortIf	{
 																					$$ = create_node ( 9 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6, $7, $8);
@@ -883,7 +875,7 @@ ForStatementNoShortIf:
 																					backpatch($5->truelist,$8->ins);
 																					$$->nextlist = merge($5->falselist,$8->nextlist);
 																					create_ins(0,"goto",to_string($5->ins),"","");
-																					if (forFlag==1){scopeFlag=0;forFlag=0;cout<<"endbranch "<<branch.top()->type<<endl; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
+																					if (forFlag==1){scopeFlag=0;forFlag=0; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
 																				} 
 |	for LPAREN ForInit SEMICOLON SEMICOLON RPAREN StatementNoShortIf	{
 																			$$ = create_node ( 8 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6, $7);
@@ -891,7 +883,7 @@ ForStatementNoShortIf:
 																			backpatch($7->nextlist,$7->ins);
 																			$$->nextlist = $7->nextlist;
 																			create_ins(0,"goto",to_string($7->ins),"","");
-																			if (forFlag==1){scopeFlag=0;forFlag=0;cout<<"endbranch "<<branch.top()->type<<endl; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
+																			if (forFlag==1){scopeFlag=0;forFlag=0; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
 																		} 
 |	for LPAREN SEMICOLON Expression SEMICOLON RPAREN StatementNoShortIf	{
 																			$$ = create_node ( 8 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6, $7);
@@ -900,7 +892,7 @@ ForStatementNoShortIf:
 																			backpatch($4->truelist,$7->ins);
 																			$$->nextlist = merge($4->falselist,$7->nextlist);
 																			create_ins(0,"goto",to_string($4->ins),"","");
-																			if (forFlag==1){scopeFlag=0;forFlag=0;cout<<"endbranch "<<branch.top()->type<<endl; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
+																			if (forFlag==1){scopeFlag=0;forFlag=0; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
 																		} 
 |	for LPAREN SEMICOLON SEMICOLON RPAREN StatementNoShortIf	{
 																	$$ = create_node ( 7 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6);
@@ -908,12 +900,12 @@ ForStatementNoShortIf:
 																	backpatch($6->nextlist,$6->ins);
 																	$$->nextlist = $6->nextlist;
 																	create_ins(0,"goto",to_string($6->ins),"","");
-																	if (forFlag==1){scopeFlag=0;forFlag=0;cout<<"endbranch "<<branch.top()->type<<endl; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
+																	if (forFlag==1){scopeFlag=0;forFlag=0; current_ste=branch.top(); branch.pop();current_ste=current_ste->next;}
 																} 
 ;
 
 for:
-	FOR {$$ = $1; if (parsenum==2){forFlag=1; scopeFlag=1;cout<<"branch "<<current_ste->type<<endl; branch.push(current_ste); current_ste=current_ste->next_scope;}}
+	FOR {$$ = $1; if (parsenum==2){forFlag=1; scopeFlag=1; branch.push(current_ste); current_ste=current_ste->next_scope;}}
 ;
 
 ForInit:
@@ -1099,7 +1091,7 @@ FieldAccess:
 								string reg2 = newTemp();
 								create_ins(1,reg2,"+",string($1->addr),reg1);
 								$$->addr = str_to_ch("* "+reg2);
-								if (parsenum==2){cout<<"Fieldaces "<<current_ste->lexeme<<endl; current_ste=current_ste->next;}
+								if (parsenum==2){ current_ste=current_ste->next;}
 							}
 |	SUPER DOT IDENTIFIER	{ $$ = create_node ( 4 ,"FieldAccess", $1, $2, $3); } 
 ;
@@ -2628,7 +2620,6 @@ void check_interface()
 		if(class_->first=="") continue;
 		stme* class_mem=class_->second;
 		while(class_mem->next!=NULL) class_mem=class_mem->next;
-		if (class_mem==NULL) cout<<"no";
 		if (class_mem->implements.size()==0) continue;
 		for (auto implement_class : class_mem->implements)
 		{
@@ -2917,7 +2908,7 @@ int main(int argc, char* argv[]){
 	classoffset();
 	printToCSV();
 	current_ste=start_ste->next;
-	print_ste(start_ste);
+	/* print_ste(start_ste); */
 	fp = fopen(("../tests/"+input_file).c_str(), "r");
 	if(!fp){
 		cout << "Error opening file: " << input_file << endl;
