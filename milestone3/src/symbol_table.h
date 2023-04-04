@@ -7,6 +7,7 @@ typedef struct symbol_table_map_entry stme;
 typedef struct symbol_table_entry{
     string token, lexeme, type;
     int lineno,offset;
+    bool is_static;
     vector < int > dims;
     struct symbol_table_entry* next;
     struct symbol_table_entry* prev;
@@ -18,6 +19,7 @@ typedef struct symbol_table_entry{
 typedef struct symbol_table_map_entry {
     ste* entry;
     string return_type,id;
+    bool is_static;
     vector<string> implements;
     int num_params;
     struct symbol_table_map_entry * next;

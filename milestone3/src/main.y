@@ -70,6 +70,8 @@
 	
 	int paramCount = 0;
 
+	bool curr_static_function = false;
+
 %}
 
 %union {
@@ -298,17 +300,34 @@ Interfaces:
 
 InterfaceTypeList:
 	InterfaceType	{ $$ = create_node(2,"Interface_Type_List",$1) ; }
-|	InterfaceTypeList COMMA InterfaceType	{ $1->children.push_back($2);$1->children.push_back($3); $$ =$1 ;} 
+|	InterfaceTypeList COMMA InterfaceType	{ 
+												$1->children.push_back($2);
+												$1->children.push_back($3); 
+												$$ =$1;
+											} 
 ;
 
 ClassBody:
-	lmpara ClassBodyDeclarations rmpara	{ $$ = create_node ( 4 ,"ClassBody", $1, $2, $3);if (parsenum==2){current_ste=current_ste->next;}} 
-|	lmpara rmpara	{ $$ = create_node ( 3 ,"ClassBody", $1, $2);if (parsenum==2){current_ste=current_ste->next;}} 
+	lmpara ClassBodyDeclarations rmpara	{ 
+											$$ = create_node ( 4 ,"ClassBody", $1, $2, $3);
+											if (parsenum==2)
+												{current_ste=current_ste->next;
+											}
+										} 
+|	lmpara rmpara	{ 
+						$$ = create_node ( 3 ,"ClassBody", $1, $2);
+						if (parsenum==2){
+							current_ste=current_ste->next;
+						}
+					} 
 ;
 
 ClassBodyDeclarations:
 	ClassBodyDeclaration	{$$ = create_node(2,"Class_Body_Declarations",$1) ; }
-|	ClassBodyDeclarations ClassBodyDeclaration	{ $1->children.push_back($2); $$ =$1 ; } 
+|	ClassBodyDeclarations ClassBodyDeclaration	{ 
+													$1->children.push_back($2); 
+													$$ =$1; 
+												} 
 ;
 
 ClassBodyDeclaration:
@@ -318,7 +337,12 @@ ClassBodyDeclaration:
 ;
 
 ClassMemberDeclaration:
-	FieldDeclaration	{ $$ = $1; if (parsenum==2) {current_ste=current_ste->next;} }
+	FieldDeclaration	{ 
+							$$ = $1;
+							if (parsenum==2) {
+								current_ste=current_ste->next;
+							} 
+						}
 |	MethodDeclaration	{ $$ = $1; }
 ;
 
@@ -328,8 +352,20 @@ FieldDeclaration:
 ;
 
 VariableDeclarators:
-	VariableDeclarator	{ $$ = create_node(2,"Variable_declarators",$1) ; if(parsenum==2){ current_ste=current_ste->next;}}
-|	VariableDeclarators COMMA VariableDeclarator	{ $1->children.push_back($2);$1->children.push_back($3); $$ =$1 ;if (parsenum==2){ current_ste=current_ste->next; } }
+	VariableDeclarator	{ 
+							$$ = create_node(2,"Variable_declarators",$1); 
+							if(parsenum==2){ 
+								current_ste=current_ste->next;
+							}
+						}
+|	VariableDeclarators COMMA VariableDeclarator	{ 
+														$1->children.push_back($2);
+														$1->children.push_back($3); 
+														$$ =$1 ;
+														if (parsenum==2){ 
+															current_ste=current_ste->next; 
+														} 
+													}
 ;
 
 VariableDeclarator:
@@ -342,8 +378,16 @@ VariableDeclarator:
 ;
 
 VariableDeclaratorId:
-	IDENTIFIER	{ $$ = create_node(2,"Variable_Declarator_Id",$1) ;  $1->isvar=1; $$->addr = $1->addr; }
-|	VariableDeclaratorId LSPAR RSPAR	{ $1->children.push_back($2);$1->children.push_back($3); $$ =$1 ;} 
+	IDENTIFIER	{ 
+					$$ = create_node(2,"Variable_Declarator_Id",$1);
+					$1->isvar=1; 
+					$$->addr = $1->addr; 
+				}
+|	VariableDeclaratorId LSPAR RSPAR	{
+											$1->children.push_back($2);
+											$1->children.push_back($3); 
+											$$ =$1;
+										} 
 ;
 
 VariableInitializer:
@@ -481,7 +525,11 @@ Throws:
 
 ClassTypeList:
 	ClassType	{ $$ = create_node(2,"Class_Type_List",$1) ; }
-|	ClassTypeList COMMA ClassType	{ $1->children.push_back($2);$1->children.push_back($3); $$ =$1 ;} 
+|	ClassTypeList COMMA ClassType	{ 
+										$1->children.push_back($2);
+										$1->children.push_back($3); 
+										$$ =$1;
+									} 
 ;
 
 MethodBody:
@@ -583,17 +631,42 @@ InterfaceDeclaration:
 
 ExtendsInterfaces:
 	EXTENDS InterfaceType	{ $$ = create_node(3,"Extends_Interfaces",$1,$2) ; } 
-|	ExtendsInterfaces COMMA InterfaceType	{ $1->children.push_back($2);$1->children.push_back($3); $$ =$1 ; } 
+|	ExtendsInterfaces COMMA InterfaceType	{ 
+												$1->children.push_back($2);
+												$1->children.push_back($3); 
+												$$ =$1; 
+											} 
 ;
 
 InterfaceBody:
-	lmpara InterfaceMemberDeclarations rmpara	{ $$ = create_node ( 4 ,"InterfaceBody", $1, $2, $3); if (parsenum==2){current_ste=current_ste->next;}} 
-|	lmpara rmpara	{ $$ = create_node ( 3 ,"InterfaceBody", $1, $2);if (parsenum==2){current_ste=current_ste->next;}} 
+	lmpara InterfaceMemberDeclarations rmpara	{ 
+													$$ = create_node ( 4 ,"InterfaceBody", $1, $2, $3); 
+													if (parsenum==2){
+														current_ste=current_ste->next;
+													}
+												} 
+|	lmpara rmpara	{ 
+						$$ = create_node ( 3 ,"InterfaceBody", $1, $2);
+						if (parsenum==2){
+							current_ste=current_ste->next;
+						}
+					} 
 ;
 
 InterfaceMemberDeclarations:
-	InterfaceMemberDeclaration	{$$ = create_node(2,"Interface_Member_Declarations",$1) ;if (parsenum==2){current_ste=current_ste->next;}} 
-|	InterfaceMemberDeclarations InterfaceMemberDeclaration	{ $1->children.push_back($2); $$ =$1 ;if (parsenum==2){current_ste=current_ste->next;} } 
+	InterfaceMemberDeclaration	{
+									$$ = create_node(2,"Interface_Member_Declarations",$1);
+									if (parsenum==2){
+										current_ste=current_ste->next;
+									}
+								} 
+|	InterfaceMemberDeclarations InterfaceMemberDeclaration	{ 
+																$1->children.push_back($2); 
+																$$ =$1 ;
+																if (parsenum==2){
+																	current_ste=current_ste->next;
+																	} 
+																} 
 ;
 
 InterfaceMemberDeclaration:
@@ -606,7 +679,14 @@ ConstantDeclaration:
 ;
 
 AbstractMethodDeclaration:
-	MethodHeader SEMICOLON	{ $$ = create_node ( 3 ,"AbstractMethodDeclaration", $1, $2); if (parsenum==2){current_ste=branch.top();branch.pop(); scopeFlag=0;}} 
+	MethodHeader SEMICOLON	{ 
+								$$ = create_node ( 3 ,"AbstractMethodDeclaration", $1, $2); 
+								if (parsenum==2){
+									current_ste=branch.top();
+									branch.pop(); 
+									scopeFlag=0;
+								}
+							} 
 ;
 
 
@@ -663,7 +743,10 @@ BlockStatement:
 ;
 
 LocalVariableDeclarationStatement:
-	LocalVariableDeclaration SEMICOLON	{ $$ = create_node ( 3 ,"LocalVariableDeclarationStatement", $1, $2); $$->ins = $1->ins;}
+	LocalVariableDeclaration SEMICOLON	{ 
+											$$ = create_node ( 3 ,"LocalVariableDeclarationStatement", $1, $2); 
+											$$->ins = $1->ins;
+										}
 ;
 
 LocalVariableDeclaration:
@@ -1764,7 +1847,7 @@ string handle_expression(NODE* node)
 	return node_type;
 }
 
-ste* insert_var_id(NODE * node,string type)
+ste* insert_var_id(NODE * node,string type, bool is_static)
 {
 	string var_name = node->children[0]->val;
 	lineno=node->children[0]->lineno;
@@ -1777,6 +1860,7 @@ ste* insert_var_id(NODE * node,string type)
 		current_ste->lexeme=var_name;
 		current_ste->type=type;
 		current_ste->offset=offset;
+		current_ste->is_static=is_static;
 		current_ste->token="IDENTIFIER";
 		current_ste->lineno=lineno;
 		return_ste=current_ste;
@@ -1807,7 +1891,7 @@ void insert_variable(NODE * local_var_node)
 		string var_id_child_val=var_id_child->val;
 		if (var_id_child_val == "Variable_Declarator_Id")
 		{
-			insert_var_id(var_id_child,type);
+			insert_var_id(var_id_child,type,false);
 		}
 		else if (var_id_child_val == "=")
 		{
@@ -1817,7 +1901,7 @@ void insert_variable(NODE * local_var_node)
 			{
 				type+="[]";
 			}
-			insert_var_id(var_dec_id,type);
+			insert_var_id(var_dec_id,type,false);
 
 			string right_type=handle_expression(var_id_child->children[1]);
 			if (typecast(type,right_type,"=")=="Error")
@@ -2175,6 +2259,7 @@ string handle_array_access(NODE* node){
 string handle_function(NODE* node){
 
 	string node_val = node->val;
+	bool non_static_call = false;
 	if(node_val == "MethodInvocation"){
 		string name = get_invocation_name(node);
 
@@ -2197,7 +2282,8 @@ string handle_function(NODE* node){
 			name=name.substr(dot_index+1);
 		}
 		else
-		{
+		{	
+			non_static_call=true;
 			class_scope=cur_class;
 		}
 
@@ -2223,6 +2309,10 @@ string handle_function(NODE* node){
 				string type=tableMap[class_scope+"-"+(string)name]->return_type;
 				int num_params=tableMap[class_scope+"-"+(string)name]->num_params;
 
+				if(non_static_call && !tableMap[class_scope+"-"+(string)name]->is_static && curr_static_function){
+					string error_message="Error : Cannot call non-static method "+name+" from static context";
+					yerror(error_message);
+				}
 				int arg_flag=0;
 					
 				for(auto node_child: node->children){
@@ -2522,6 +2612,14 @@ void fieldSymTable(NODE* node)
 	int length= node->children.size();
 	string type = get_type(node->children[length-3]);
 	if (length==4){
+		NODE* modifiers= node->children[0];
+		bool is_static = false;
+		for(auto modifier: modifiers->children){
+			string modifier_val=modifier->val;
+			if (modifier_val == "static"){
+				is_static = true;
+			}
+		}
 		NODE* var_dec_node=node->children[length-2];
 		for (auto var_id_child : var_dec_node->children)
 		{
@@ -2531,7 +2629,7 @@ void fieldSymTable(NODE* node)
 				int dim=vardim(var_id_child);
 				for(int i=0;i<dim;i++)
 					type=type+"[]";
-				ste* entry=insert_var_id(var_id_child,type);
+				ste* entry=insert_var_id(var_id_child,type, is_static);
 				stme* field_entry=new stme;
 				field_entry->num_params=-1;
 				field_entry->entry=entry;
@@ -2547,7 +2645,7 @@ void fieldSymTable(NODE* node)
 				for(int i=0;i<dim;i++)
 					type=type+"[]";
 				NODE* var_dec_id = var_id_child->children[0];
-				ste* entry=insert_var_id(var_dec_id,type);
+				ste* entry=insert_var_id(var_dec_id,type, is_static);
 				stme* field_entry=new stme;
 				field_entry->num_params=-1;
 				field_entry->entry=entry;
@@ -2569,7 +2667,7 @@ void fieldSymTable(NODE* node)
 		string var_id_child_val=var_id_child->val;
 		if (var_id_child_val == "Variable_Declarator_Id")
 		{
-			ste* entry=insert_var_id(var_id_child,type);
+			ste* entry=insert_var_id(var_id_child,type,false);
 			stme* field_entry=new stme;
 			field_entry->num_params=-1;
 			field_entry->entry=entry;
@@ -2581,7 +2679,7 @@ void fieldSymTable(NODE* node)
 		else if (var_id_child_val == "=")
 		{
 			NODE* var_dec_id = var_id_child->children[0];
-			ste* entry=insert_var_id(var_dec_id,type);
+			ste* entry=insert_var_id(var_dec_id,type,false);
 			stme* field_entry=new stme;
 			field_entry->num_params=-1;
 			field_entry->entry=entry;
@@ -2675,6 +2773,8 @@ void branchMethodSymtable(NODE* declaration_node)
 		}
 	}
 	int index=0;
+	bool is_static = false;
+	curr_static_function = false;
 	for (auto node : header_node->children)
 	{	
 		index+=1;
@@ -2684,6 +2784,16 @@ void branchMethodSymtable(NODE* declaration_node)
 			continue;
 		}
 		string node_val=node->val;
+		if(node_val=="Modifiers"){
+			NODE* modifiers=node;
+			for(auto modifier: modifiers->children){
+				string modifier_val=modifier->val;
+				if (modifier_val == "static"){
+					is_static = true;
+					curr_static_function = true;
+				}
+			}
+		}
 		if(node_val == "MethodDeclarator")
 		{
 			NODE* identifier_node=node->children[0];
@@ -2700,7 +2810,8 @@ void branchMethodSymtable(NODE* declaration_node)
 			table_entry->entry=current_ste;
 			table_entry->return_type=type;
 			table_entry->num_params=0;
-
+			table_entry->is_static=is_static;
+			current_ste->class_entry = table_entry;
 			tableMap[id_node_val]=table_entry;
 			table_entry->next=classMap[cur_class];
 			classMap[cur_class]=table_entry;
@@ -2739,7 +2850,7 @@ void ParameterSymtable(NODE* param_node)
 	{
 		type+="[]";
 	}
-	insert_var_id(var_node,type);
+	insert_var_id(var_node,type, false);
 }
 
 void classoffset(){
@@ -2881,9 +2992,9 @@ void printToCSV(){
 			string filename = filePath + "/" + curr->id + ".csv";
 			fout.open(filename);
 			
-			fout<<"Function name:,Return Type, Number of Parameters ,Lexeme,Type,Line Number,Token,Offset"<<endl;
+			fout<<"Function name:,Return Type, Number of Parameters, IsStatic ,Lexeme,Type,Line Number,Token,Offset,Is_Static"<<endl;
 
-			fout<<curr->id<<","<<curr->return_type<<","<<curr->num_params<<",,,,,"<<endl;
+			fout<<curr->id<<","<<curr->return_type<<","<<curr->num_params<<","<<curr->is_static<<",,,,,,"<<endl;
 			ste* current_ste = curr->entry;
 			while(current_ste->next!=NULL || current_ste->next_scope!=NULL || !branch.empty()){
 				if(current_ste->next==NULL && current_ste->next_scope==NULL){
@@ -2897,7 +3008,7 @@ void printToCSV(){
 					continue;
 				}
 
-				fout<<",,,"<<current_ste->lexeme<<","<<current_ste->type<<","<<current_ste->lineno<<","<<current_ste->token<<","<<current_ste->offset<<endl;
+				fout<<",,,,"<<current_ste->lexeme<<","<<current_ste->type<<","<<current_ste->lineno<<","<<current_ste->token<<","<<current_ste->offset<<","<<current_ste->is_static<<endl;
 				current_ste = current_ste->next;
 			}
 			
@@ -2910,9 +3021,9 @@ void printToCSV(){
 		string filename = filePath + "/FieldDeclarations"+ ".csv";
 		fout.open(filename);
 
-		fout<<"Field name:,Return Type, Offset"<<endl;
+		fout<<"Field name:,Return Type, Offset, Is_static"<<endl;
 		for(auto it = v.begin(); it != v.end(); it++){
-			fout<<(*it)->id<<","<<(*it)->entry->type<<","<<(*it)->entry->offset<<endl;
+			fout<<(*it)->id<<","<<(*it)->entry->type<<","<<(*it)->entry->offset<<","<<(*it)->entry->is_static<<endl;
 		}
 		fout.close();
 	}
