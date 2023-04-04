@@ -36,6 +36,6 @@ class GFG {
 	{
 		String seq = "GEEKSFORGEEKS";
 		int n = 13;
-		System.out.println(lps((char[])seq, 0, n - 1));
+		println(lps((char[])seq, 0, n - 1));
 	}
 }

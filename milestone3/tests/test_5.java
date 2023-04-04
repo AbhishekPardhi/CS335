@@ -18,6 +18,6 @@ class TypeConv {
 
 		// Printing the result obtained after
 		// all the promotions are done
-		System.out.println("result = " + result);
+		println("result = " + result);
 	}
 }

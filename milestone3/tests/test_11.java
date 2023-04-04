@@ -31,7 +31,7 @@ class SwapBits {
 	public static void main(String[] args)
 	{
 		int res = swapBits(28, 0, 3, 2);
-		System.out.println("Result = " + res);
+		println("Result = " + res);
 	}
 }
 

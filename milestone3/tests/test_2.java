@@ -11,7 +11,7 @@ class Rectangle implements Polygon {
   int no;
   // implementation of abstract method
   public void getArea(int length, int breadth) {
-    System.out.println("The area of the rectangle is " + (length * breadth));
+    println("The area of the rectangle is " + (length * breadth));
   }  
   int dim;
   Rectangle(int s){
@@ -25,6 +25,6 @@ class Main {
     Rectangle r1 = new Rectangle();
     r1.getArea(5, 6);
     r1.dim = 1;
-    System.out.println(r1.dim);
+    println(r1.dim);
   }
 }

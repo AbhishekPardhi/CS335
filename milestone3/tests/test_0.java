@@ -70,8 +70,8 @@ class MergeSort {
 	{
 		int n = 6;
 		for (int i = 0; i < n; ++i)
-			System.out.print(arr[i] + " ");
-		System.out.println();
+			println(arr[i] + " ");
+		println();
 	}
 
 	// Driver code
@@ -85,13 +85,13 @@ class MergeSort {
 		arr[4] = 6;
 		arr[5] = 7;
 
-		System.out.println("Given Array");
+		println("Given Array");
 		printArray(arr);
 
 		MergeSort ob = new MergeSort();
 		ob.sort(arr, 0, 6 - 1);
 
-		System.out.println("\nSorted array");
+		println("\nSorted array");
 		printArray(arr);
 	}
 }

@@ -1387,12 +1387,19 @@ FieldAccess:
 ;
 
 MethodInvocation:
-	Name LPAREN ArgumentList RPAREN	{
+	Name LPAREN ArgumentList RPAREN	{	
 										$$ = create_node ( 5 ,"MethodInvocation", $1, $2, $3, $4);
 										$$->ins = instCount+1;
-										$$->addr = str_to_ch(newTemp());
-										create_ins(0,$$->addr,"=","call",$1->addr);
-										create_ins(0,"PopParam",$3->addr,"","");
+										if((string)$1->val=="println"){
+											create_ins(0,"Print",$3->addr,"","");
+											$$->addr = str_to_ch("0");
+											break;
+										}
+										else{
+											$$->addr = str_to_ch(newTemp());
+											create_ins(0,$$->addr,"=","call",$1->addr);
+											create_ins(0,"PopParam",$3->addr,"","");
+										}
 									} 
 |	Name LPAREN RPAREN	{
 							$$ = create_node ( 4 ,"MethodInvocation", $1, $2, $3);
@@ -2726,7 +2733,7 @@ string handle_function(NODE* node){
 			ste* lookup_ste=lookup(current_ste,name.substr(0,dot_index));
 			if (lookup_ste!=NULL)
 				class_scope=lookup_ste->type;
-			else if (name.substr(0,dot_index)=="this"|| name.substr(0,dot_index)=="System")
+			else if (name.substr(0,dot_index)=="this")
 			{
 				class_scope=cur_class;
 			}
@@ -2743,7 +2750,7 @@ string handle_function(NODE* node){
 			class_scope=cur_class;
 		}
 
-		if (name=="out.println" || name=="out.print")
+		if (name=="println")
 		{
 			//check child node for "argumentList"
 			for(auto node_child: node->children){
