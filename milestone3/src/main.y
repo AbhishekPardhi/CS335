@@ -169,14 +169,25 @@ SimpleName:
 
 QualifiedName:
 	Name DOT IDENTIFIER	{
-							$$ = create_node ( 4 ,"Qualified_Name", $1, $2, $3);
+							$$ = create_node ( 4 ,"Qualified_Name", $1, $2, $3);							
 							$$->ins = instCount+1;
 							string reg1 = newTemp();
-							create_ins(0,reg1,"=","symtable("+string($1->addr)+","+string($3->addr)+")","");
-							// find offset
-							string reg2 = newTemp();
-							create_ins(1,reg2,"+",string($1->addr),reg1);
-							$$->addr = str_to_ch("* "+reg2);
+							
+							if((string)$3->val == "length"){
+								string name = get_invocation_name($1);
+								ste* lookup_ste = lookup(current_ste, name);
+								if(lookup_ste!=NULL){
+									int length = lookup_ste->dims[lookup_ste->dims.size()-1];
+									create_ins(0,reg1,"=",to_string(length),"");
+								}
+							}
+							else{
+								create_ins(0,reg1,"=","symtable("+string($1->addr)+","+string($3->addr)+")","");
+								// find offset
+								string reg2 = newTemp();
+								create_ins(1,reg2,"+",string($1->addr),reg1);
+								$$->addr = str_to_ch("* "+reg2);
+							}
 						} 
 ;
 
@@ -289,7 +300,7 @@ rmpara:
 				}
 			}
 ;
-;
+
 Super:
 	EXTENDS ClassType	{ $$ = create_node ( 3 ,"Super", $1, $2); } 
 ;
@@ -3173,7 +3184,7 @@ int main(int argc, char* argv[]){
 	classoffset();
 	printToCSV();
 	current_ste=start_ste->next;
-	print_ste(start_ste);
+	/* print_ste(start_ste); */
 	fp = fopen(("../tests/"+input_file).c_str(), "r");
 	if(!fp){
 		cout << "Error opening file: " << input_file << endl;
