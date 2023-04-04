@@ -1,7 +1,7 @@
 <!-- For statements -->
 (lite) Function invocations
 <!-- Expressions -->
-(lite) Method declarations
+<!-- (lite) Method declarations -->
 <!-- Quadruples -->
 FieldAccess
 (lite) Number of bytes for offset
@@ -17,3 +17,6 @@ for arr[2]=4 => Check if arrayBase exists, then set $->arrayBase[$->addr] to be 
 - [] Function call - Parameters
 - [] Instance creation using offset
 - [] Field Access using offset
+
+Wow:
+ArrayAccess->ArrayAccess(was initially PrimaryNoNewArray) LSPAR Expression RSPAR
