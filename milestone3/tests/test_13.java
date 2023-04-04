@@ -70,7 +70,7 @@ class LIS {
         arr[6]=41;
         arr[7]=60;
 
-		int n = arr.length;
+		int n = 8;
 
 		// Function call
 		System.out.println("Length of lis is "

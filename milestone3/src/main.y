@@ -43,7 +43,6 @@
 
 	void yerror(string s)
 	{
-		print_ste(start_ste);
 		cout<<s<<" at line number "<<lineno<<endl;
 		exit(1);
 	}
@@ -179,21 +178,11 @@ QualifiedName:
 							$$->ins = instCount+1;
 							string reg1 = newTemp();
 							
-							if((string)$3->val == "length"){
-								string name = get_invocation_name($1);
-								ste* lookup_ste = lookup(current_ste, name);
-								if(lookup_ste!=NULL){
-									int length = lookup_ste->dims[lookup_ste->dims.size()-1];
-									create_ins(0,reg1,"=",to_string(length),"");
-								}
-							}
-							else{
-								create_ins(0,reg1,"=","symtable("+string($1->addr)+","+string($3->addr)+")","");
-								// find offset
-								string reg2 = newTemp();
-								create_ins(1,reg2,"+",string($1->addr),reg1);
-								$$->addr = str_to_ch("* "+reg2);
-							}
+							create_ins(0,reg1,"=","symtable("+string($1->addr)+","+string($3->addr)+")","");
+							// find offset
+							string reg2 = newTemp();
+							create_ins(1,reg2,"+",string($1->addr),reg1);
+							$$->addr = str_to_ch("* "+reg2);
 						} 
 ;
 
@@ -2824,28 +2813,7 @@ string handle_function(NODE* node){
 		int dot_index=name.find(".");
 		string first=name.substr(0,dot_index);
 		string second=name.substr(dot_index+1);		 
-		if (second=="length")
-		{
-			ste* lookup_ste=lookup(current_ste,name.substr(0,dot_index));
-			if (lookup_ste!=NULL)
-			{
-				string type=lookup_ste->type;
-				if (type.substr(type.size()-2,2)=="[]" )
-				{
-					return "int";
-				}
-				else
-				{
-					string error_message="Error : "+name.substr(0,dot_index)+" is not an array";
-					yerror(error_message);
-				}
-			}
-			else
-			{
-				string error_mesaage="Error : variable "+name.substr(0,dot_index)+" was not declared";
-				yerror(error_mesaage);
-			}
-		}
+		
 		ste* lookup_ste=lookup(current_ste,name);
 		if (lookup_ste!=NULL)
 		{

@@ -68,7 +68,7 @@ class MergeSort {
 	/* A utility function to print array of size n */
 	static void printArray(int arr[])
 	{
-		int n = arr.length;
+		int n = 6;
 		for (int i = 0; i < n; ++i)
 			System.out.print(arr[i] + " ");
 		System.out.println();
@@ -77,13 +77,19 @@ class MergeSort {
 	// Driver code
 	public static void main(String args[])
 	{
-		int arr[] = { 12, 11, 13, 5, 6, 7 };
+		int arr[] = new int[6];
+		arr[0] = 12;
+		arr[1] = 11;
+		arr[2] = 13;
+		arr[3] = 5;
+		arr[4] = 6;
+		arr[5] = 7;
 
 		System.out.println("Given Array");
 		printArray(arr);
 
 		MergeSort ob = new MergeSort();
-		ob.sort(arr, 0, arr.length - 1);
+		ob.sort(arr, 0, 6 - 1);
 
 		System.out.println("\nSorted array");
 		printArray(arr);

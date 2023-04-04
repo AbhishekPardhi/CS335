@@ -51,7 +51,7 @@ class ActivitySelection {
         f[4]=9;
         f[5]=9;
 
-		int n = s.length;
+		int n = 6;
 
 		// Function call
 		printMaxActivities(s, f, n);
