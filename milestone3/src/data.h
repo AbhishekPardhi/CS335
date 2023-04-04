@@ -18,6 +18,7 @@ typedef struct node
     vector<int> falselist;
     vector<int> nextlist;
     vector<struct node *> children;
+    char *arrayBase;
 } NODE;
 
 NODE *create_node(int n_args, ...);

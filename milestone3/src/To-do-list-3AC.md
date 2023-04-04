@@ -10,6 +10,7 @@ CLASSSSS
 break(done), continue(remaining)
 Print statement
 Get offset for qulaified name
+for arr[2]=4 => Check if arrayBase exists, then set $->arrayBase[$->addr] to be the address
 
 - Features to flex
 - [] Function call - QualifiedName

@@ -166,7 +166,11 @@ Name:
 ;
 
 SimpleName:
-	IDENTIFIER	{ $$ = $1; $$->addr = $$->val; }
+	IDENTIFIER	{
+					$$ = $1;
+					$$->addr = $$->val;
+					$$->arrayBase = $$->val;
+				}
 ;
 
 QualifiedName:
@@ -1225,7 +1229,14 @@ PrimaryNoNewArray:
 |	ClassInstanceCreationExpression	{ $$ = $1; }
 |	FieldAccess	{ $$ = $1; }
 |	MethodInvocation	{ $$ = $1; }
-|	ArrayAccess	{ $$ = $1; }
+|	ArrayAccess	{
+					$$ = $1;
+					string reg1 = string($1->addr);
+					$$->ins = instCount+1;
+					$$->addr = str_to_ch(newTemp());
+					// $$->addr = str_to_ch(string($1->arrayBase)+"[ "+$1->addr+" ]");
+					create_ins(0,string($$->addr),"=",string($1->arrayBase)+"[ "+reg1+" ]","");
+				}
 ;
 
 ClassInstanceCreationExpression:
@@ -1412,23 +1423,25 @@ MethodInvocation:
 ArrayAccess:
 	Name LSPAR Expression RSPAR	{
 									$$ = create_node ( 5 ,"ArrayAccess", $1, $2, $3, $4);
+									$$->arrayBase = $1->arrayBase;
 									$$->ins = instCount+1;
-									string reg1 = newTemp();
-									create_ins(1,reg1,"*",$3->addr,"offset");
-									// $$->addr = str_to_ch(newTemp());
-									// create_ins(0,string($$->addr),"=",string($1->addr)+" [ "+reg1+" ] ","");
-									$$->addr = str_to_ch(string($1->addr)+"[ "+reg1+" ]");
-									if(parsenum==2)
+									if(parsenum>1)
 									{
-										int width = calc_width($$);
-									} 
+										$$->addr = str_to_ch(newTemp());
+										create_ins(1,$$->addr,"*",$3->addr,to_string(calc_width($$)));
+									}
 								}
 |	PrimaryNoNewArray LSPAR Expression RSPAR	{ 
 													$$ = create_node ( 5 ,"ArrayAccess", $1, $2, $3, $4); 
-													if(parsenum==2)
+													$$->arrayBase = $1->arrayBase;
+													$$->ins = instCount+1;
+													if(parsenum>1)
 													{
-														int width = calc_width($$);
-													} 
+														string reg1 = newTemp();
+														create_ins(1,reg1,"*",$3->addr,to_string(calc_width($$)));
+														$$->addr = str_to_ch(newTemp());
+														create_ins(1,$$->addr,"+",$1->addr,reg1);
+													}
 												} 
 ;
 

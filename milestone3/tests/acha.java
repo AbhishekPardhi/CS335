@@ -17,14 +17,14 @@ public class ExampleExpression {
     
     public static void main(String[] args) {
       // int x=0;
-      int arr[] = new int[3];
+      int arr[][] = new int[3][4];
       // x=something(arr[2]);
       // MyClass myObject = new MyClass();
       // System.out.println(myObject.ankur);
       // myObject.l=2;
       // myObject.sayHello();
       // MyClass myObject = new MyClass(2,3.14);
-      arr[2]=3;
-      something(arr[2]);
+      int x = arr[2][3];
+      // something(arr[2]);
     }
   }
