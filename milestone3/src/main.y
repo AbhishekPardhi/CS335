@@ -169,14 +169,25 @@ SimpleName:
 
 QualifiedName:
 	Name DOT IDENTIFIER	{
-							$$ = create_node ( 4 ,"Qualified_Name", $1, $2, $3);
+							$$ = create_node ( 4 ,"Qualified_Name", $1, $2, $3);							
 							$$->ins = instCount+1;
 							string reg1 = newTemp();
-							create_ins(0,reg1,"=","symtable("+string($1->addr)+","+string($3->addr)+")","");
-							// find offset
-							string reg2 = newTemp();
-							create_ins(1,reg2,"+",string($1->addr),reg1);
-							$$->addr = str_to_ch("* "+reg2);
+							
+							if((string)$3->val == "length"){
+								string name = get_invocation_name($1);
+								ste* lookup_ste = lookup(current_ste, name);
+								if(lookup_ste!=NULL){
+									int length = lookup_ste->dims[lookup_ste->dims.size()-1];
+									create_ins(0,reg1,"=",to_string(length),"");
+								}
+							}
+							else{
+								create_ins(0,reg1,"=","symtable("+string($1->addr)+","+string($3->addr)+")","");
+								// find offset
+								string reg2 = newTemp();
+								create_ins(1,reg2,"+",string($1->addr),reg1);
+								$$->addr = str_to_ch("* "+reg2);
+							}
 						} 
 ;
 
@@ -289,6 +300,7 @@ rmpara:
 				}
 			}
 ;
+
 Super:
 	EXTENDS ClassType	{ $$ = create_node ( 3 ,"Super", $1, $2); } 
 ;
@@ -1207,7 +1219,7 @@ PrimaryNoNewArray:
 |	STRING_LITERAL	{ $$ = $1; $$->addr = $$->val; $1->type=str_to_ch("String");}
 |	TEXTBLOCK_LITERAL	{ $$ = $1; $$->addr = $$->val; $1->type=str_to_ch("text_block");}
 |	THIS	{ $$ = $1; }
-|	LPAREN Expression RPAREN	{ $$ = create_node ( 4 ,"PrimaryNoNewArray", $1, $2, $3); } 
+|	LPAREN Expression RPAREN	{ $$ = create_node ( 4 ,"PrimaryNoNewArray", $1, $2, $3);$$->addr=$2->addr; } 
 |	ClassInstanceCreationExpression	{ $$ = $1; }
 |	FieldAccess	{ $$ = $1; }
 |	MethodInvocation	{ $$ = $1; }
@@ -1459,10 +1471,34 @@ UnaryExpressionNotPlusMinus:
 ;
 
 CastExpression:
-	LPAREN PrimitiveType Dims RPAREN UnaryExpression	{ $$ = create_node ( 6 ,"CastExpression", $1, $2, $3, $4, $5); } 
-|	LPAREN PrimitiveType RPAREN UnaryExpression	{ $$ = create_node ( 5 ,"CastExpression", $1, $2, $3, $4); } 
-|	LPAREN Expression RPAREN UnaryExpressionNotPlusMinus	{ $$ = create_node ( 5 ,"CastExpression", $1, $2, $3, $4); } 
-|	LPAREN Name Dims RPAREN UnaryExpressionNotPlusMinus	{ $$ = create_node ( 6 ,"CastExpression", $1, $2, $3, $4, $5); } 
+	LPAREN PrimitiveType Dims RPAREN UnaryExpression	{ 
+															$$ = create_node ( 6 ,"CastExpression", $1, $2, $3, $4, $5); 
+															string type=get_type($2)+get_type($3);
+															$$->ins=instCount+1;
+															$$->addr=str_to_ch(newTemp());
+															create_ins(1,$$->addr,"cast_to_"+type,"",$5->addr);
+														} 
+|	LPAREN PrimitiveType RPAREN UnaryExpression	{ 
+													$$ = create_node ( 5 ,"CastExpression", $1, $2, $3, $4); 
+													$$->ins=instCount+1;
+													string type=get_type($2);
+													$$->addr=str_to_ch(newTemp());
+													create_ins(1,$$->addr,"cast_to_"+type,"",$4->addr);
+												} 
+|	LPAREN Expression RPAREN UnaryExpressionNotPlusMinus	{ 
+																$$ = create_node ( 5 ,"CastExpression", $1, $2, $3, $4);
+																string type=handle_expression($2);
+																$$->ins=instCount+1;
+																$$->addr=str_to_ch(newTemp());
+																create_ins(1,$$->addr,"cast_to_"+type,"",$4->addr);
+															} 
+|	LPAREN Name Dims RPAREN UnaryExpressionNotPlusMinus	{ 
+															$$ = create_node ( 6 ,"CastExpression", $1, $2, $3, $4, $5); 
+															string type=get_type($2)+get_type($3);
+															$$->ins=instCount+1;
+															$$->addr=str_to_ch(newTemp());
+															create_ins(1,$$->addr,"cast_to_"+type,"",$5->addr);
+														} 
 ;
 
 MultiplicativeExpression:
@@ -1491,12 +1527,46 @@ AdditiveExpression:
 	MultiplicativeExpression	{ $$ = $1; }
 |	AdditiveExpression PLUS MultiplicativeExpression	{
 															$$ = create_node ( 3 ,$2->val, $1, $3);
+															if (parsenum==2){
+																string t1=handle_expression($1),t2=handle_expression($3);
+																string res=typecast(t1,t2,$2->val);
+
+																if (res!=t1)
+																{
+																	char* temp=$1->addr;
+																	$1->addr=str_to_ch(newTemp());
+																	create_ins(1,$1->addr,"cast_to_"+res,"",temp);
+																}
+																else if (res!=t2)
+																{
+																	char* temp=$3->addr;
+																	$3->addr=str_to_ch(newTemp());
+																	create_ins(1,$3->addr,"cast_to_"+res,"",temp);
+																}
+															}
 															$$->ins = instCount+1;
 															$$->addr = str_to_ch(newTemp());
 															create_ins(1,$$->addr,$2->val,$1->addr,$3->addr);
 														} 
 |	AdditiveExpression MINUS MultiplicativeExpression	{
 															$$ = create_node ( 3 ,$2->val, $1, $3);
+															if (parsenum==2){
+																string t1=handle_expression($1),t2=handle_expression($3);
+																string res=typecast(t1,t2,$2->val);
+
+																if (res!=t1)
+																{
+																	char* temp=$1->addr;
+																	$1->addr=str_to_ch(newTemp());
+																	create_ins(1,$1->addr,"cast_to_"+res,"",temp);
+																}
+																else if (res!=t2)
+																{
+																	char* temp=$3->addr;
+																	$3->addr=str_to_ch(newTemp());
+																	create_ins(1,$3->addr,"cast_to_"+res,"",temp);
+																}
+															}
 															$$->ins = instCount+1;
 															$$->addr = str_to_ch(newTemp());
 															create_ins(1,$$->addr,$2->val,$1->addr,$3->addr);
@@ -1507,18 +1577,69 @@ ShiftExpression:
 	AdditiveExpression	{ $$ = $1; }
 |	ShiftExpression LEFT_SHIFT AdditiveExpression	{
 														$$ = create_node ( 3 ,$2->val, $1, $3);
+														if (parsenum==2){
+															string t1=handle_expression($1),t2=handle_expression($3);
+															string res=typecast(t1,t2,$2->val);
+
+															if (res!=t1)
+															{
+																char* temp=$1->addr;
+																$1->addr=str_to_ch(newTemp());
+																create_ins(1,$1->addr,"cast_to_"+res,"",temp);
+															}
+															else if (res!=t2)
+															{
+																char* temp=$3->addr;
+																$3->addr=str_to_ch(newTemp());
+																create_ins(1,$3->addr,"cast_to_"+res,"",temp);
+															}
+														}
 														$$->ins = instCount+1;
 														$$->addr = str_to_ch(newTemp());
 														create_ins(1,$$->addr,$2->val,$1->addr,$3->addr);
 													} 
 |	ShiftExpression RIGHT_SHIFT AdditiveExpression	{
 														$$ = create_node ( 3 ,$2->val, $1, $3);
+														if (parsenum==2){
+															string t1=handle_expression($1),t2=handle_expression($3);
+															string res=typecast(t1,t2,$2->val);
+
+															if (res!=t1)
+															{
+																char* temp=$1->addr;
+																$1->addr=str_to_ch(newTemp());
+																create_ins(1,$1->addr,"cast_to_"+res,"",temp);
+															}
+															else if (res!=t2)
+															{
+																char* temp=$3->addr;
+																$3->addr=str_to_ch(newTemp());
+																create_ins(1,$3->addr,"cast_to_"+res,"",temp);
+															}
+														}
 														$$->ins = instCount+1;
 														$$->addr = str_to_ch(newTemp());
 														create_ins(1,$$->addr,$2->val,$1->addr,$3->addr);
 													} 
 |	ShiftExpression UNSIGNED_RIGHT_SHIFT AdditiveExpression	{
 																$$ = create_node ( 3 ,$2->val, $1, $3);
+																if (parsenum==2){
+																	string t1=handle_expression($1),t2=handle_expression($3);
+																	string res=typecast(t1,t2,$2->val);
+
+																	if (res!=t1)
+																	{
+																		char* temp=$1->addr;
+																		$1->addr=str_to_ch(newTemp());
+																		create_ins(1,$1->addr,"cast_to_"+res,"",temp);
+																	}
+																	else if (res!=t2)
+																	{
+																		char* temp=$3->addr;
+																		$3->addr=str_to_ch(newTemp());
+																		create_ins(1,$3->addr,"cast_to_"+res,"",temp);
+																	}
+																}
 																$$->ins = instCount+1;
 																$$->addr = str_to_ch(newTemp());
 																create_ins(1,$$->addr,$2->val,$1->addr,$3->addr);
@@ -1529,6 +1650,23 @@ RelationalExpression:
 	ShiftExpression	{ $$ = $1; }
 |	RelationalExpression LT ShiftExpression	{
 												$$ = create_node ( 3 ,$2->val, $1, $3); 
+												if (parsenum==2){
+													string t1=handle_expression($1),t2=handle_expression($3);
+													string res=typecast(t1,t2,$2->val);
+
+													if (res!=t1)
+													{
+														char* temp=$1->addr;
+														$1->addr=str_to_ch(newTemp());
+														create_ins(1,$1->addr,"cast_to_"+res,"",temp);
+													}
+													else if (res!=t2)
+													{
+														char* temp=$3->addr;
+														$3->addr=str_to_ch(newTemp());
+														create_ins(1,$3->addr,"cast_to_"+res,"",temp);
+													}
+												}
 												$$->ins = instCount+1;
 												$$->addr = str_to_ch(newTemp());
 												create_ins(1,$$->addr,$2->val,$1->addr,$3->addr);
@@ -1539,6 +1677,23 @@ RelationalExpression:
 											} 
 |	RelationalExpression GT ShiftExpression	{
 												$$ = create_node ( 3 ,$2->val, $1, $3); 
+												if (parsenum==2){
+													string t1=handle_expression($1),t2=handle_expression($3);
+													string res=typecast(t1,t2,$2->val);
+
+													if (res!=t1)
+													{
+														char* temp=$1->addr;
+														$1->addr=str_to_ch(newTemp());
+														create_ins(1,$1->addr,"cast_to_"+res,"",temp);
+													}
+													else if (res!=t2)
+													{
+														char* temp=$3->addr;
+														$3->addr=str_to_ch(newTemp());
+														create_ins(1,$3->addr,"cast_to_"+res,"",temp);
+													}
+												}
 												$$->ins = instCount+1;
 												$$->addr = str_to_ch(newTemp());
 												create_ins(1,$$->addr,$2->val,$1->addr,$3->addr);
@@ -1549,6 +1704,23 @@ RelationalExpression:
 											} 
 |	RelationalExpression LE ShiftExpression	{
 												$$ = create_node ( 3 ,$2->val, $1, $3); 
+												if (parsenum==2){
+													string t1=handle_expression($1),t2=handle_expression($3);
+													string res=typecast(t1,t2,$2->val);
+
+													if (res!=t1)
+													{
+														char* temp=$1->addr;
+														$1->addr=str_to_ch(newTemp());
+														create_ins(1,$1->addr,"cast_to_"+res,"",temp);
+													}
+													else if (res!=t2)
+													{
+														char* temp=$3->addr;
+														$3->addr=str_to_ch(newTemp());
+														create_ins(1,$3->addr,"cast_to_"+res,"",temp);
+													}
+												}
 												$$->ins = instCount+1;
 												$$->addr = str_to_ch(newTemp());
 												create_ins(1,$$->addr,$2->val,$1->addr,$3->addr);
@@ -1559,6 +1731,23 @@ RelationalExpression:
 											} 
 |	RelationalExpression GE ShiftExpression	{
 												$$ = create_node ( 3 ,$2->val, $1, $3); 
+												if (parsenum==2){
+													string t1=handle_expression($1),t2=handle_expression($3);
+													string res=typecast(t1,t2,$2->val);
+
+													if (res!=t1)
+													{
+														char* temp=$1->addr;
+														$1->addr=str_to_ch(newTemp());
+														create_ins(1,$1->addr,"cast_to_"+res,"",temp);
+													}
+													else if (res!=t2)
+													{
+														char* temp=$3->addr;
+														$3->addr=str_to_ch(newTemp());
+														create_ins(1,$3->addr,"cast_to_"+res,"",temp);
+													}
+												}
 												$$->ins = instCount+1;
 												$$->addr = str_to_ch(newTemp());
 												create_ins(1,$$->addr,$2->val,$1->addr,$3->addr);
@@ -1574,6 +1763,23 @@ EqualityExpression:
 	RelationalExpression	{ $$ = $1; }
 |	EqualityExpression EQUALS_EQUALS RelationalExpression	{
 																$$ = create_node ( 3 ,$2->val, $1, $3);
+																if (parsenum==2){
+																	string t1=handle_expression($1),t2=handle_expression($3);
+																	string res=typecast(t1,t2,$2->val);
+
+																	if (res!=t1)
+																	{
+																		char* temp=$1->addr;
+																		$1->addr=str_to_ch(newTemp());
+																		create_ins(1,$1->addr,"cast_to_"+res,"",temp);
+																	}
+																	else if (res!=t2)
+																	{
+																		char* temp=$3->addr;
+																		$3->addr=str_to_ch(newTemp());
+																		create_ins(1,$3->addr,"cast_to_"+res,"",temp);
+																	}
+																}
 																$$->ins = instCount+1;
 																$$->addr = str_to_ch(newTemp());
 																create_ins(1,$$->addr,$2->val,$1->addr,$3->addr);
@@ -1584,6 +1790,23 @@ EqualityExpression:
 															} 
 |	EqualityExpression NOT_EQUALS RelationalExpression	{
 															$$ = create_node ( 3 ,$2->val, $1, $3);
+															if (parsenum==2){
+																string t1=handle_expression($1),t2=handle_expression($3);
+																string res=typecast(t1,t2,$2->val);
+
+																if (res!=t1)
+																{
+																	char* temp=$1->addr;
+																	$1->addr=str_to_ch(newTemp());
+																	create_ins(1,$1->addr,"cast_to_"+res,"",temp);
+																}
+																else if (res!=t2)
+																{
+																	char* temp=$3->addr;
+																	$3->addr=str_to_ch(newTemp());
+																	create_ins(1,$3->addr,"cast_to_"+res,"",temp);
+																}
+															}
 															$$->ins = instCount+1;
 															create_ins(1,$$->addr,$2->val,$1->addr,$3->addr);
 															$$->truelist = makelist(instCount+1);
@@ -1596,6 +1819,23 @@ AndExpression:
 	EqualityExpression	{ $$ = $1; }
 |	AndExpression BITWISE_AND EqualityExpression	{
 														$$ = create_node ( 3 ,$2->val, $1, $3);
+														if (parsenum==2){
+															string t1=handle_expression($1),t2=handle_expression($3);
+															string res=typecast(t1,t2,$2->val);
+
+															if (res!=t1)
+															{
+																char* temp=$1->addr;
+																$1->addr=str_to_ch(newTemp());
+																create_ins(1,$1->addr,"cast_to_"+res,"",temp);
+															}
+															else if (res!=t2)
+															{
+																char* temp=$3->addr;
+																$3->addr=str_to_ch(newTemp());
+																create_ins(1,$3->addr,"cast_to_"+res,"",temp);
+															}
+														}
 														$$->ins = instCount+1;
 														$$->addr = str_to_ch(newTemp());
 														create_ins(1,$$->addr,$2->val,$1->addr,$3->addr);
@@ -1606,6 +1846,23 @@ ExclusiveOrExpression:
 	AndExpression	{ $$ = $1; }
 |	ExclusiveOrExpression XOR AndExpression	{
 												$$ = create_node ( 3 ,$2->val, $1, $3);
+												if (parsenum==2){
+													string t1=handle_expression($1),t2=handle_expression($3);
+													string res=typecast(t1,t2,$2->val);
+
+													if (res!=t1)
+													{
+														char* temp=$1->addr;
+														$1->addr=str_to_ch(newTemp());
+														create_ins(1,$1->addr,"cast_to_"+res,"",temp);
+													}
+													else if (res!=t2)
+													{
+														char* temp=$3->addr;
+														$3->addr=str_to_ch(newTemp());
+														create_ins(1,$3->addr,"cast_to_"+res,"",temp);
+													}
+												}
 												$$->ins = instCount+1;
 												$$->addr = str_to_ch(newTemp());
 												create_ins(1,$$->addr,$2->val,$1->addr,$3->addr);
@@ -1616,6 +1873,23 @@ InclusiveOrExpression:
 	ExclusiveOrExpression	{ $$ = $1; }
 |	InclusiveOrExpression BITWISE_OR ExclusiveOrExpression	{
 																$$ = create_node ( 3 ,$2->val, $1, $3);
+																if (parsenum==2){
+																	string t1=handle_expression($1),t2=handle_expression($3);
+																	string res=typecast(t1,t2,$2->val);
+
+																	if (res!=t1)
+																	{
+																		char* temp=$1->addr;
+																		$1->addr=str_to_ch(newTemp());
+																		create_ins(1,$1->addr,"cast_to_"+res,"",temp);
+																	}
+																	else if (res!=t2)
+																	{
+																		char* temp=$3->addr;
+																		$3->addr=str_to_ch(newTemp());
+																		create_ins(1,$3->addr,"cast_to_"+res,"",temp);
+																	}
+																}
 																$$->ins = instCount+1;
 																$$->addr = str_to_ch(newTemp());
 																create_ins(1,$$->addr,$2->val,$1->addr,$3->addr);
@@ -1626,6 +1900,23 @@ ConditionalAndExpression:
 	InclusiveOrExpression	{ $$ = $1; }
 |	ConditionalAndExpression AND InclusiveOrExpression	{
 															$$ = create_node ( 3 ,$2->val, $1, $3);
+															if (parsenum==2){
+																string t1=handle_expression($1),t2=handle_expression($3);
+																string res=typecast(t1,t2,$2->val);
+
+																if (res!=t1)
+																{
+																	char* temp=$1->addr;
+																	$1->addr=str_to_ch(newTemp());
+																	create_ins(1,$1->addr,"cast_to_"+res,"",temp);
+																}
+																else if (res!=t2)
+																{
+																	char* temp=$3->addr;
+																	$3->addr=str_to_ch(newTemp());
+																	create_ins(1,$3->addr,"cast_to_"+res,"",temp);
+																}
+															}
 															$$->ins = instCount+1;
 															backpatch($1->truelist,$3->ins);
 															$$->truelist = $3->truelist;
@@ -1637,6 +1928,23 @@ ConditionalOrExpression:
 	ConditionalAndExpression	{ $$ = $1; }
 |	ConditionalOrExpression OR ConditionalAndExpression	{
 															$$ = create_node ( 3 ,$2->val, $1, $3);
+															if (parsenum==2){
+																string t1=handle_expression($1),t2=handle_expression($3);
+																string res=typecast(t1,t2,$2->val);
+
+																if (res!=t1)
+																{
+																	char* temp=$1->addr;
+																	$1->addr=str_to_ch(newTemp());
+																	create_ins(1,$1->addr,"cast_to_"+res,"",temp);
+																}
+																else if (res!=t2)
+																{
+																	char* temp=$3->addr;
+																	$3->addr=str_to_ch(newTemp());
+																	create_ins(1,$3->addr,"cast_to_"+res,"",temp);
+																}
+															}
 															$$->ins = instCount+1;
 															backpatch($1->falselist,$3->ins);
 															$$->truelist = merge($1->truelist,$3->truelist);
@@ -1665,6 +1973,17 @@ AssignmentExpression:
 Assignment:
 	LeftHandSide AssignmentOperator AssignmentExpression	{
 																$$ = create_node ( 3 ,$2->val, $1, $3);
+																if (parsenum==2){
+																	string t1=handle_expression($1),t2=handle_expression($3);
+																	string res=typecast(t1,t2,$2->val);
+
+																	if (res!=t2)
+																	{
+																		char* temp=$3->addr;
+																		$3->addr=str_to_ch(newTemp());
+																		create_ins(1,$3->addr,"cast_to_"+res,"",temp);
+																	}
+																}
 																$$->ins = instCount+1;
 																string prefix = string($2->val);
 																prefix.pop_back();
@@ -2494,7 +2813,7 @@ string typecast(string typ1,string typ2,string op)
 		t1=typeMap[typ1];
 		t2=typeMap[typ2];
 	}
-	if (op=="=" || op =="-" )
+	if (op=="=" )
 	{
 		if (valid)
 		{
@@ -2502,6 +2821,23 @@ string typecast(string typ1,string typ2,string op)
 				return typ1;
 			else
 				return "Error";
+		}
+		else
+		{
+			if (typ1==typ2)
+				return typ1;
+			else
+				return "Error";
+		}
+	}
+	if (op =="-" )
+	{
+		if (valid)
+		{
+			if (t1>=t2)
+				return typ1;
+			else
+				return typ2;
 		}
 		else
 		{
@@ -3188,7 +3524,7 @@ int main(int argc, char* argv[]){
 	classoffset();
 	printToCSV();
 	current_ste=start_ste->next;
-	print_ste(start_ste);
+	/* print_ste(start_ste); */
 	fp = fopen(("../tests/"+input_file).c_str(), "r");
 	if(!fp){
 		cout << "Error opening file: " << input_file << endl;

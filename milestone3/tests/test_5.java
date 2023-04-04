@@ -1,12 +1,23 @@
-class someclass {
-    int f=0;
-    public static void main(String[] args) {
-        int a = 1 + 2 + 3;
-        int b;
-        float d;
-        int x= b+d;  // should throw error
-        char c;
-        a=5;
-        
-    }
+// Java program to Illustrate Type promotion in Expressions
+
+// Main class
+class TypeConv {
+
+	// Main driver method
+	public static void main(String args[])
+	{
+
+		// Declaring and initializing primitive types
+		char c = 'a';
+		int i = 50000;
+		float f = 5.67f;
+		double d = .1234;
+
+		// The Expression
+		double result = (f * 1) + (i / c) - (d * 5);
+
+		// Printing the result obtained after
+		// all the promotions are done
+		System.out.println("result = " + result);
+	}
 }
