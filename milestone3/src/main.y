@@ -43,6 +43,7 @@
 
 	void yerror(string s)
 	{
+		print_ste(start_ste);
 		cout<<s<<" at line number "<<lineno<<endl;
 		exit(1);
 	}
@@ -80,7 +81,7 @@
 }
 
 %token <elem>  BITWISE_AND BITWISE_OR COMMA FINALLY LPAREN RPAREN IDENTIFIER EQUALS DOT CLASS PUBLIC PRIVATE SEMICOLON COLON OR RETURN TRY SYNCHRONIZED THROW BREAK CONTINUE CATCH FINAL IF ELSE WHILE FOR LSPAR RSPAR TIMES_EQUALS DIVIDE_EQUALS MOD_EQUALS PLUS_EQUALS MINUS_EQUALS LEFT_SHIFT_EQUALS RIGHT_SHIFT_EQUALS UNSIGNED_RIGHT_SHIFT_EQUALS AND_EQUALS XOR_EQUALS OR_EQUALS QUESTION NOT_EQUALS LT GT LE GE INSTANCEOF AND XOR PLUS MINUS TIMES DIVIDE MOD PLUS_PLUS MINUS_MINUS TILDE THIS SUPER INT LONG SHORT BYTE CHAR IMPLEMENTS FLOAT DOUBLE BOOLEAN VOID NOT EXTENDS RMPARA LMPARA STATIC LEFT_SHIFT RIGHT_SHIFT UNSIGNED_RIGHT_SHIFT NULL_LITERAL CHAR_LITERAL STRING_LITERAL TEXTBLOCK_LITERAL FLOAT_LITERAL INTEGER_LITERAL BOOLEAN_LITERAL THROWS NEW IMPORT PACKAGE INTERFACE EQUALS_EQUALS 
-%type <elem> for lmpara rmpara Goal CompilationUnit Type PrimitiveType NumericType IntegralType FloatingPointType ReferenceType ClassOrInterfaceType ClassType InterfaceType ArrayType Name SimpleName QualifiedName ImportDeclarations TypeDeclarations PackageDeclaration ImportDeclaration TypeDeclaration Modifiers Modifier ClassDeclaration Super Interfaces ClassBody ClassBodyDeclarations ClassBodyDeclaration ClassMemberDeclaration FieldDeclaration VariableDeclarators VariableDeclarator VariableDeclaratorId VariableInitializer MethodDeclaration MethodHeader MethodDeclarator FormalParameterList Throws ClassTypeList MethodBody StaticInitializer ConstructorDeclaration ConstructorDeclarator ConstructorBody InterfaceDeclaration Expression ArrayInitializer FormalParameter Block SingleTypeImportDeclaration TypeImportOnDemandDeclaration AssignmentExpression ConditionalExpression Assignment ConditionalOrExpression LeftHandSide ConditionalAndExpression InclusiveOrExpression ExclusiveOrExpression AndExpression EqualityExpression RelationalExpression ShiftExpression AdditiveExpression MultiplicativeExpression UnaryExpression PreIncrementExpression PreDecrementExpression UnaryExpressionNotPlusMinus PostIncrementExpression PostDecrementExpression CastExpression Primary PrimaryNoNewArray ArrayCreationExpression ArrayAccess FieldAccess MethodInvocation ClassInstanceCreationExpression ArgumentList PostfixExpression InterfaceTypeList ExplicitConstructorInvocation InterfaceBody InterfaceMemberDeclarations InterfaceMemberDeclaration ConstantDeclaration AbstractMethodDeclaration ExtendsInterfaces AssignmentOperator Dims DimExprs DimExpr VariableInitializers BlockStatements BlockStatement LocalVariableDeclarationStatement Statement StatementNoShortIf StatementWithoutTrailingSubstatement IfThenStatement IfThenElseStatement IfThenElseStatementNoShortIf WhileStatement WhileStatementNoShortIf ForStatement ForStatementNoShortIf ForInit ForUpdate StatementExpression StatementExpressionList LocalVariableDeclaration EmptyStatement LabeledStatement ExpressionStatement BreakStatement ContinueStatement ReturnStatement ThrowStatement SynchronizedStatement TryStatement Catches CatchClause Finally LabeledStatementNoShortIf Else
+%type <elem> ClassID for lmpara rmpara Goal CompilationUnit Type PrimitiveType NumericType IntegralType FloatingPointType ReferenceType ClassOrInterfaceType ClassType InterfaceType ArrayType Name SimpleName QualifiedName ImportDeclarations TypeDeclarations PackageDeclaration ImportDeclaration TypeDeclaration Modifiers Modifier ClassDeclaration Super Interfaces ClassBody ClassBodyDeclarations ClassBodyDeclaration ClassMemberDeclaration FieldDeclaration VariableDeclarators VariableDeclarator VariableDeclaratorId VariableInitializer MethodDeclaration MethodHeader MethodDeclarator FormalParameterList Throws ClassTypeList MethodBody StaticInitializer ConstructorDeclaration ConstructorDeclarator ConstructorBody InterfaceDeclaration Expression ArrayInitializer FormalParameter Block SingleTypeImportDeclaration TypeImportOnDemandDeclaration AssignmentExpression ConditionalExpression Assignment ConditionalOrExpression LeftHandSide ConditionalAndExpression InclusiveOrExpression ExclusiveOrExpression AndExpression EqualityExpression RelationalExpression ShiftExpression AdditiveExpression MultiplicativeExpression UnaryExpression PreIncrementExpression PreDecrementExpression UnaryExpressionNotPlusMinus PostIncrementExpression PostDecrementExpression CastExpression Primary PrimaryNoNewArray ArrayCreationExpression ArrayAccess FieldAccess MethodInvocation ClassInstanceCreationExpression ArgumentList PostfixExpression InterfaceTypeList ExplicitConstructorInvocation InterfaceBody InterfaceMemberDeclarations InterfaceMemberDeclaration ConstantDeclaration AbstractMethodDeclaration ExtendsInterfaces AssignmentOperator Dims DimExprs DimExpr VariableInitializers BlockStatements BlockStatement LocalVariableDeclarationStatement Statement StatementNoShortIf StatementWithoutTrailingSubstatement IfThenStatement IfThenElseStatement IfThenElseStatementNoShortIf WhileStatement WhileStatementNoShortIf ForStatement ForStatementNoShortIf ForInit ForUpdate StatementExpression StatementExpressionList LocalVariableDeclaration EmptyStatement LabeledStatement ExpressionStatement BreakStatement ContinueStatement ReturnStatement ThrowStatement SynchronizedStatement TryStatement Catches CatchClause Finally LabeledStatementNoShortIf Else
 
 %%
 // Grammer
@@ -245,25 +246,28 @@ Modifier:
 ;
 
 ClassDeclaration:
-	Modifiers CLASS IDENTIFIER Super Interfaces ClassBody	{
-																$$ = create_node ( 7 ,"Class_Declaration", $1, $2, $3, $4, $5, $6);
-															} 
-|	CLASS IDENTIFIER Interfaces ClassBody	{
-												$$ = create_node ( 5 ,"Class_Declaration", $1, $2, $3, $4);
-											}
-|	Modifiers CLASS IDENTIFIER Super ClassBody	{
-													$$ = create_node ( 6 ,"Class_Declaration", $1, $2, $3, $4, $5);
-												} 
-|	Modifiers CLASS IDENTIFIER Interfaces ClassBody	{
+	Modifiers ClassID Super Interfaces ClassBody	{
 														$$ = create_node ( 6 ,"Class_Declaration", $1, $2, $3, $4, $5);
 													} 
-|	CLASS IDENTIFIER ClassBody	{	
+|	ClassID Interfaces ClassBody	{
+										$$ = create_node ( 4 ,"Class_Declaration", $1, $2, $3);
+									}
+|	Modifiers ClassID Super ClassBody	{
+											$$ = create_node ( 5 ,"Class_Declaration", $1, $2, $3, $4);
+										} 
+|	Modifiers ClassID Interfaces ClassBody	{
+												$$ = create_node ( 5 ,"Class_Declaration", $1, $2, $3, $4);
+											} 
+|	ClassID ClassBody	{	
+							$$ = create_node ( 3 ,"Class_Declaration", $1, $2);
+						}
+|	Modifiers ClassID ClassBody	{
 									$$ = create_node ( 4 ,"Class_Declaration", $1, $2, $3);
 								}
-|	Modifiers CLASS IDENTIFIER ClassBody	{
-												$$ = create_node ( 5 ,"Class_Declaration", $1, $2, $3, $4);
-											}
 ;
+
+ClassID:
+	CLASS IDENTIFIER	{ $$ = create_node ( 3 ,"Class_ID", $1, $2);  cur_class = $2->val; }
 
 lmpara:
 	LMPARA	{ 
@@ -1420,7 +1424,7 @@ ArrayAccess:
 										create_ins(1,$$->addr,"*",$3->addr,to_string(calc_width($$)));
 									}
 								}
-|	PrimaryNoNewArray LSPAR Expression RSPAR	{ 
+|	ArrayAccess LSPAR Expression RSPAR	{ 
 													$$ = create_node ( 5 ,"ArrayAccess", $1, $2, $3, $4); 
 													$$->arrayBase = $1->arrayBase;
 													$$->ins = instCount+1;
@@ -2056,7 +2060,7 @@ Assignment:
 LeftHandSide:
 	Name	{ $$ = $1; }
 |	FieldAccess	{ $$ = $1; }
-|	ArrayAccess	{ $$ = $1; }
+|	ArrayAccess	{ $$ = $1; $$->addr = str_to_ch("*"+(string)$1->addr); }
 ;
 
 AssignmentOperator: 
@@ -2178,7 +2182,7 @@ string handle_field_access(NODE* node)
 		if (lookup_stme==NULL)
 		{
 			string e_message="Error : Field " + (string) right->val + " not declared in Class "+cur_class;
-			lineno=node->children[0]->lineno;
+			lineno=left->lineno;
 			yerror(e_message);
 		}
 		else
@@ -2568,6 +2572,7 @@ void searchAST(NODE* node)
 	}
 	else if (temp=="Class_Declaration"){
 		handle_class_declaration(node);
+		return; 
 	}
 	for(int i = 0; i < node->children.size(); i++)
 	{
@@ -2576,16 +2581,14 @@ void searchAST(NODE* node)
 }
 
 string handle_class_declaration( NODE * node){
-
 	for(int i=0;i<node->children.size();i++){
 		string node_val = node->children[i]->val;
-		if(node_val=="class"){
-			string class_name = node->children[i+1]->val;
+		if(node_val=="Class_ID"){
+			string class_name = node->children[i]->children[1]->val;
 			if(classMap.find(class_name)!=classMap.end()){
-				lineno=node->children[i+1]->lineno;
+				lineno=node->children[i]->children[1]->lineno;
 				yerror("Error: Class " + class_name + " redefined");
 			}
-
 			cur_class=class_name;
 			classMap[cur_class]= new stme;
 		}
@@ -2595,6 +2598,10 @@ string handle_class_declaration( NODE * node){
 			{
 				classMap[cur_class]->implements.push_back(interface_child->val);
 			}
+		}
+		else
+		{
+			searchAST(node->children[i]);
 		}
 	}
 
@@ -3604,6 +3611,7 @@ int main(int argc, char* argv[]){
 	instCount=0;
 	tempCount=0;
 	parsenum=2;
+	yylineno=1;
 	yyparse();
 
 	/*--------------------------------------------------------------*/
