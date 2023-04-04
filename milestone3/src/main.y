@@ -1225,6 +1225,7 @@ PrimaryNoNewArray:
 					$$->addr = str_to_ch(newTemp());
 					// $$->addr = str_to_ch(string($1->arrayBase)+"[ "+$1->addr+" ]");
 					create_ins(0,string($$->addr),"=",string($1->arrayBase)+"[ "+reg1+" ]","");
+					if(parsenum>1)cout<<instCount<<endl;
 				}
 ;
 
@@ -1420,7 +1421,7 @@ ArrayAccess:
 										create_ins(1,$$->addr,"*",$3->addr,to_string(calc_width($$)));
 									}
 								}
-|	PrimaryNoNewArray LSPAR Expression RSPAR	{ 
+|	ArrayAccess LSPAR Expression RSPAR	{ 
 													$$ = create_node ( 5 ,"ArrayAccess", $1, $2, $3, $4); 
 													$$->arrayBase = $1->arrayBase;
 													$$->ins = instCount+1;
@@ -2056,7 +2057,14 @@ Assignment:
 LeftHandSide:
 	Name	{ $$ = $1; }
 |	FieldAccess	{ $$ = $1; }
-|	ArrayAccess	{ $$ = $1; }
+|	ArrayAccess	{
+					$$ = $1;
+					string reg1 = string($1->addr);
+					$$->ins = instCount+1;
+					$$->addr = str_to_ch(newTemp());
+					// $$->addr = str_to_ch(string($1->arrayBase)+"[ "+$1->addr+" ]");
+					create_ins(0,string($$->addr),"=",string($1->arrayBase)+"[ "+reg1+" ]","");
+				}
 ;
 
 AssignmentOperator: 
