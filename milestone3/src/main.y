@@ -1298,8 +1298,32 @@ ArrayCreationExpression:
 									}
 									create_ins(1,$$->addr,"heap_alloc("+to_string(size)+")","","");
 								} 
-|	NEW ClassOrInterfaceType DimExprs Dims	{ $$ = create_node ( 5 ,"ArrayCreationExpression", $1, $2, $3, $4); } 
-|	NEW ClassOrInterfaceType DimExprs	{ $$ = create_node ( 4 ,"ArrayCreationExpression", $1, $2, $3); } 
+|	NEW ClassOrInterfaceType DimExprs Dims	{ 
+												$$ = create_node ( 5 ,"ArrayCreationExpression", $1, $2, $3, $4); 
+												$$->ins = instCount+1;
+												$$->addr = str_to_ch(newTemp());
+												int size = 1;
+												if(parsenum==2){
+													for(int i=0;i<current_ste->dims.size();i++)
+														size *= current_ste->dims[i];
+													
+													size*=getOffset(current_ste->type);
+												}
+												create_ins(1,$$->addr,"heap_alloc("+to_string(size)+")","","");
+											} 
+|	NEW ClassOrInterfaceType DimExprs	{ 
+											$$ = create_node ( 4 ,"ArrayCreationExpression", $1, $2, $3); 
+											$$->ins = instCount+1;
+											$$->addr = str_to_ch(newTemp());
+											int size = 1;
+											if(parsenum==2){
+												for(int i=0;i<current_ste->dims.size();i++)
+													size *= current_ste->dims[i];
+												
+												size*=getOffset(current_ste->type);
+											}
+											create_ins(1,$$->addr,"heap_alloc("+to_string(size)+")","","");
+										} 
 ;
 
 DimExprs:

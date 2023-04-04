@@ -5,7 +5,6 @@
 <!-- Quadruples -->
 FieldAccess
 (lite) Number of bytes for offset
-shift expressions
 CLASSSSS
 (lite) print statements
 break(done), continue(remaining)
