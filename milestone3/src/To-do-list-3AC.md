@@ -4,9 +4,9 @@
 (lite) Method declarations
 <!-- Quadruples -->
 FieldAccess
-(lite) Array initializer
+<!-- (lite) Array initializer -->
 Array.length
-Add a bool
+<!-- Add a bool -->
 (lite) Number of bytes for offset
 shift expressions
 CLASSSSS

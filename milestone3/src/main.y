@@ -289,7 +289,6 @@ rmpara:
 				}
 			}
 ;
-;
 Super:
 	EXTENDS ClassType	{ $$ = create_node ( 3 ,"Super", $1, $2); } 
 ;
@@ -1196,7 +1195,15 @@ PrimaryNoNewArray:
 |	CHAR_LITERAL	{ $$ = $1; $$->addr = $$->val; $1->type=str_to_ch("char");}
 |	FLOAT_LITERAL	{ $$ = $1; $$->addr = $$->val; $1->type=str_to_ch("float");}
 |	INTEGER_LITERAL	{ $$ = $1; $$->addr = $$->val; $$->type=str_to_ch("int");}
-|	BOOLEAN_LITERAL	{ $$ = $1; $$->addr = $$->val; $1->type=str_to_ch("boolean");}
+|	BOOLEAN_LITERAL	{
+						$$ = $1; $$->addr = $$->val; $1->type=str_to_ch("boolean");
+						$$->ins = instCount+1;
+						create_ins(0,"goto","","","");
+						if(string($$->val)=="true")
+							$$->truelist = makelist(instCount);
+						else 
+							$$->falselist = makelist(instCount);
+					}
 |	STRING_LITERAL	{ $$ = $1; $$->addr = $$->val; $1->type=str_to_ch("String");}
 |	TEXTBLOCK_LITERAL	{ $$ = $1; $$->addr = $$->val; $1->type=str_to_ch("text_block");}
 |	THIS	{ $$ = $1; }
@@ -1240,6 +1247,13 @@ ArgumentList:
 	Expression	{
 					$$ = create_node(2,"Argument_List",$1) ;
 					$$->ins = instCount+1;
+					if(string($1->addr).back()==']')
+					{
+						string reg1 = newTemp();
+						create_ins(0,reg1,"=",$1->addr,"");
+						create_ins(0,"PushParam",reg1,"","");
+					}
+					else
 					create_ins(0,"PushParam",$1->addr,"","");
 					$$->addr = str_to_ch(to_string(1));
 				}
@@ -1345,9 +1359,10 @@ ArrayAccess:
 									$$ = create_node ( 5 ,"ArrayAccess", $1, $2, $3, $4);
 									$$->ins = instCount+1;
 									string reg1 = newTemp();
-									create_ins(1,reg1,"*",$3->addr,"4");
-									$$->addr = str_to_ch(newTemp());
-									create_ins(0,string($$->addr),"=",string($1->addr)+" [ "+reg1+" ] ","");
+									create_ins(1,reg1,"*",$3->addr,"offset");
+									// $$->addr = str_to_ch(newTemp());
+									// create_ins(0,string($$->addr),"=",string($1->addr)+" [ "+reg1+" ] ","");
+									$$->addr = str_to_ch(string($1->addr)+"[ "+reg1+" ]");
 								}
 |	PrimaryNoNewArray LSPAR Expression RSPAR	{ $$ = create_node ( 5 ,"ArrayAccess", $1, $2, $3, $4); } 
 ;
