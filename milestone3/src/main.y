@@ -464,6 +464,9 @@ MethodDeclarator:
 														// funcName+=string($3->addr);
 														create_ins(0,funcName,":","","");
 														create_ins(0,"BeginFunc","","","");
+														string reg1 = newTemp();
+														create_ins(0,reg1,"=","poparam","");
+														thisTemps.push(reg1);
 													} 
 |	MethodDeclarator LSPAR RSPAR	{
 										$$ = create_node ( 4 ,"MethodDeclarator", $1, $2, $3);
@@ -492,6 +495,9 @@ MethodDeclarator:
 									funcName+=string($1->addr);
 									create_ins(0,funcName,":","","");
 									create_ins(0,"BeginFunc","","","");
+									string reg1 = newTemp();
+									create_ins(0,reg1,"=","poparam","");
+									thisTemps.push(reg1);
 								} 
 ;
 
@@ -548,12 +554,14 @@ MethodBody:
 				$$ = $1;
 				$$->ins = instCount+1;
 				create_ins(0,"EndFunc","","","");
+				thisTemps.pop();
 				backpatch($1->nextlist,$$->ins);
 			}
 |	SEMICOLON	{
 					$$ = $1;
 					$$->ins = instCount+1;
 					create_ins(0,"EndFunc","","","");
+					thisTemps.pop();
 				}
 ;
 
