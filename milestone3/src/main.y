@@ -40,6 +40,7 @@
 	ste* start_ste = new ste;
 	ste * current_ste = start_ste;
 	int parsenum;
+	stack<string> thisTemps;
 
 	void yerror(string s)
 	{
@@ -549,7 +550,11 @@ MethodBody:
 				create_ins(0,"EndFunc","","","");
 				backpatch($1->nextlist,$$->ins);
 			}
-|	SEMICOLON	{ $$ = $1; }
+|	SEMICOLON	{
+					$$ = $1;
+					$$->ins = instCount+1;
+					create_ins(0,"EndFunc","","","");
+				}
 ;
 
 
@@ -590,6 +595,9 @@ SimpleName LPAREN FormalParameterList RPAREN	{
 														// funcName+=string($3->addr);
 														create_ins(0,funcName,":","","");
 														create_ins(0,"BeginFunc","","","");
+														string reg1 = newTemp();
+														create_ins(0,reg1,"=","poparam","");
+														thisTemps.push(reg1);
 													} 
 |	SimpleName LPAREN RPAREN	{ $$ = create_node ( 4 ,"ConstructorDeclarator", $1, $2, $3); } 
 ;
@@ -599,6 +607,7 @@ ConstructorBody:
 																	$$ = create_node ( 5 ,"ConstructorBody", $1, $2, $3, $4);
 																	$$->ins = instCount+1;
 																	create_ins(0,"EndFunc","","","");
+																	thisTemps.pop();
 																	backpatch($3->nextlist,$$->ins);
 																	if (parsenum==2){current_ste=current_ste->next;}
 																}
@@ -606,6 +615,7 @@ ConstructorBody:
 													$$ = create_node ( 4 ,"ConstructorBody", $1, $2, $3);
 													$$->ins = instCount+1;
 													create_ins(0,"EndFunc","","","");
+													thisTemps.pop();
 													backpatch($2->nextlist,$$->ins);
 													if (parsenum==2){current_ste=current_ste->next;}
 												} 
@@ -613,6 +623,7 @@ ConstructorBody:
 										$$ = create_node ( 4 ,"ConstructorBody", $1, $2, $3);
 										$$->ins = instCount+1;
 										create_ins(0,"EndFunc","","","");
+										thisTemps.pop();
 										backpatch($2->nextlist,$$->ins);
 										if (parsenum==2){current_ste=current_ste->next;}
 									} 
@@ -620,6 +631,7 @@ ConstructorBody:
 						$$ = create_node ( 3 ,"ConstructorBody", $1, $2);
 						$$->ins = instCount+1;
 						create_ins(0,"EndFunc","","","");
+						thisTemps.pop();
 						if (parsenum==2){current_ste=current_ste->next;}
 					}
 ;
@@ -1217,7 +1229,11 @@ PrimaryNoNewArray:
 					}
 |	STRING_LITERAL	{ $$ = $1; $$->addr = $$->val; $1->type=str_to_ch("String");}
 |	TEXTBLOCK_LITERAL	{ $$ = $1; $$->addr = $$->val; $1->type=str_to_ch("text_block");}
-|	THIS	{ $$ = $1; }
+|	THIS	{
+				$$ = $1;
+				if(thisTemps.size()>0)
+					$$->addr = str_to_ch(thisTemps.top());
+			}
 |	LPAREN Expression RPAREN	{ $$ = create_node ( 4 ,"PrimaryNoNewArray", $1, $2, $3);$$->addr=$2->addr; } 
 |	ClassInstanceCreationExpression	{ $$ = $1; }
 |	FieldAccess	{ $$ = $1; }
@@ -1229,7 +1245,6 @@ PrimaryNoNewArray:
 					$$->addr = str_to_ch(newTemp());
 					// $$->addr = str_to_ch(string($1->arrayBase)+"[ "+$1->addr+" ]");
 					create_ins(0,string($$->addr),"=",string($1->arrayBase)+"[ "+reg1+" ]","");
-					if(parsenum>1)cout<<instCount<<endl;
 				}
 ;
 
@@ -1359,8 +1374,10 @@ FieldAccess:
 								$$ = create_node ( 4 ,"FieldAccess", $1, $2, $3);
 								$$->ins = instCount+1;
 								string reg1 = newTemp();
-								create_ins(0,reg1,"=","symtable("+string($1->addr)+","+string($3->addr)+")","");
+								// create_ins(0,reg1,"=","symtable("+string($1->addr)+","+string($3->addr)+")","");
 								// find offset
+								int offset_ = fetchOffset("",$3->addr); 
+								create_ins(0,reg1,"=",to_string(offset_),"");
 								string reg2 = newTemp();
 								create_ins(1,reg2,"+",string($1->addr),reg1);
 								$$->addr = str_to_ch("* "+reg2);
@@ -2066,8 +2083,8 @@ LeftHandSide:
 					string reg1 = string($1->addr);
 					$$->ins = instCount+1;
 					$$->addr = str_to_ch(newTemp());
-					// $$->addr = str_to_ch(string($1->arrayBase)+"[ "+$1->addr+" ]");
-					create_ins(0,string($$->addr),"=",string($1->arrayBase)+"[ "+reg1+" ]","");
+					$$->addr = str_to_ch(string($1->arrayBase)+"[ "+$1->addr+" ]");
+					// create_ins(0,string($$->addr),"=",string($1->arrayBase)+"[ "+reg1+" ]","");
 				}
 ;
 
