@@ -5,9 +5,9 @@ class RecurseFunc {
         if (test < 1)
             return;
         else {
-            System.out.println(test);
+            println(test);
             printFun(test - 1);
-            System.out.println(test);
+            println(test);
             return;
         }
     }

@@ -13,7 +13,7 @@ class Main {
   // calculate the square
   public void square(int num) {
     int result = num * num;
-    System.out.println(result);    // prints 576
+    println(result);    // prints 576
   }
   public static void main(String[] args) {
 

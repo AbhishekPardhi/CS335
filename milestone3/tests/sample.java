@@ -21,7 +21,7 @@ public class ExampleExpression {
       // int arr[][][] = new int[3][4][5];
       // x=something(arr[2]);
       // MyClass myObject = new MyClass();
-      // System.out.println(myObject.ankur);
+      // println(myObject.ankur);
       // myObject.l=2;
       // myObject.sayHello();
       MyClass myObject = new MyClass(2,3.14);

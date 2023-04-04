@@ -22,8 +22,8 @@ class BubbleSort {
 	{
 		int n = 5;
 		for (int i = 0; i < n; ++i)
-			System.out.print(arr[i] + " ");
-		System.out.println();
+			println(arr[i] + " ");
+		println();
 	}
 
 	// Driver method to test above
@@ -38,7 +38,7 @@ class BubbleSort {
         arr[4]=8;
 
 		ob.bubbleSort(arr);
-		System.out.println("Sorted array");
+		println("Sorted array");
 		ob.printArray(arr);
 	}
 }

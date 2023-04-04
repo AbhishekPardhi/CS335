@@ -79,9 +79,9 @@ public static void main(String[] args)
 	// Recursion - DAC_Max function called
 	min = DAC_Min(a, 0, 7);
 	
-	// System.out.printf("The minimum number in " +
+	// printlnf("The minimum number in " +
 	// 				"a given array is : %d\n", min);
-	// System.out.printf("The maximum number in " +
+	// printlnf("The maximum number in " +
 	// 				"a given array is : %d", max);
 }
 }

@@ -14,12 +14,12 @@ class ActivitySelection {
 	{
 		int i, j;
 
-		System.out.println(
+		println(
 			"Following activities are selected");
 
 		// The first activity always gets selected
 		i = 0;
-		System.out.print(i + " ");
+		println(i + " ");
 
 		// Consider rest of the activities
 		for (j = 1; j < n; j++) {
@@ -27,7 +27,7 @@ class ActivitySelection {
 			// or equal to the finish time of previously
 			// selected activity, then select it
 			if (s[j] >= f[i]) {
-				System.out.print(j + " ");
+				println(j + " ");
 				i = j;
 			}
 		}

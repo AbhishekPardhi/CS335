@@ -73,7 +73,7 @@ class LIS {
 		int n = 8;
 
 		// Function call
-		System.out.println("Length of lis is "
+		println("Length of lis is "
 						+ lis(arr, n));
 	}
 }
