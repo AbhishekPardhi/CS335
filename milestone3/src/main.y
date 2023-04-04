@@ -31,6 +31,7 @@
 	string handle_arrayinit(NODE* );
 	string handle_array_creation_Expression(NODE* );
 	string handle_class_declaration(NODE* );
+	int calc_width(NODE*);
 	int fetchOffset(string ,string );
 	int lineno;
 	void print_ste(ste* ,int);
@@ -1278,8 +1279,25 @@ ArgumentList:
 ;
 
 ArrayCreationExpression:
-	NEW PrimitiveType DimExprs Dims	{ $$ = create_node ( 5 ,"ArrayCreationExpression", $1, $2, $3, $4); } 
-|	NEW PrimitiveType DimExprs	{ $$ = create_node ( 4 ,"ArrayCreationExpression", $1, $2, $3); } 
+	NEW PrimitiveType DimExprs Dims	{ 
+										$$ = create_node ( 5 ,"ArrayCreationExpression", $1, $2, $3, $4); 
+										$$->ins = instCount+1;
+										$$->addr = str_to_ch(newTemp());
+										create_ins(1,$$->addr,"heap_alloc()","","");
+									} 
+|	NEW PrimitiveType DimExprs	{ 
+									$$ = create_node ( 4 ,"ArrayCreationExpression", $1, $2, $3); 
+									$$->ins = instCount+1;
+									$$->addr = str_to_ch(newTemp());
+									int size = 1;
+									if(parsenum==2){
+										for(int i=0;i<current_ste->dims.size();i++)
+											size *= current_ste->dims[i];
+										
+										size*=getOffset(current_ste->type);
+									}
+									create_ins(1,$$->addr,"heap_alloc("+to_string(size)+")","","");
+								} 
 |	NEW ClassOrInterfaceType DimExprs Dims	{ $$ = create_node ( 5 ,"ArrayCreationExpression", $1, $2, $3, $4); } 
 |	NEW ClassOrInterfaceType DimExprs	{ $$ = create_node ( 4 ,"ArrayCreationExpression", $1, $2, $3); } 
 ;
@@ -1375,8 +1393,18 @@ ArrayAccess:
 									// $$->addr = str_to_ch(newTemp());
 									// create_ins(0,string($$->addr),"=",string($1->addr)+" [ "+reg1+" ] ","");
 									$$->addr = str_to_ch(string($1->addr)+"[ "+reg1+" ]");
+									if(parsenum==2)
+									{
+										int width = calc_width($$);
+									} 
 								}
-|	PrimaryNoNewArray LSPAR Expression RSPAR	{ $$ = create_node ( 5 ,"ArrayAccess", $1, $2, $3, $4); } 
+|	PrimaryNoNewArray LSPAR Expression RSPAR	{ 
+													$$ = create_node ( 5 ,"ArrayAccess", $1, $2, $3, $4); 
+													if(parsenum==2)
+													{
+														int width = calc_width($$);
+													} 
+												} 
 ;
 
 PostfixExpression:
@@ -2026,6 +2054,41 @@ Expression:
 %%
 
 
+int calc_width(NODE* node)
+{
+	handle_array_access(node);
+	int count=0;
+	NODE* node_child = node->children[0];
+	string temp = node_child->type;
+	while(temp.find("]")!=-1)
+	{
+		count++;
+		int l=temp.length();
+		temp = temp.substr(0,l-2);;
+	}
+	int width=1;
+
+	string name = "";
+	NODE* temp1 = node_child;
+
+	while(temp1->children.size()!=0)
+	{
+		temp1 = temp1->children[0];
+	}
+	name = temp1->val;
+
+	ste* lookup_ste = lookup(current_ste, name );
+	for(int i=0;i<count;i++)
+	{
+		width*=lookup_ste->dims[lookup_ste->dims.size()-i-1];
+	}
+	
+	width*=getOffset(temp);
+	
+	
+	return width;
+}
+
 int fetchOffset(string className, string id){
 	if(className==""){
 		ste* lookup_ste=lookup(current_ste,id);
@@ -2574,7 +2637,7 @@ string handle_array_access(NODE* node){
 	int l=type.size();
 	string last_two = type.substr(l-2,2);
 	string new_sub_type=type.substr(0,l-2);
-
+	first_child->type=str_to_ch(type);
 	string first_child_val=first_child->val;
 	if (last_two!="[]" )
 	{
