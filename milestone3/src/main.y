@@ -2116,7 +2116,7 @@ int calc_width(NODE* node)
 	name = temp1->val;
 
 	ste* lookup_ste = lookup(current_ste, name );
-	for(int i=0;i<count;i++)
+	for(int i=0;i<count-1;i++)
 	{
 		width*=lookup_ste->dims[lookup_ste->dims.size()-i-1];
 	}
