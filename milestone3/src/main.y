@@ -68,6 +68,7 @@
 	unordered_map <string,stme*> classMap;	
 
 	unordered_map <string, int> typeMap;
+	unordered_map <string, int> classTypeMap;
 	
 	int paramCount = 0;
 
@@ -1236,10 +1237,10 @@ ClassInstanceCreationExpression:
 													create_ins(0,reg1,"=","offset","");
 													create_ins(0,"PushParam",reg1,"","");
 													create_ins(0,"stackpointer","+xxx","","");
-													create_ins(0,"call","allocmem","1","");
-													create_ins(0,"stackpointer","-yyy","","");
+													string classname=$2->val;
 													$$->addr = str_to_ch(newTemp());
-													create_ins(0,string($$->addr),"=","popparam","");
+													create_ins(1,$$->addr,"heap_alloc("+to_string(classTypeMap[classname])+")","","");
+													create_ins(0,"stackpointer","-yyy","","");
 												} 
 |	NEW ClassType LPAREN RPAREN	{
 									$$ = create_node ( 5 ,"ClassInstanceCreationExpression", $1, $2, $3, $4);
@@ -1249,10 +1250,10 @@ ClassInstanceCreationExpression:
 									create_ins(0,reg1,"=","offset","");
 									create_ins(0,"PushParam",reg1,"","");
 									create_ins(0,"stackpointer","+xxx","","");
-									create_ins(0,"call","allocmem","1","");
-									create_ins(0,"stackpointer","-yyy","","");
+									string classname=$2->val;
 									$$->addr = str_to_ch(newTemp());
-									create_ins(0,string($$->addr),"=","popparam","");
+									create_ins(1,$$->addr,"heap_alloc("+to_string(classTypeMap[classname])+")","","");
+									create_ins(0,"stackpointer","-yyy","","");
 								} 
 ;
 
@@ -3313,6 +3314,7 @@ void classoffset(){
 				class_offset+= getOffset(class_member->entry->type);
 			}
 		}
+		classTypeMap[class_pair.first]=class_offset;
 	}
 }
 
