@@ -1744,7 +1744,7 @@ RelationalExpression:
 												$$ = create_node ( 3 ,$2->val, $1, $3); 
 												if (parsenum==2){
 													string t1=handle_expression($1),t2=handle_expression($3);
-													string res=typecast(t1,t2,$2->val);
+													string res=typecast(t1,t2,"-");
 
 													if (res!=t1)
 													{
@@ -1771,7 +1771,7 @@ RelationalExpression:
 												$$ = create_node ( 3 ,$2->val, $1, $3); 
 												if (parsenum==2){
 													string t1=handle_expression($1),t2=handle_expression($3);
-													string res=typecast(t1,t2,$2->val);
+													string res=typecast(t1,t2,"-");
 
 													if (res!=t1)
 													{
@@ -1798,7 +1798,7 @@ RelationalExpression:
 												$$ = create_node ( 3 ,$2->val, $1, $3); 
 												if (parsenum==2){
 													string t1=handle_expression($1),t2=handle_expression($3);
-													string res=typecast(t1,t2,$2->val);
+													string res=typecast(t1,t2,"-");
 
 													if (res!=t1)
 													{
@@ -1825,7 +1825,7 @@ RelationalExpression:
 												$$ = create_node ( 3 ,$2->val, $1, $3); 
 												if (parsenum==2){
 													string t1=handle_expression($1),t2=handle_expression($3);
-													string res=typecast(t1,t2,$2->val);
+													string res=typecast(t1,t2,"-");
 
 													if (res!=t1)
 													{
@@ -1857,7 +1857,7 @@ EqualityExpression:
 																$$ = create_node ( 3 ,$2->val, $1, $3);
 																if (parsenum==2){
 																	string t1=handle_expression($1),t2=handle_expression($3);
-																	string res=typecast(t1,t2,$2->val);
+																	string res=typecast(t1,t2,"-");
 
 																	if (res!=t1)
 																	{
@@ -1884,7 +1884,7 @@ EqualityExpression:
 															$$ = create_node ( 3 ,$2->val, $1, $3);
 															if (parsenum==2){
 																string t1=handle_expression($1),t2=handle_expression($3);
-																string res=typecast(t1,t2,$2->val);
+																string res=typecast(t1,t2,"-");
 
 																if (res!=t1)
 																{

@@ -1,7 +1,7 @@
 --------------------------------------- Milestone 3 ---------------------
 
 -> Final
--> Type casting fix ( boolean )
+<!-- -> Type casting fix ( boolean ) -->
 -> Local Variable Scope Redeclaration
 -> Local Variable Lexeme in 3AC ( introduce temporary vars )
 -> PushParam and PopParams
