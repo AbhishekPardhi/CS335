@@ -1,6 +1,7 @@
 /* MERGE SORT */
 
 class MergeSort {
+	final int MAX = 1000000;
 	void merge(int arr[], int l, int m, int r)
 	{
 		int n1 = m - l + 1;
@@ -90,7 +91,6 @@ class MergeSort {
 
 		MergeSort ob = new MergeSort();
 		ob.sort(arr, 0, 6 - 1);
-
 		println("\nSorted array");
 		printArray(arr);
 	}

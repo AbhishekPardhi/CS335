@@ -14,10 +14,6 @@ class Rectangle implements Polygon {
     println("The area of the rectangle is " + (length * breadth));
   }  
   int dim;
-  Rectangle(int s){
-    this.dim = s;
-    int x = 20;
-  }
 }
 
 class Main {

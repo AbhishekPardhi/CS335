@@ -33,6 +33,17 @@ void print_ste(ste* cur,int level=0)
 
 }
 
+ste* checkRedeclaration(ste* node, string lexeme)
+{
+    if (node->type=="global_head")
+        return NULL;
+    if (node->lexeme==lexeme)
+        return node;
+    if (node->prev!=NULL)
+        return checkRedeclaration(node->prev,lexeme);
+    return NULL;
+}
+
 ste* lookup(ste* node, string lexeme)
 {
     if (node->type=="global_head")

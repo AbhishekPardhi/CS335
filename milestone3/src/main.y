@@ -321,8 +321,8 @@ InterfaceTypeList:
 ClassBody:
 	lmpara ClassBodyDeclarations rmpara	{ 
 											$$ = create_node ( 4 ,"ClassBody", $1, $2, $3);
-											if (parsenum==2)
-												{current_ste=current_ste->next;
+											if (parsenum==2){
+												current_ste=current_ste->next;
 											}
 										} 
 |	lmpara rmpara	{ 
@@ -348,18 +348,18 @@ ClassBodyDeclaration:
 ;
 
 ClassMemberDeclaration:
-	FieldDeclaration	{ 
-							$$ = $1;
-							if (parsenum==2) {
-								current_ste=current_ste->next;
-							} 
-						}
+	FieldDeclaration	{ $$ = $1; }
 |	MethodDeclaration	{ $$ = $1; }
 ;
 
 FieldDeclaration:
 	Modifiers Type VariableDeclarators SEMICOLON	{ $$ = create_node ( 5 ,"FieldDeclaration", $1, $2, $3, $4); } 
-|	Type VariableDeclarator SEMICOLON	{ $$ = create_node ( 4 ,"FieldDeclaration", $1, $2, $3); } 
+|	Type VariableDeclarator SEMICOLON	{ 
+											$$ = create_node ( 4 ,"FieldDeclaration", $1, $2, $3); 
+											if (parsenum==2) {
+												current_ste=current_ste->next;
+											} 
+										} 
 ;
 
 VariableDeclarators:
@@ -2084,6 +2084,37 @@ Assignment:
 	LeftHandSide AssignmentOperator AssignmentExpression	{
 																$$ = create_node ( 3 ,$2->val, $1, $3);
 																if (parsenum==2){
+
+																	string toPass="";
+
+																	if((string) $1->val =="ArrayAccess"){
+																		toPass = (string) $1->arrayBase;
+																		ste* lookup_ste = lookup(current_ste, toPass);
+																		
+																		if(lookup_ste!=NULL && lookup_ste->is_final){
+																			lineno = $2->lineno	;
+																			yerror("Error: Cannot assign to final variable");
+																		}
+																	}
+																	else if((string) $1->val =="FieldAccess" || (string) $1->val =="Qualified_Name"){
+																		string objName = (string) $1->children[0]->val;
+																		string className = lookup(current_ste, objName)->type;
+																		stme* lookup_stme = lookupFunction(classMap[className],className+"-"+(string)$1->children[2]->val);
+																		if(lookup_stme!=NULL && lookup_stme->entry->is_final){
+																			lineno = $2->lineno	;
+																			yerror("Error: Cannot assign to final variable");
+																		}
+																	}
+																	else{
+																		toPass = (string) $1->val;
+																		ste* lookup_ste = lookup(current_ste, toPass);
+																		
+																		if(lookup_ste!=NULL && lookup_ste->is_final){
+																			lineno = $1->lineno	;
+																			yerror("Error: Cannot assign to final variable");
+																		}
+																	}
+
 																	string t1=handle_expression($1),t2=handle_expression($3);
 																	string res=typecast(t1,t2,$2->val);
 
@@ -2333,7 +2364,7 @@ string handle_expression(NODE* node)
 	return node_type;
 }
 
-ste* insert_var_id(NODE * node,string type, bool is_static)
+ste* insert_var_id(NODE * node,string type, bool is_static, bool is_final)
 {
 	string var_name = node->children[0]->val;
 	lineno=node->children[0]->lineno;
@@ -2347,6 +2378,7 @@ ste* insert_var_id(NODE * node,string type, bool is_static)
 		current_ste->type=type;
 		current_ste->offset=offset;
 		current_ste->is_static=is_static;
+		current_ste->is_final=is_final;
 		current_ste->token="IDENTIFIER";
 		current_ste->lineno=lineno;
 		return_ste=current_ste;
@@ -2369,7 +2401,11 @@ void insert_variable(NODE * local_var_node)
 {
 	int length = local_var_node->children.size();
 	string type = get_type(local_var_node->children[length-2]);
-
+	
+	bool is_final = false;
+	if(length==3){
+		is_final = true;
+	}
 	NODE* var_dec_node=local_var_node->children[length-1];
 
 	for (auto var_id_child : var_dec_node->children)
@@ -2377,7 +2413,7 @@ void insert_variable(NODE * local_var_node)
 		string var_id_child_val=var_id_child->val;
 		if (var_id_child_val == "Variable_Declarator_Id")
 		{
-			insert_var_id(var_id_child,type,false);
+			insert_var_id(var_id_child,type,false, is_final);
 		}
 		else if (var_id_child_val == "=")
 		{
@@ -2387,7 +2423,7 @@ void insert_variable(NODE * local_var_node)
 			{
 				type+="[]";
 			}
-			insert_var_id(var_dec_id,type,false);
+			insert_var_id(var_dec_id,type,false, is_final);
 
 			string right_type=handle_expression(var_id_child->children[1]);
 			if (typecast(type,right_type,"=")=="Error")
@@ -3099,10 +3135,14 @@ void fieldSymTable(NODE* node)
 	if (length==4){
 		NODE* modifiers= node->children[0];
 		bool is_static = false;
+		bool is_final = false;
 		for(auto modifier: modifiers->children){
 			string modifier_val=modifier->val;
 			if (modifier_val == "static"){
 				is_static = true;
+			}
+			else if (modifier_val == "final"){
+				is_final = true;
 			}
 		}
 		NODE* var_dec_node=node->children[length-2];
@@ -3114,7 +3154,7 @@ void fieldSymTable(NODE* node)
 				int dim=vardim(var_id_child);
 				for(int i=0;i<dim;i++)
 					type=type+"[]";
-				ste* entry=insert_var_id(var_id_child,type, is_static);
+				ste* entry=insert_var_id(var_id_child,type, is_static, is_final);
 				stme* field_entry=new stme;
 				field_entry->num_params=-1;
 				field_entry->entry=entry;
@@ -3130,7 +3170,7 @@ void fieldSymTable(NODE* node)
 				for(int i=0;i<dim;i++)
 					type=type+"[]";
 				NODE* var_dec_id = var_id_child->children[0];
-				ste* entry=insert_var_id(var_dec_id,type, is_static);
+				ste* entry=insert_var_id(var_dec_id,type, is_static, is_final);
 				stme* field_entry=new stme;
 				field_entry->num_params=-1;
 				field_entry->entry=entry;
@@ -3152,7 +3192,7 @@ void fieldSymTable(NODE* node)
 		string var_id_child_val=var_id_child->val;
 		if (var_id_child_val == "Variable_Declarator_Id")
 		{
-			ste* entry=insert_var_id(var_id_child,type,false);
+			ste* entry=insert_var_id(var_id_child,type,false, false);
 			stme* field_entry=new stme;
 			field_entry->num_params=-1;
 			field_entry->entry=entry;
@@ -3164,7 +3204,7 @@ void fieldSymTable(NODE* node)
 		else if (var_id_child_val == "=")
 		{
 			NODE* var_dec_id = var_id_child->children[0];
-			ste* entry=insert_var_id(var_dec_id,type,false);
+			ste* entry=insert_var_id(var_dec_id,type,false, false);
 			stme* field_entry=new stme;
 			field_entry->num_params=-1;
 			field_entry->entry=entry;
@@ -3259,6 +3299,7 @@ void branchMethodSymtable(NODE* declaration_node)
 	}
 	int index=0;
 	bool is_static = false;
+	bool is_final = false;
 	curr_static_function = false;
 	for (auto node : header_node->children)
 	{	
@@ -3276,6 +3317,9 @@ void branchMethodSymtable(NODE* declaration_node)
 				if (modifier_val == "static"){
 					is_static = true;
 					curr_static_function = true;
+				}
+				if(modifier_val == "final"){
+					is_final = true;
 				}
 			}
 		}
@@ -3296,6 +3340,7 @@ void branchMethodSymtable(NODE* declaration_node)
 			table_entry->return_type=type;
 			table_entry->num_params=0;
 			table_entry->is_static=is_static;
+			table_entry->is_final=is_final;
 			current_ste->class_entry = table_entry;
 			tableMap[id_node_val]=table_entry;
 			table_entry->next=classMap[cur_class];
@@ -3328,6 +3373,11 @@ void ParameterSymtable(NODE* param_node)
 	//store the type of the parameter
 	string type=get_type(param_node->children[length-2]);
 
+	bool is_final=false;
+	if(length==3){
+		is_final=true;
+	}
+
 	//store the name of the parameter
 	NODE* var_node=param_node->children[length-1];
 	int dim=vardim(var_node);
@@ -3335,7 +3385,7 @@ void ParameterSymtable(NODE* param_node)
 	{
 		type+="[]";
 	}
-	insert_var_id(var_node,type, false);
+	insert_var_id(var_node,type, false, is_final);
 }
 
 void classoffset(){
@@ -3478,9 +3528,9 @@ void printToCSV(){
 			string filename = filePath + "/" + curr->id + ".csv";
 			fout.open(filename);
 			
-			fout<<"Function name:,Return Type, Number of Parameters, IsStatic ,Lexeme,Type,Line Number,Token,Offset,Is_Static"<<endl;
+			fout<<"Function name:,Return Type, Number of Parameters, IsStatic, Is_Final ,Lexeme,Type,Line Number,Token,Offset,Is_Static,Is_Final"<<endl;
 
-			fout<<curr->id<<","<<curr->return_type<<","<<curr->num_params<<","<<curr->is_static<<",,,,,,"<<endl;
+			fout<<curr->id<<","<<curr->return_type<<","<<curr->num_params<<","<<curr->is_static<<","<<curr->is_final<<",,,,,"<<endl;
 			ste* current_ste = curr->entry;
 			while(current_ste->next!=NULL || current_ste->next_scope!=NULL || !branch.empty()){
 				if(current_ste->next==NULL && current_ste->next_scope==NULL){
@@ -3494,7 +3544,7 @@ void printToCSV(){
 					continue;
 				}
 
-				fout<<",,,,"<<current_ste->lexeme<<","<<current_ste->type<<","<<current_ste->lineno<<","<<current_ste->token<<","<<current_ste->offset<<","<<current_ste->is_static<<endl;
+				fout<<",,,,,"<<current_ste->lexeme<<","<<current_ste->type<<","<<current_ste->lineno<<","<<current_ste->token<<","<<current_ste->offset<<","<<current_ste->is_static<<","<<current_ste->is_final<<endl;
 				current_ste = current_ste->next;
 			}
 			
@@ -3507,9 +3557,9 @@ void printToCSV(){
 		string filename = filePath + "/FieldDeclarations"+ ".csv";
 		fout.open(filename);
 
-		fout<<"Field name:,Return Type, Offset, Is_static"<<endl;
+		fout<<"Field name:,Return Type, Offset, Is_static, Is_final"<<endl;
 		for(auto it = v.begin(); it != v.end(); it++){
-			fout<<(*it)->id<<","<<(*it)->entry->type<<","<<(*it)->entry->offset<<","<<(*it)->entry->is_static<<endl;
+			fout<<(*it)->id<<","<<(*it)->entry->type<<","<<(*it)->entry->offset<<","<<(*it)->entry->is_static<<","<<(*it)->entry->is_final<<endl;
 		}
 		fout.close();
 	}
