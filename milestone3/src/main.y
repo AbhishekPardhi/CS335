@@ -462,9 +462,8 @@ MethodDeclarator:
 														}
 														funcName+=string($1->addr);
 														// funcName+=string($3->addr);
-														create_ins(0,funcName,":","","");
 														string reg1 = newTemp();
-														create_ins(0,reg1,"=","poparam","");
+														create_ins(0,reg1,"=","PopParam","");
 														thisTemps.push(reg1);
 													} 
 |	MethodDeclarator LSPAR RSPAR	{
@@ -494,7 +493,7 @@ MethodDeclarator:
 									create_ins(0,funcName,":","","");
 									create_ins(0,"BeginFunc","","","");
 									string reg1 = newTemp();
-									create_ins(0,reg1,"=","poparam","");
+									create_ins(0,reg1,"=","PopParam","");
 									thisTemps.push(reg1);
 								} 
 ;
@@ -518,7 +517,7 @@ FormalParameterList:
 						$$->ins = instCount+1;
 						create_ins(0,funcName+":","","","");
 						create_ins(0,"BeginFunc","","","");
-						create_ins(0,$1->addr,"=","poparam","");
+						create_ins(0,$1->addr,"=","PopParam","");
 					}
 |	FormalParameterList COMMA FormalParameter	{
 													$1->children.push_back($2);$1->children.push_back($3); $$ =$1 ;
@@ -528,7 +527,7 @@ FormalParameterList:
 														current_ste=current_ste->next;
 													}
 													$$->ins = instCount+1;
-													create_ins(0,$3->addr,"=","poparam","");
+													create_ins(0,$3->addr,"=","PopParam","");
 												} 
 ;
 
@@ -613,7 +612,7 @@ SimpleName LPAREN FormalParameterList RPAREN	{
 														create_ins(0,funcName,":","","");
 														create_ins(0,"BeginFunc","","","");
 														string reg1 = newTemp();
-														create_ins(0,reg1,"=","poparam","");
+														create_ins(0,reg1,"=","PopParam","");
 														thisTemps.push(reg1);
 													} 
 |	SimpleName LPAREN RPAREN	{ $$ = create_node ( 4 ,"ConstructorDeclarator", $1, $2, $3); } 
