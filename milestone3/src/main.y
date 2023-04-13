@@ -493,6 +493,7 @@ MethodDeclarator:
 									create_ins(0,funcName,":","","");
 									create_ins(0,"BeginFunc","","","");
 									string reg1 = newTemp();
+									create_ins(0,"ra","=","PopParam","");
 									create_ins(0,reg1,"=","PopParam","");
 									thisTemps.push(reg1);
 								} 
@@ -517,6 +518,7 @@ FormalParameterList:
 						$$->ins = instCount+1;
 						create_ins(0,funcName+":","","","");
 						create_ins(0,"BeginFunc","","","");
+						create_ins(0,"ra","=","PopParam","");
 						create_ins(0,$1->addr,"=","PopParam","");
 					}
 |	FormalParameterList COMMA FormalParameter	{
@@ -561,6 +563,7 @@ MethodBody:
 	Block 	{
 				$$ = $1;
 				$$->ins = instCount+1;
+				create_ins(0,"Goto","ra","","");
 				create_ins(0,"EndFunc","","","");
 				thisTemps.pop();
 				backpatch($1->nextlist,$$->ins);
@@ -568,6 +571,7 @@ MethodBody:
 |	SEMICOLON	{
 					$$ = $1;
 					$$->ins = instCount+1;
+					create_ins(0,"Goto","ra","","");
 					create_ins(0,"EndFunc","","","");
 					thisTemps.pop();
 				}
@@ -615,13 +619,18 @@ SimpleName LPAREN FormalParameterList RPAREN	{
 														create_ins(0,reg1,"=","PopParam","");
 														thisTemps.push(reg1);
 													} 
-|	SimpleName LPAREN RPAREN	{ $$ = create_node ( 4 ,"ConstructorDeclarator", $1, $2, $3); } 
+|	SimpleName LPAREN RPAREN	{ 
+									$$ = create_node ( 4 ,"ConstructorDeclarator", $1, $2, $3); 
+									$$->ins = instCount+1;
+									create_ins(0,"ra","=","PopParam","");
+								} 
 ;
 
 ConstructorBody:
 	lmpara ExplicitConstructorInvocation BlockStatements rmpara	{
 																	$$ = create_node ( 5 ,"ConstructorBody", $1, $2, $3, $4);
 																	$$->ins = instCount+1;
+																	create_ins(0,"Goto","ra","","");
 																	create_ins(0,"EndFunc","","","");
 																	thisTemps.pop();
 																	backpatch($3->nextlist,$$->ins);
@@ -630,6 +639,7 @@ ConstructorBody:
 |	lmpara ExplicitConstructorInvocation rmpara	{
 													$$ = create_node ( 4 ,"ConstructorBody", $1, $2, $3);
 													$$->ins = instCount+1;
+													create_ins(0,"Goto","ra","","");
 													create_ins(0,"EndFunc","","","");
 													thisTemps.pop();
 													backpatch($2->nextlist,$$->ins);
@@ -638,6 +648,7 @@ ConstructorBody:
 |	lmpara BlockStatements rmpara	{
 										$$ = create_node ( 4 ,"ConstructorBody", $1, $2, $3);
 										$$->ins = instCount+1;
+										create_ins(0,"Goto","ra","","");
 										create_ins(0,"EndFunc","","","");
 										thisTemps.pop();
 										backpatch($2->nextlist,$$->ins);
@@ -646,6 +657,7 @@ ConstructorBody:
 |	lmpara rmpara	{
 						$$ = create_node ( 3 ,"ConstructorBody", $1, $2);
 						$$->ins = instCount+1;
+						create_ins(0,"Goto","ra","","");
 						create_ins(0,"EndFunc","","","");
 						thisTemps.pop();
 						if (parsenum==2){current_ste=current_ste->next;}
@@ -1419,10 +1431,11 @@ MethodInvocation:
 										if((string)$1->val=="println"){
 											create_ins(0,"Print",$3->addr,"","");
 											$$->addr = str_to_ch("0");
-											break;
+											create_ins(0,"PopParam",$3->addr,"","");
 										}
 										else{
 											$$->addr = str_to_ch(newTemp());
+											create_ins(0,"PushParam",to_string(instCount+3),"","");
 											create_ins(0,$$->addr,"=","call",$1->addr);
 											create_ins(0,"PopParam",$3->addr,"","");
 										}
@@ -1430,8 +1443,10 @@ MethodInvocation:
 |	Name LPAREN RPAREN	{
 							$$ = create_node ( 4 ,"MethodInvocation", $1, $2, $3);
 							$$->ins = instCount+1;
-							$$->addr = str_to_ch(newTemp());
-							create_ins(0,$$->addr,"=","call",$1->addr);
+							if((string)$1->val!="println"){
+								$$->addr = str_to_ch(newTemp());
+								create_ins(0,$$->addr,"=","call",$1->addr);
+							}
 						} 
 |	Primary DOT IDENTIFIER LPAREN ArgumentList RPAREN	{
 															$$ = create_node ( 7 ,"MethodInvocation", $1, $2, $3, $4, $5, $6);
