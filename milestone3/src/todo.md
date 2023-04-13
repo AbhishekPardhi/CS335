@@ -7,7 +7,7 @@
 -> PushParam and PopParams
 -> 3AC Offset
 -> Stack Pointer Manipulation
--> No heap, only stack
+<!-- -> No heap, only stack -->
 
 --------------------------------------- Milestone 4 ---------------------
 

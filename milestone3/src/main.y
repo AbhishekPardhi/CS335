@@ -1304,6 +1304,16 @@ ArgumentList:
 										$1->children.push_back($3);
 										$$ =$1;
 										$$->addr = str_to_ch(to_string(stoi(string($1->addr))+1));
+										$$->ins = instCount+1;
+										if(string($3->addr).back()==']')
+										{
+											string reg1 = newTemp();
+											create_ins(0,reg1,"=",$3->addr,"");
+											create_ins(0,"PushParam",reg1,"","");
+										}
+										else
+										create_ins(0,"PushParam",$3->addr,"","");
+										
 									}
 ;
 

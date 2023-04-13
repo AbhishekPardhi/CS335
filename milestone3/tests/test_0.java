@@ -71,7 +71,7 @@ class MergeSort {
 		int n = 6;
 		for (int i = 0; i < n; ++i)
 			println(arr[i] + " ");
-		println();
+		println(6);
 	}
 
 	// Driver code

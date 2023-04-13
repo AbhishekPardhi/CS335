@@ -28,6 +28,6 @@ public class ExampleExpression {
       // MyClass myObject = new MyClass(2,3.14);
       int x = 2;
       arr[2]=x;
-      // something(arr[0][1][2]);
+      something(arr[0][1][2]);
     }
   }
