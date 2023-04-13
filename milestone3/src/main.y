@@ -463,14 +463,12 @@ MethodDeclarator:
 														funcName+=string($1->addr);
 														// funcName+=string($3->addr);
 														create_ins(0,funcName,":","","");
-														create_ins(0,"BeginFunc","","","");
 														string reg1 = newTemp();
 														create_ins(0,reg1,"=","poparam","");
 														thisTemps.push(reg1);
 													} 
 |	MethodDeclarator LSPAR RSPAR	{
 										$$ = create_node ( 4 ,"MethodDeclarator", $1, $2, $3);
-										// add "v" to funcName
 									} 
 |	IDENTIFIER LPAREN RPAREN	{
 									$$ = create_node ( 4 ,"MethodDeclarator", $1, $2, $3);
@@ -508,12 +506,19 @@ FormalParameterList:
 						string str="";
 						str.push_back(*string($1->addr).begin());
 						$$->addr = str_to_ch(str);
+						string funcName="";
 						if (parsenum==2){
 							scopeFlag=1;
 							branch.push(current_ste);
 							current_ste=current_ste->next_scope;
+							funcName=current_ste->class_entry->id;
 							current_ste=current_ste->next;
+							funcName=funcName.substr(funcName.find("-")+1);
 						}
+						$$->ins = instCount+1;
+						create_ins(0,funcName+":","","","");
+						create_ins(0,"BeginFunc","","","");
+						create_ins(0,$1->addr,"=","poparam","");
 					}
 |	FormalParameterList COMMA FormalParameter	{
 													$1->children.push_back($2);$1->children.push_back($3); $$ =$1 ;
@@ -522,17 +527,21 @@ FormalParameterList:
 														scopeFlag=1;
 														current_ste=current_ste->next;
 													}
+													$$->ins = instCount+1;
+													create_ins(0,$3->addr,"=","poparam","");
 												} 
 ;
 
 FormalParameter:
 	Type VariableDeclaratorId	{
 									$$ = create_node ( 3 ,"FormalParameter", $1, $2);
-									$$->addr = $1->addr;
+									$$->addr = $2->addr;
+									// $$->ins = instCount+1;
+									
 								}
 |	FINAL Type VariableDeclaratorId	{
 										$$ = create_node ( 4 ,"FormalParameter", $1, $2, $3);
-										$$->addr = $1->addr;
+										$$->addr = $3->addr;
 									}
 ;
 
