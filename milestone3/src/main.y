@@ -2373,7 +2373,7 @@ ste* insert_var_id(NODE * node,string type, bool is_static, bool is_final)
 	ste* new_ste= new ste;
 
 
-	if (lookup(current_ste,var_name)==NULL || lookup(current_ste,var_name)->class_entry!=NULL){
+	if (checkRedeclaration(current_ste,var_name)==NULL || checkRedeclaration(current_ste,var_name)->class_entry!=NULL){
 		current_ste->lexeme=var_name;
 		current_ste->type=type;
 		current_ste->offset=offset;

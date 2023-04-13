@@ -2,7 +2,7 @@
 
 <!-- -> Final -->
 <!-- -> Type casting fix ( boolean ) -->
--> Local Variable Scope Redeclaration
+<!-- -> Local Variable Scope Redeclaration -->
 <!-- -> PushParam and PopParams -->
 -> 3AC Offset
 -> Stack Pointer Manipulation
