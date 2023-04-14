@@ -2,6 +2,9 @@
 
 if [ $# -eq 0 ]
   then
+    if ! test -f "main"; then
+        make
+    fi
     echo "Testing all test cases"
     echo "======================"
 
@@ -104,6 +107,9 @@ if [ $# -eq 0 ]
     fi
 
 else
+    if ! test -f "main"; then
+        make
+    fi
     ./main --input=test_$1.java
     if [ $? -eq 0 ]; then
         echo "test_$1.java passed"
