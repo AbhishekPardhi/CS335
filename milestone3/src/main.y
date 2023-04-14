@@ -59,8 +59,6 @@
 
 	unordered_map <string, stme*> tableMap;
 
-	
-	
 	stack<ste*> branch;
 
 	int forFlag = 0;
@@ -75,6 +73,8 @@
 
 	bool curr_static_function = false;
 
+	stack < int > loopStack;
+
 %}
 
 %union {
@@ -82,7 +82,7 @@
 }
 
 %token <elem>  BITWISE_AND BITWISE_OR COMMA FINALLY LPAREN RPAREN IDENTIFIER EQUALS DOT CLASS PUBLIC PRIVATE SEMICOLON COLON OR RETURN TRY SYNCHRONIZED THROW BREAK CONTINUE CATCH FINAL IF ELSE WHILE FOR LSPAR RSPAR TIMES_EQUALS DIVIDE_EQUALS MOD_EQUALS PLUS_EQUALS MINUS_EQUALS LEFT_SHIFT_EQUALS RIGHT_SHIFT_EQUALS UNSIGNED_RIGHT_SHIFT_EQUALS AND_EQUALS XOR_EQUALS OR_EQUALS QUESTION NOT_EQUALS LT GT LE GE INSTANCEOF AND XOR PLUS MINUS TIMES DIVIDE MOD PLUS_PLUS MINUS_MINUS TILDE THIS SUPER INT LONG SHORT BYTE CHAR IMPLEMENTS FLOAT DOUBLE BOOLEAN VOID NOT EXTENDS RMPARA LMPARA STATIC LEFT_SHIFT RIGHT_SHIFT UNSIGNED_RIGHT_SHIFT NULL_LITERAL CHAR_LITERAL STRING_LITERAL TEXTBLOCK_LITERAL FLOAT_LITERAL INTEGER_LITERAL BOOLEAN_LITERAL THROWS NEW IMPORT PACKAGE INTERFACE EQUALS_EQUALS 
-%type <elem> ClassID for lmpara rmpara Goal CompilationUnit Type PrimitiveType NumericType IntegralType FloatingPointType ReferenceType ClassOrInterfaceType ClassType InterfaceType ArrayType Name SimpleName QualifiedName ImportDeclarations TypeDeclarations PackageDeclaration ImportDeclaration TypeDeclaration Modifiers Modifier ClassDeclaration Super Interfaces ClassBody ClassBodyDeclarations ClassBodyDeclaration ClassMemberDeclaration FieldDeclaration VariableDeclarators VariableDeclarator VariableDeclaratorId VariableInitializer MethodDeclaration MethodHeader MethodDeclarator FormalParameterList Throws ClassTypeList MethodBody StaticInitializer ConstructorDeclaration ConstructorDeclarator ConstructorBody InterfaceDeclaration Expression ArrayInitializer FormalParameter Block SingleTypeImportDeclaration TypeImportOnDemandDeclaration AssignmentExpression ConditionalExpression Assignment ConditionalOrExpression LeftHandSide ConditionalAndExpression InclusiveOrExpression ExclusiveOrExpression AndExpression EqualityExpression RelationalExpression ShiftExpression AdditiveExpression MultiplicativeExpression UnaryExpression PreIncrementExpression PreDecrementExpression UnaryExpressionNotPlusMinus PostIncrementExpression PostDecrementExpression CastExpression Primary PrimaryNoNewArray ArrayCreationExpression ArrayAccess FieldAccess MethodInvocation ClassInstanceCreationExpression ArgumentList PostfixExpression InterfaceTypeList ExplicitConstructorInvocation InterfaceBody InterfaceMemberDeclarations InterfaceMemberDeclaration ConstantDeclaration AbstractMethodDeclaration ExtendsInterfaces AssignmentOperator Dims DimExprs DimExpr VariableInitializers BlockStatements BlockStatement LocalVariableDeclarationStatement Statement StatementNoShortIf StatementWithoutTrailingSubstatement IfThenStatement IfThenElseStatement IfThenElseStatementNoShortIf WhileStatement WhileStatementNoShortIf ForStatement ForStatementNoShortIf ForInit ForUpdate StatementExpression StatementExpressionList LocalVariableDeclaration EmptyStatement LabeledStatement ExpressionStatement BreakStatement ContinueStatement ReturnStatement ThrowStatement SynchronizedStatement TryStatement Catches CatchClause Finally LabeledStatementNoShortIf Else
+%type <elem>  WhileExpression ClassID for lmpara rmpara Goal CompilationUnit Type PrimitiveType NumericType IntegralType FloatingPointType ReferenceType ClassOrInterfaceType ClassType InterfaceType ArrayType Name SimpleName QualifiedName ImportDeclarations TypeDeclarations PackageDeclaration ImportDeclaration TypeDeclaration Modifiers Modifier ClassDeclaration Super Interfaces ClassBody ClassBodyDeclarations ClassBodyDeclaration ClassMemberDeclaration FieldDeclaration VariableDeclarators VariableDeclarator VariableDeclaratorId VariableInitializer MethodDeclaration MethodHeader MethodDeclarator FormalParameterList Throws ClassTypeList MethodBody StaticInitializer ConstructorDeclaration ConstructorDeclarator ConstructorBody InterfaceDeclaration Expression ArrayInitializer FormalParameter Block SingleTypeImportDeclaration TypeImportOnDemandDeclaration AssignmentExpression ConditionalExpression Assignment ConditionalOrExpression LeftHandSide ConditionalAndExpression InclusiveOrExpression ExclusiveOrExpression AndExpression EqualityExpression RelationalExpression ShiftExpression AdditiveExpression MultiplicativeExpression UnaryExpression PreIncrementExpression PreDecrementExpression UnaryExpressionNotPlusMinus PostIncrementExpression PostDecrementExpression CastExpression Primary PrimaryNoNewArray ArrayCreationExpression ArrayAccess FieldAccess MethodInvocation ClassInstanceCreationExpression ArgumentList PostfixExpression InterfaceTypeList ExplicitConstructorInvocation InterfaceBody InterfaceMemberDeclarations InterfaceMemberDeclaration ConstantDeclaration AbstractMethodDeclaration ExtendsInterfaces AssignmentOperator Dims DimExprs DimExpr VariableInitializers BlockStatements BlockStatement LocalVariableDeclarationStatement Statement StatementNoShortIf StatementWithoutTrailingSubstatement IfThenStatement IfThenElseStatement IfThenElseStatementNoShortIf WhileStatement WhileStatementNoShortIf ForStatement ForStatementNoShortIf ForInit ForUpdate StatementExpression StatementExpressionList LocalVariableDeclaration EmptyStatement LabeledStatement ExpressionStatement BreakStatement ContinueStatement ReturnStatement ThrowStatement SynchronizedStatement TryStatement Catches CatchClause Finally LabeledStatementNoShortIf Else
 
 %%
 // Grammer
@@ -809,16 +809,16 @@ Statement:
 |	LabeledStatement	{ $$ = $1; }
 |	IfThenStatement	{ $$ = $1; }
 |	IfThenElseStatement	{ $$ = $1; }
-|	WhileStatement	{ $$ = $1; }
-|	ForStatement	{ $$ = $1; }
+|	WhileStatement	{ $$ = $1; loopStack.pop(); }
+|	ForStatement	{ $$ = $1; loopStack.pop(); }
 ;
 
 StatementNoShortIf:
 	StatementWithoutTrailingSubstatement	{ $$ = $1; }
 |	LabeledStatementNoShortIf	{ $$ = $1; }
 |	IfThenElseStatementNoShortIf	{ $$ = $1; }
-|	WhileStatementNoShortIf	{ $$ = $1; }
-|	ForStatementNoShortIf	{ $$ = $1; }
+|	WhileStatementNoShortIf	{ $$ = $1; loopStack.pop(); }
+|	ForStatementNoShortIf	{ $$ = $1; loopStack.pop(); }
 ;
 
 StatementWithoutTrailingSubstatement:
@@ -889,7 +889,7 @@ IfThenElseStatementNoShortIf:
 ;
 
 WhileStatement:
-	WHILE LPAREN Expression RPAREN Statement	{	
+	WHILE LPAREN WhileExpression RPAREN Statement	{	
 													$$ = create_node ( 6 ,"WhileStatement", $1, $2, $3, $4, $5);
 													backpatch($5->nextlist,$3->ins);
 													backpatch($3->truelist,$5->ins);
@@ -899,7 +899,7 @@ WhileStatement:
 ;
 
 WhileStatementNoShortIf:
-	WHILE LPAREN Expression RPAREN StatementNoShortIf	{
+	WHILE LPAREN WhileExpression RPAREN StatementNoShortIf	{
 															$$ = create_node ( 6 ,"WhileStatementNoShortIf", $1, $2, $3, $4, $5);
 															backpatch($5->nextlist,$3->ins);
 															backpatch($3->truelist,$5->ins);
@@ -907,6 +907,13 @@ WhileStatementNoShortIf:
 															create_ins(0,"goto",to_string($3->ins),"","");
 														} 
 ;
+
+WhileExpression:
+	Expression	{ 
+					$$ = $1; 
+					$$->ins = $1->ins;
+					loopStack.push($$->ins);
+				}
 
 ForStatement:
 	for LPAREN ForInit SEMICOLON Expression SEMICOLON ForUpdate RPAREN Statement	{
@@ -1166,6 +1173,7 @@ ForUpdate:
 	StatementExpressionList	{
 								$$ = $1;
 								$$->ins = $1->ins;
+								loopStack.push($$->ins);
 								create_ins(0,"goto","","","");
 								$$->truelist = makelist(instCount);
 							}
@@ -1194,8 +1202,7 @@ ContinueStatement:
 |	CONTINUE SEMICOLON	{
 							$$ = create_node ( 3 ,"ContinueStatement", $1, $2);
 							$$->ins = instCount+1;
-							create_ins(0,"goto","","","");
-							$$->nextlist = makelist(-$$->ins);
+							create_ins(0,"goto",to_string(loopStack.top()),"","");
 						} 
 ;
 

@@ -8,7 +8,9 @@
 -> Stack Pointer Manipulation
 <!-- -> No heap, only stack -->
 <!-- -> Return Address -->
-
+-> Goto fix [ TEST CASE 0 ]
+-> break
+<!-- -> continue -->
 --------------------------------------- Milestone 4 ---------------------
 
 -> X86 Code

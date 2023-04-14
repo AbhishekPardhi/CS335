@@ -10,6 +10,17 @@ class test_25
 
 		for (int i = 0; i < 10; i++) {
 			x++;
+			continue;
+			x++;
+		}
+		
+		while(x < 10) {
+			x++;
+			if( x==5 ){
+				x+=2;
+				continue;
+			}
+			x++;
 		}
 	}
 }
