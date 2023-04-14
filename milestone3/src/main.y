@@ -62,6 +62,7 @@
 	stack<ste*> branch;
 
 	int forFlag = 0;
+	int interfaceFlag=0;
 	int offset = 0;
 	int scopeFlag=0; // 1 if lmpara needs to skip else 0
 	unordered_map <string,stme*> classMap;	
@@ -82,7 +83,7 @@
 }
 
 %token <elem>  BITWISE_AND BITWISE_OR COMMA FINALLY LPAREN RPAREN IDENTIFIER EQUALS DOT CLASS PUBLIC PRIVATE SEMICOLON COLON OR RETURN TRY SYNCHRONIZED THROW BREAK CONTINUE CATCH FINAL IF ELSE WHILE FOR LSPAR RSPAR TIMES_EQUALS DIVIDE_EQUALS MOD_EQUALS PLUS_EQUALS MINUS_EQUALS LEFT_SHIFT_EQUALS RIGHT_SHIFT_EQUALS UNSIGNED_RIGHT_SHIFT_EQUALS AND_EQUALS XOR_EQUALS OR_EQUALS QUESTION NOT_EQUALS LT GT LE GE INSTANCEOF AND XOR PLUS MINUS TIMES DIVIDE MOD PLUS_PLUS MINUS_MINUS TILDE THIS SUPER INT LONG SHORT BYTE CHAR IMPLEMENTS FLOAT DOUBLE BOOLEAN VOID NOT EXTENDS RMPARA LMPARA STATIC LEFT_SHIFT RIGHT_SHIFT UNSIGNED_RIGHT_SHIFT NULL_LITERAL CHAR_LITERAL STRING_LITERAL TEXTBLOCK_LITERAL FLOAT_LITERAL INTEGER_LITERAL BOOLEAN_LITERAL THROWS NEW IMPORT PACKAGE INTERFACE EQUALS_EQUALS 
-%type <elem>  WhileExpression ClassID for lmpara rmpara Goal CompilationUnit Type PrimitiveType NumericType IntegralType FloatingPointType ReferenceType ClassOrInterfaceType ClassType InterfaceType ArrayType Name SimpleName QualifiedName ImportDeclarations TypeDeclarations PackageDeclaration ImportDeclaration TypeDeclaration Modifiers Modifier ClassDeclaration Super Interfaces ClassBody ClassBodyDeclarations ClassBodyDeclaration ClassMemberDeclaration FieldDeclaration VariableDeclarators VariableDeclarator VariableDeclaratorId VariableInitializer MethodDeclaration MethodHeader MethodDeclarator FormalParameterList Throws ClassTypeList MethodBody StaticInitializer ConstructorDeclaration ConstructorDeclarator ConstructorBody InterfaceDeclaration Expression ArrayInitializer FormalParameter Block SingleTypeImportDeclaration TypeImportOnDemandDeclaration AssignmentExpression ConditionalExpression Assignment ConditionalOrExpression LeftHandSide ConditionalAndExpression InclusiveOrExpression ExclusiveOrExpression AndExpression EqualityExpression RelationalExpression ShiftExpression AdditiveExpression MultiplicativeExpression UnaryExpression PreIncrementExpression PreDecrementExpression UnaryExpressionNotPlusMinus PostIncrementExpression PostDecrementExpression CastExpression Primary PrimaryNoNewArray ArrayCreationExpression ArrayAccess FieldAccess MethodInvocation ClassInstanceCreationExpression ArgumentList PostfixExpression InterfaceTypeList ExplicitConstructorInvocation InterfaceBody InterfaceMemberDeclarations InterfaceMemberDeclaration ConstantDeclaration AbstractMethodDeclaration ExtendsInterfaces AssignmentOperator Dims DimExprs DimExpr VariableInitializers BlockStatements BlockStatement LocalVariableDeclarationStatement Statement StatementNoShortIf StatementWithoutTrailingSubstatement IfThenStatement IfThenElseStatement IfThenElseStatementNoShortIf WhileStatement WhileStatementNoShortIf ForStatement ForStatementNoShortIf ForInit ForUpdate StatementExpression StatementExpressionList LocalVariableDeclaration EmptyStatement LabeledStatement ExpressionStatement BreakStatement ContinueStatement ReturnStatement ThrowStatement SynchronizedStatement TryStatement Catches CatchClause Finally LabeledStatementNoShortIf Else
+%type <elem>  WhileExpression Interface ClassID for lmpara rmpara Goal CompilationUnit Type PrimitiveType NumericType IntegralType FloatingPointType ReferenceType ClassOrInterfaceType ClassType InterfaceType ArrayType Name SimpleName QualifiedName ImportDeclarations TypeDeclarations PackageDeclaration ImportDeclaration TypeDeclaration Modifiers Modifier ClassDeclaration Super Interfaces ClassBody ClassBodyDeclarations ClassBodyDeclaration ClassMemberDeclaration FieldDeclaration VariableDeclarators VariableDeclarator VariableDeclaratorId VariableInitializer MethodDeclaration MethodHeader MethodDeclarator FormalParameterList Throws ClassTypeList MethodBody StaticInitializer ConstructorDeclaration ConstructorDeclarator ConstructorBody InterfaceDeclaration Expression ArrayInitializer FormalParameter Block SingleTypeImportDeclaration TypeImportOnDemandDeclaration AssignmentExpression ConditionalExpression Assignment ConditionalOrExpression LeftHandSide ConditionalAndExpression InclusiveOrExpression ExclusiveOrExpression AndExpression EqualityExpression RelationalExpression ShiftExpression AdditiveExpression MultiplicativeExpression UnaryExpression PreIncrementExpression PreDecrementExpression UnaryExpressionNotPlusMinus PostIncrementExpression PostDecrementExpression CastExpression Primary PrimaryNoNewArray ArrayCreationExpression ArrayAccess FieldAccess MethodInvocation ClassInstanceCreationExpression ArgumentList PostfixExpression InterfaceTypeList ExplicitConstructorInvocation InterfaceBody InterfaceMemberDeclarations InterfaceMemberDeclaration ConstantDeclaration AbstractMethodDeclaration ExtendsInterfaces AssignmentOperator Dims DimExprs DimExpr VariableInitializers BlockStatements BlockStatement LocalVariableDeclarationStatement Statement StatementNoShortIf StatementWithoutTrailingSubstatement IfThenStatement IfThenElseStatement IfThenElseStatementNoShortIf WhileStatement WhileStatementNoShortIf ForStatement ForStatementNoShortIf ForInit ForUpdate StatementExpression StatementExpressionList LocalVariableDeclaration EmptyStatement LabeledStatement ExpressionStatement BreakStatement ContinueStatement ReturnStatement ThrowStatement SynchronizedStatement TryStatement Catches CatchClause Finally LabeledStatementNoShortIf Else
 
 %%
 // Grammer
@@ -229,7 +230,7 @@ TypeImportOnDemandDeclaration:
 
 
 TypeDeclaration:
-	ClassDeclaration	{ $$ = $1; }
+	ClassDeclaration	{ $$ = $1;}
 |	InterfaceDeclaration	{ $$ = $1; }
 |	SEMICOLON	{ $$ = $1; }
 ;
@@ -383,8 +384,10 @@ VariableDeclarator:
 	VariableDeclaratorId	{ $$ = $1; }
 |	VariableDeclaratorId EQUALS VariableInitializer	{
 														$$ = create_node ( 3 ,$2->val, $1, $3);
-														$$->ins = instCount+1;
-														create_ins(0,$1->addr,$2->val,$3->addr,"");
+														if (interfaceFlag==0){
+															$$->ins = instCount+1;
+															create_ins(0,$1->addr,$2->val,$3->addr,"");
+														}
 													}
 ;
 
@@ -442,29 +445,13 @@ MethodHeader:
 MethodDeclarator:
 	IDENTIFIER LPAREN FormalParameterList RPAREN	{
 														$$ = create_node ( 5 ,"MethodDeclarator", $1, $2, $3, $4);
-														$$->ins = instCount+1;
 														bool flag=false;
-														string funcName="";
-														for(auto class_ptr:classMap)
-														{
-															stme* temp=class_ptr.second;
-															while(temp!=NULL)
-															{
-																if($1->val==temp->id)
-																{
-																	flag=true;
-																	funcName+=class_ptr.first+".";
-																	break;
-																}
-																temp=temp->next;
-															}
-															if(flag) break;
+														if (interfaceFlag==0){
+															$$->ins = instCount+1;
+															string reg1 = newTemp();
+															create_ins(0,reg1,"=","PopParam","");
+															thisTemps.push(reg1);
 														}
-														funcName+=string($1->addr);
-														// funcName+=string($3->addr);
-														string reg1 = newTemp();
-														create_ins(0,reg1,"=","PopParam","");
-														thisTemps.push(reg1);
 													} 
 |	MethodDeclarator LSPAR RSPAR	{
 										$$ = create_node ( 4 ,"MethodDeclarator", $1, $2, $3);
@@ -473,29 +460,31 @@ MethodDeclarator:
 									$$ = create_node ( 4 ,"MethodDeclarator", $1, $2, $3);
 									$$->ins = instCount+1;
 									bool flag=false;
-									string funcName="";
-									for(auto class_ptr:classMap)
-									{
-										stme* temp=class_ptr.second;
-										while(temp!=NULL)
+									if (interfaceFlag==0){
+										string funcName="";
+										for(auto class_ptr:classMap)
 										{
-											if($1->val==temp->id)
+											stme* temp=class_ptr.second;
+											while(temp!=NULL)
 											{
-												flag=true;
-												funcName+=class_ptr.first+".";
-												break;
+												if($1->val==temp->id)
+												{
+													flag=true;
+													funcName+=class_ptr.first+".";
+													break;
+												}
+												temp=temp->next;
 											}
-											temp=temp->next;
+											if(flag) break;
 										}
-										if(flag) break;
+										funcName+=string($1->addr);
+										create_ins(0,funcName,":","","");
+										create_ins(0,"BeginFunc","","","");
+										string reg1 = newTemp();
+										create_ins(0,"ra","=","PopParam","");
+										create_ins(0,reg1,"=","PopParam","");
+										thisTemps.push(reg1);
 									}
-									funcName+=string($1->addr);
-									create_ins(0,funcName,":","","");
-									create_ins(0,"BeginFunc","","","");
-									string reg1 = newTemp();
-									create_ins(0,"ra","=","PopParam","");
-									create_ins(0,reg1,"=","PopParam","");
-									thisTemps.push(reg1);
 								} 
 ;
 
@@ -513,13 +502,14 @@ FormalParameterList:
 							current_ste=current_ste->next_scope;
 							funcName=current_ste->class_entry->id;
 							current_ste=current_ste->next;
-							funcName=funcName.substr(funcName.find("-")+1);
 						}
-						$$->ins = instCount+1;
-						create_ins(0,funcName+":","","","");
-						create_ins(0,"BeginFunc","","","");
-						create_ins(0,"ra","=","PopParam","");
-						create_ins(0,$1->addr,"=","PopParam","");
+						if (interfaceFlag==0 && parsenum==2){
+							$$->ins = instCount+1;
+							create_ins(0,funcName+":","","","");
+							create_ins(0,"BeginFunc","","","");
+							create_ins(0,"ra","=","PopParam","");
+							create_ins(0,$1->addr,"=","PopParam","");
+						}
 					}
 |	FormalParameterList COMMA FormalParameter	{
 													$1->children.push_back($2);$1->children.push_back($3); $$ =$1 ;
@@ -528,8 +518,11 @@ FormalParameterList:
 														scopeFlag=1;
 														current_ste=current_ste->next;
 													}
+													if (interfaceFlag==0 && parsenum==2)
+													{
 													$$->ins = instCount+1;
 													create_ins(0,$3->addr,"=","PopParam","");
+													}
 												} 
 ;
 
@@ -537,7 +530,6 @@ FormalParameter:
 	Type VariableDeclaratorId	{
 									$$ = create_node ( 3 ,"FormalParameter", $1, $2);
 									$$->addr = $2->addr;
-									// $$->ins = instCount+1;
 									
 								}
 |	FINAL Type VariableDeclaratorId	{
@@ -595,26 +587,6 @@ SimpleName LPAREN FormalParameterList RPAREN	{
 														$$ = create_node ( 5 ,"ConstructorDeclarator", $1, $2, $3, $4);
 														$$->ins = instCount+1;
 														bool flag=false;
-														string funcName="";
-														for(auto class_ptr:classMap)
-														{
-															stme* temp=class_ptr.second;
-															while(temp!=NULL)
-															{
-																if($1->val==temp->id)
-																{
-																	flag=true;
-																	funcName+=class_ptr.first+".";
-																	break;
-																}
-																temp=temp->next;
-															}
-															if(flag) break;
-														}
-														funcName+=string($1->addr);
-														// funcName+=string($3->addr);
-														create_ins(0,funcName,":","","");
-														create_ins(0,"BeginFunc","","","");
 														string reg1 = newTemp();
 														create_ins(0,reg1,"=","PopParam","");
 														thisTemps.push(reg1);
@@ -622,6 +594,10 @@ SimpleName LPAREN FormalParameterList RPAREN	{
 |	SimpleName LPAREN RPAREN	{ 
 									$$ = create_node ( 4 ,"ConstructorDeclarator", $1, $2, $3); 
 									$$->ins = instCount+1;
+									create_ins(0,"BeginFunc","","","");
+									string reg1 = newTemp();
+									create_ins(0,reg1,"=","PopParam","");
+									thisTemps.push(reg1);
 									create_ins(0,"ra","=","PopParam","");
 								} 
 ;
@@ -673,11 +649,14 @@ ExplicitConstructorInvocation:
 ;
 
 InterfaceDeclaration:
-	Modifiers INTERFACE IDENTIFIER ExtendsInterfaces InterfaceBody	{ $$ = create_node ( 6 ,"InterfaceDeclaration", $1, $2, $3, $4, $5); } 
-|	Modifiers INTERFACE IDENTIFIER InterfaceBody	{ $$ = create_node ( 5 ,"InterfaceDeclaration", $1, $2, $3, $4); } 
-|	INTERFACE IDENTIFIER ExtendsInterfaces InterfaceBody	{ $$ = create_node ( 5 ,"InterfaceDeclaration", $1, $2, $3, $4); } 
-|	INTERFACE IDENTIFIER InterfaceBody	{ $$ = create_node ( 4 ,"InterfaceDeclaration", $1, $2, $3); } 
+	Modifiers Interface IDENTIFIER ExtendsInterfaces InterfaceBody	{ $$ = create_node ( 6 ,"InterfaceDeclaration", $1, $2, $3, $4, $5); interfaceFlag=0;} 
+|	Modifiers Interface IDENTIFIER InterfaceBody	{ $$ = create_node ( 5 ,"InterfaceDeclaration", $1, $2, $3, $4); interfaceFlag=0;} 
+|	Interface IDENTIFIER ExtendsInterfaces InterfaceBody	{ $$ = create_node ( 5 ,"InterfaceDeclaration", $1, $2, $3, $4); interfaceFlag=0;} 
+|	Interface IDENTIFIER InterfaceBody	{ $$ = create_node ( 4 ,"InterfaceDeclaration", $1, $2, $3); interfaceFlag=0; } 
 ;
+
+Interface:
+	INTERFACE	{ $$ = $1; interfaceFlag=1; }
 
 ExtendsInterfaces:
 	EXTENDS InterfaceType	{ $$ = create_node(3,"Extends_Interfaces",$1,$2) ; } 
@@ -706,36 +685,32 @@ InterfaceBody:
 InterfaceMemberDeclarations:
 	InterfaceMemberDeclaration	{
 									$$ = create_node(2,"Interface_Member_Declarations",$1);
-									if (parsenum==2){
-										current_ste=current_ste->next;
-									}
 								} 
 |	InterfaceMemberDeclarations InterfaceMemberDeclaration	{ 
 																$1->children.push_back($2); 
 																$$ =$1 ;
-																if (parsenum==2){
-																	current_ste=current_ste->next;
-																	} 
 																} 
 ;
 
 InterfaceMemberDeclaration:
 	ConstantDeclaration	{ $$ = $1; }
-|	AbstractMethodDeclaration	{ $$ = $1; }
+|	AbstractMethodDeclaration	{ 
+									$$ = $1;
+									if (parsenum==2){
+										current_ste=branch.top();
+										branch.pop(); 
+										scopeFlag=0;
+									}
+								}
 ;
 
 ConstantDeclaration:
-	FieldDeclaration	{ $$ = $1; }
+	FieldDeclaration	{ $$ = $1;}
 ;
 
 AbstractMethodDeclaration:
 	MethodHeader SEMICOLON	{ 
 								$$ = create_node ( 3 ,"AbstractMethodDeclaration", $1, $2); 
-								if (parsenum==2){
-									current_ste=branch.top();
-									branch.pop(); 
-									scopeFlag=0;
-								}
 							} 
 ;
 
@@ -3275,6 +3250,7 @@ void branchMethodSymtable(NODE* declaration_node)
 
 				stme* table_entry=new stme;
 				table_entry->entry=current_ste;
+				current_ste->class_entry=table_entry;
 				table_entry->return_type=id_node_val;
 				table_entry->num_params=0;
 

@@ -21,7 +21,11 @@ void print_ste(ste* cur,int level=0)
     {
         cout<<"-> ";
     }
-    cout<<cur->lexeme<<" "<<cur->type<<" "<<cur->offset<<endl;
+    cout<<cur->lexeme<<" ";
+    if (cur->class_entry==NULL)
+        cout<<0<<endl;
+    else
+        cout<<1<<endl;
     if (cur->next_scope != NULL)
     {
         print_ste(cur->next_scope,level+1);
