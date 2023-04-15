@@ -5,12 +5,12 @@
 <!-- -> Local Variable Scope Redeclaration -->
 <!-- -> PushParam and PopParams -->
 -> 3AC Offset
--> Stack Pointer Manipulation
+<!-- -> Stack Pointer Manipulation -->
 <!-- -> No heap, only stack -->
 <!-- -> Return Address -->
 -> Goto fix [ TEST CASE 0 ]
 -> break
--> Constructor
+-> Constructor type checking
 <!-- -> continue -->
 --------------------------------------- Milestone 4 ---------------------
 
