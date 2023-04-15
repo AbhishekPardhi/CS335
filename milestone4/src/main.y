@@ -71,6 +71,7 @@
 	unordered_map <string, int> typeMap;
 	unordered_map <string, int> classTypeMap;
 	unordered_map <string, int> funcTypeMap;
+	unordered_map <string, bool> hasConst;
 	
 	int paramCount = 0;
 
@@ -2703,6 +2704,7 @@ string handle_class_declaration( NODE * node){
 				yerror("Error: Class " + class_name + " redefined");
 			}
 			cur_class=class_name;
+			hasConst[cur_class]=0;
 			classMap[cur_class]= new stme;
 		}
 		else if (node_val=="Interfaces")
@@ -3270,6 +3272,7 @@ void branchMethodSymtable(NODE* declaration_node)
 					string e_message= "Error: Method "+ (string) identifier_node->val+ " redeclared";
 					yerror(e_message);
 				}
+				hasConst[cur_class]=true;
 				
 				string id_node_val=cur_class+"-"+(string)identifier_node->val;
 
