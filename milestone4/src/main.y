@@ -1270,9 +1270,10 @@ ClassInstanceCreationExpression:
 													string classname=$2->val;
 													// offset
 													string reg1 = newTemp();
+													$$->addr=str_to_ch(reg1);
 													create_ins(0,reg1,"=","heap_alloc("+to_string(classTypeMap[classname])+")","");
-													create_ins(0,"PushParam",reg1,"","");
-													if(parsenum==2){
+													if(parsenum==2 && hasConst[classname]){
+														create_ins(0,"PushParam",reg1,"","");
 														create_ins(0,"stackpointer","+"+to_string(funcTypeMap[cur_class+"-"+cur_func]),"","");
 														create_ins(0,"call",classname+"-"+classname,"","");
 														create_ins(0,"stackpointer","-"+to_string(funcTypeMap[cur_class+"-"+cur_func]),"","");
@@ -1284,9 +1285,10 @@ ClassInstanceCreationExpression:
 									string classname=$2->val;
 									// offset
 									string reg1 = newTemp();
+									$$->addr=str_to_ch(reg1);
 									create_ins(0,reg1,"=","heap_alloc("+to_string(classTypeMap[classname])+")","");
-									create_ins(0,"PushParam",reg1,"","");
-									if(parsenum==2){
+									if(parsenum==2 && hasConst[classname]){
+										create_ins(0,"PushParam",reg1,"","");
 										create_ins(0,"stackpointer","+"+to_string(funcTypeMap[cur_class+"-"+cur_func]),"","");
 										create_ins(0,"call",classname+"-"+classname,"","");
 										create_ins(0,"stackpointer","-"+to_string(funcTypeMap[cur_class+"-"+cur_func]),"","");
