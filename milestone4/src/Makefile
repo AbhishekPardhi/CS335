@@ -11,4 +11,4 @@ dot:	output.dot
 		dot -Tpng output.dot -o AST.png
 
 x86:	
-		python3 x86gen.py
+		python3 X86gen/x86gen.py

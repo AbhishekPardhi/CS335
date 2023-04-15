@@ -1420,7 +1420,7 @@ MethodInvocation:
 										$$ = create_node ( 5 ,"MethodInvocation", $1, $2, $3, $4);
 										$$->ins = instCount+1;
 										if((string)$1->val=="println"){
-											create_ins(0,"Print",$3->addr,"","");
+											create_ins(0," call Print",$3->addr,"","");
 											$$->addr = str_to_ch("0");
 											create_ins(0,"PopParam",$3->addr,"","");
 										}

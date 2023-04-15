@@ -5,6 +5,7 @@ from classes import *
 
 def main():
     getSymTable()
+    print(FMap)
 
 if __name__ == "__main__":
     main()

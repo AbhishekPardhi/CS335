@@ -2,12 +2,15 @@ import os
 from constants import *
 from classes import *
 
-def getSymTable():
-    
+def getSymTable():    
     directories=os.scandir("output/")
 
     for directory in directories:
         if (directory.name=="3AC.txt"):
+            with open("output/"+"3AC.txt","r") as f:
+                threeAC.extend(f.readlines())
+                clean3AC()
+                markFunctions()
             continue
         
         files=os.scandir("output/"+directory.name)
@@ -49,4 +52,14 @@ def printSymTable():
             for entry in symTable[className][funcName]:
                 print(entry.name,entry.type,entry.lineno,entry.offset,entry.numParam,entry.is_static,entry.is_final,sep=",")
             print()
+
+def clean3AC():
+    for i in range(len(threeAC)):
+        threeAC[i]=threeAC[i].rstrip()
+
+def markFunctions():
+    for line in threeAC:
+        if line[-1]==":":
+            split=line[:-1].split("\t")
+            FMap[split[1]]=int(split[0])
         
