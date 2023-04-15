@@ -36,6 +36,7 @@
 	int lineno;
 	void print_ste(ste* ,int);
 	string cur_class;
+	string cur_func;
     NODE *start_node;
 	ste* start_ste = new ste;
 	ste * current_ste = start_ste;
@@ -69,6 +70,7 @@
 
 	unordered_map <string, int> typeMap;
 	unordered_map <string, int> classTypeMap;
+	unordered_map <string, int> funcTypeMap;
 	
 	int paramCount = 0;
 
@@ -2283,7 +2285,7 @@ string handle_field_access(NODE* node)
 			current_ste->next=new_ste;
 			new_ste->prev=current_ste;
 			offset += getOffset(cur_class);
-
+			funcTypeMap[cur_func]=offset;
 			current_ste=new_ste;
 
 			return type;
@@ -2382,6 +2384,7 @@ ste* insert_var_id(NODE * node,string type, bool is_static, bool is_final)
 		current_ste->next=new_ste;
 		new_ste->prev=current_ste;
 		offset += getOffset(type);
+		funcTypeMap[cur_func]=offset;
 
 		current_ste=new_ste;
 
@@ -2626,6 +2629,7 @@ void searchAST(NODE* node)
 	else if( temp == "MethodDeclaration" || temp =="ConstructorDeclaration")
 	{	
 		offset = 0;
+		
 		// new node for the new branch and the branch header in the previous branch junction
 		ste * new_ste = new ste;
 		current_ste->type="branch_head";
@@ -2740,6 +2744,7 @@ string handle_array_creation_Expression(NODE* node){
 			}
 			current_ste->prev->dims=dims;
 			offset+=getOffset(array_type);
+			funcTypeMap[cur_func]=offset;
 		}
 		else if(array_child_val=="Dims"){
 			for(auto dim_child: array_child->children){
@@ -3127,6 +3132,7 @@ string typecast(string typ1,string typ2,string op)
 
 void fieldSymTable(NODE* node)
 {
+	cur_func="field";
 	int length= node->children.size();
 	string type = get_type(node->children[length-3]);
 	if (length==4){
@@ -3240,6 +3246,7 @@ void branchMethodSymtable(NODE* declaration_node)
 			if (decl_child_node_val=="ConstructorDeclarator")
 			{
 				NODE* identifier_node=decl_child_node->children[0];
+				cur_func =cur_class+"-"+cur_class;
 				if (lookupFunction(classMap[cur_class],cur_class+"-"+(string)identifier_node->val)!=NULL){
 					lineno=identifier_node->lineno;
 					string e_message= "Error: Method "+ (string) identifier_node->val+ " redeclared";
@@ -3324,6 +3331,7 @@ void branchMethodSymtable(NODE* declaration_node)
 		if(node_val == "MethodDeclarator")
 		{
 			NODE* identifier_node=node->children[0];
+			cur_func =cur_class+"-"+(string)identifier_node->val;
 			if (lookupFunction(classMap[cur_class],cur_class+"-"+(string)identifier_node->val)!=NULL){
 				lineno=identifier_node->lineno;
 				string e_message= "Error: Method "+ (string) identifier_node->val+ " redeclared";
@@ -3718,6 +3726,7 @@ int main(int argc, char* argv[]){
 	tempCount=0;
 	parsenum=2;
 	yylineno=1;
+
 	yyparse();
 
 	/*--------------------------------------------------------------*/
