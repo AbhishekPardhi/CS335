@@ -1267,30 +1267,28 @@ ClassInstanceCreationExpression:
 	NEW ClassType LPAREN ArgumentList RPAREN	{
 													$$ = create_node ( 6 ,"ClassInstanceCreationExpression", $1, $2, $3, $4, $5);
 													$$->ins = instCount+1;
+													string classname=$2->val;
 													// offset
 													string reg1 = newTemp();
-													create_ins(0,reg1,"=","offset","");
+													create_ins(0,reg1,"=","heap_alloc("+to_string(classTypeMap[classname])+")","");
 													create_ins(0,"PushParam",reg1,"","");
 													if(parsenum==2){
-														string classname=$2->val;
 														create_ins(0,"stackpointer","+"+to_string(funcTypeMap[cur_class+"-"+cur_func]),"","");
-														$$->addr = str_to_ch(newTemp());
-														create_ins(1,$$->addr,"heap_alloc("+to_string(classTypeMap[classname])+")","","");
+														create_ins(0,"call",classname+"-"+classname,"","");
 														create_ins(0,"stackpointer","-"+to_string(funcTypeMap[cur_class+"-"+cur_func]),"","");
 													}
 												} 
 |	NEW ClassType LPAREN RPAREN	{
 									$$ = create_node ( 5 ,"ClassInstanceCreationExpression", $1, $2, $3, $4);
 									$$->ins = instCount+1;
+									string classname=$2->val;
 									// offset
 									string reg1 = newTemp();
-									create_ins(0,reg1,"=","offset","");
+									create_ins(0,reg1,"=","heap_alloc("+to_string(classTypeMap[classname])+")","");
 									create_ins(0,"PushParam",reg1,"","");
 									if(parsenum==2){
-										string classname=$2->val;
 										create_ins(0,"stackpointer","+"+to_string(funcTypeMap[cur_class+"-"+cur_func]),"","");
-										$$->addr = str_to_ch(newTemp());
-										create_ins(1,$$->addr,"heap_alloc("+to_string(classTypeMap[classname])+")","","");
+										create_ins(0,"call",classname+"-"+classname,"","");
 										create_ins(0,"stackpointer","-"+to_string(funcTypeMap[cur_class+"-"+cur_func]),"","");
 									}
 								} 
@@ -1428,7 +1426,7 @@ MethodInvocation:
 											$$->addr = str_to_ch(newTemp());
 											create_ins(0,"PushParam",to_string(instCount+3),"","");
 											create_ins(0,"stackpointer","+"+to_string(funcTypeMap[cur_class+"-"+cur_func]),"","");
-											create_ins(0,$$->addr,"=","call",$1->addr);
+											create_ins(0,$$->addr,"=","call",cur_class+"-"+(string)$1->addr);
 											create_ins(0,"stackpointer","-"+to_string(funcTypeMap[cur_class+"-"+cur_func]),"","");
 											create_ins(0,"PopParam",$3->addr,"","");
 										}
@@ -1439,7 +1437,7 @@ MethodInvocation:
 							if((string)$1->val!="println"){
 								$$->addr = str_to_ch(newTemp());
 								create_ins(0,"stackpointer","+"+to_string(funcTypeMap[cur_class+"-"+cur_func]),"","");
-								create_ins(0,$$->addr,"=","call",$1->addr);
+								create_ins(0,$$->addr,"=","call",cur_class+"-"+(string)$1->addr);
 								create_ins(0,"stackpointer","-"+to_string(funcTypeMap[cur_class+"-"+cur_func]),"","");
 							}
 						} 
@@ -1448,7 +1446,10 @@ MethodInvocation:
 															$$->ins = instCount+1;
 															$$->addr = str_to_ch(newTemp());
 															create_ins(0,"stackpointer","+"+to_string(funcTypeMap[cur_class+"-"+cur_func]),"","");
-															create_ins(0,$$->addr,"=","call",$3->addr);
+															if(parsenum==2) {
+																ste* lookup_ste = lookup(current_ste, $1->val);
+																create_ins(0,$$->addr,"=","call",lookup_ste->type + "-"+ (string) $3->addr);
+															}
 															create_ins(0,"stackpointer","-"+to_string(funcTypeMap[cur_class+"-"+cur_func]),"","");
 															create_ins(0,"PopParam",$3->addr,"","");
 														} 
@@ -1457,7 +1458,10 @@ MethodInvocation:
 												$$->ins = instCount+1;
 												$$->addr = str_to_ch(newTemp());
 												create_ins(0,"stackpointer","+"+to_string(funcTypeMap[cur_class+"-"+cur_func]),"","");
-												create_ins(0,$$->addr,"=","call",$3->addr);
+												if(parsenum==2) {
+													ste* lookup_ste = lookup(current_ste, $1->val);
+													create_ins(0,$$->addr,"=","call",lookup_ste->type + "-"+ (string) $3->addr);
+												}
 												create_ins(0,"stackpointer","-"+to_string(funcTypeMap[cur_class+"-"+cur_func]),"","");
 												create_ins(0,"PopParam",$3->addr,"","");
 											} 
