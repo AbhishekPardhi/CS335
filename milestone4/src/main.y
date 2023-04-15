@@ -2931,6 +2931,52 @@ string handle_function(NODE* node){
 		}
 		else
 		{	
+			stme* lookup_stme = tableMap[name+"-"+name];
+			if(lookup_stme!=NULL){
+				int num_params=lookup_stme->num_params;
+				int arg_flag=0;
+				for(auto node_child: node->children){
+					string node_child_val = node_child->val;
+
+					if(node_child_val=="Argument_List"){
+
+						vector < string > types;
+						arg_flag=1;
+						for(auto node_child_child: node_child->children){
+
+							string node_child_child_val = node_child_child->val;
+							if(node_child_child_val==",") continue;
+
+							string arg_type=handle_expression(node_child_child);
+							types.push_back(arg_type);
+						}
+
+						if(types.size()!=num_params){
+							string e_message= "Error : Constructor " + name + " called with wrong number of arguments ";
+							yerror(e_message);
+						}
+						else{
+
+							ste* entry_ste=lookup_stme->entry;
+							
+
+							for(int i=0;i<num_params;i++){
+								if(types[i]!=entry_ste->type){
+									string e_message= "Error : Constructor " + name + " called with wrong type of arguments ";
+									yerror(e_message);
+								}
+								entry_ste=entry_ste->next;
+							}
+						}
+					}
+
+				}
+
+				if(arg_flag==0 && num_params!=0){
+					string e_message= "Error : Constructor " + name + " called with wrong number of arguments ";
+					yerror(e_message);
+				}
+			}
 			string type=name;
 			return type;
 		}

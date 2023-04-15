@@ -22,7 +22,7 @@ class Rectangle implements Polygon {
 
 class Main {
   public static void main(String[] args) {
-    Rectangle r1 = new Rectangle();
+    Rectangle r1 = new Rectangle(0);
     r1.getArea(5, 6);
     r1.dim = 1;
     println(r1.dim);

@@ -10,7 +10,7 @@
 <!-- -> Return Address -->
 -> Goto fix [ TEST CASE 0 ]
 -> break
--> Constructor type checking
+<!-- -> Constructor type checking -->
 <!-- -> continue -->
 --------------------------------------- Milestone 4 ---------------------
 
