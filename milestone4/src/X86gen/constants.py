@@ -16,12 +16,21 @@ out=[]
 
 # map from regester id to regester name
 regMap={}
-regMap[0]="%eax"
-regMap[1]="%ebx"
-regMap[2]="%ecx"
-regMap[3]="%edx"
-regMap[4]="%esi"
-regMap[5]="%edi"
+regMap[0]="%rax"
+regMap[1]="%rbx"
+regMap[2]="%rcx"
+regMap[3]="%rdx"
+regMap[4]="%rsi"
+regMap[5]="%rdi"
+regMap[6]="%r8"
+regMap[7]="%r9"
+regMap[8]="%r10"
+regMap[9]="%r11"
+regMap[10]="%r12"
+regMap[11]="%r13"
+regMap[12]="%r14"
+regMap[13]="%r15"
+
 
 # Register and Adddress Descriptors
 # Register Descriptor
@@ -31,3 +40,23 @@ for i in range(len(regMap)):
 
 # Address Descriptor
 AddrDesc={}
+
+# Map from operator to assembly instruction
+opMap={}
+opMap["+"]="add"
+opMap["-"]="sub"
+opMap["*"]="mul"
+opMap["/"]="div"
+opMap["%"]="mod"
+opMap["&"]="and"
+opMap["|"]="or"
+opMap["^"]="xor"
+opMap["<<"]="shl"
+opMap[">>"]="shr"
+opMap["=="]="cmp"
+opMap["!="]="cmp"
+opMap[">"]="cmp"
+opMap[">="]="cmp"
+opMap["<"]="cmp"
+opMap["<="]="cmp"
+

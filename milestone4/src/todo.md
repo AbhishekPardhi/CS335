@@ -13,6 +13,8 @@
 <!-- -> Constructor type checking -->
 <!-- -> continue -->
 -> pushparam after sp update
+-> SP update before print call
+-> Symbol table id after 3AC
 --------------------------------------- Milestone 4 ---------------------
 
 -> Register/Address Descriptor
