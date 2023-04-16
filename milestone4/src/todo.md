@@ -8,8 +8,8 @@
 <!-- -> Stack Pointer Manipulation -->
 <!-- -> No heap, only stack -->
 <!-- -> Return Address -->
--> Goto fix [ TEST CASE 0 ]
--> break
+<!-- -> Goto fix [ TEST CASE 0 ] -->
+<!-- -> break -->
 <!-- -> Constructor type checking -->
 <!-- -> continue -->
 --------------------------------------- Milestone 4 ---------------------
@@ -17,3 +17,4 @@
 -> Register/Address Descriptor
 -> getReg()
 -> Implement Simple Algo
+-> ~static~ int max_ref; in LIS.java
