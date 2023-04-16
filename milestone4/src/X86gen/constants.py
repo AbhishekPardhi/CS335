@@ -23,3 +23,11 @@ regMap[3]="%edx"
 regMap[4]="%esi"
 regMap[5]="%edi"
 
+# Register and Adddress Descriptors
+# Register Descriptor
+RegDesc={}
+for i in range(len(regMap)):
+    RegDesc[regMap[i]]=[]
+
+# Address Descriptor
+AddrDesc={}

@@ -80,3 +80,39 @@ def makeBB():
     BB.sort()
     return BB
         
+def addAddrDesc(name,location):
+    AddrDesc[name].appen(dlocation)
+
+def addRegDesc(reg,name):
+    RegDesc[reg].append(name)
+
+def searchAddrDesc(name):
+    if name in AddrDesc.keys():
+        return AddrDesc[name]
+    return None
+
+def removeRegFromAddrDesc(reg,name):
+    for i in AddrDesc.keys():
+        if i!=name:
+            if reg in AddrDesc[i]:
+                AddrDesc[i].remove(reg)
+
+def getReg(name):
+    # case when the variable is already in the register
+    for key in RegDesc.keys():
+        if name in RegDesc[key]:
+            return key
+    
+    # case when the variable is not in the register
+    for reg in RegDesc.keys():
+        if RegDesc[reg]==[]:
+            addRegDesc(key,name)
+            return reg
+    
+    # case when all the registers are full
+    for reg in RegDesc.keys():
+        removeRegFromAddrDesc(reg,name)
+    addRegDesc(reg,name)
+    return reg
+    
+    
