@@ -4,7 +4,7 @@
 <!-- -> Type casting fix ( boolean ) -->
 <!-- -> Local Variable Scope Redeclaration -->
 <!-- -> PushParam and PopParams -->
--> 3AC Offset
+<!-- -> 3AC Offset -->
 <!-- -> Stack Pointer Manipulation -->
 <!-- -> No heap, only stack -->
 <!-- -> Return Address -->
@@ -14,4 +14,6 @@
 <!-- -> continue -->
 --------------------------------------- Milestone 4 ---------------------
 
--> X86 Code
+-> Register/Address Descriptor
+-> getReg()
+-> Implement Simple Algo

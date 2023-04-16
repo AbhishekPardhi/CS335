@@ -6,6 +6,8 @@ from classes import *
 def main():
     getSymTable()
     print(FMap)
+    l=makeBB()
+    print(l)
 
 if __name__ == "__main__":
     main()

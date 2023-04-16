@@ -62,4 +62,21 @@ def markFunctions():
         if line[-1]==":":
             split=line[:-1].split("\t")
             FMap[split[1]]=int(split[0])
+
+def makeBB():
+    BB=[]
+    for i in FMap.values():
+        BB.append(i)
+    for line in threeAC:
+        # check if the line has " goto " as a substring
+        if "goto " in line:
+            BB.append(int(line.split("\t")[0]))
+            BB.append(BB[-1]+1)
+        if "call " in line:
+            BB.append(int(line.split("\t")[0]))
+            BB.append(BB[-1]+1)
+    BB= set(BB)
+    BB= list(BB)
+    BB.sort()
+    return BB
         
