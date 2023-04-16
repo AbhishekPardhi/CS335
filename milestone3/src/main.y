@@ -866,9 +866,10 @@ IfThenElseStatementNoShortIf:
 WhileStatement:
 	WHILE LPAREN WhileExpression RPAREN Statement	{	
 													$$ = create_node ( 6 ,"WhileStatement", $1, $2, $3, $4, $5);
+													$$->ins = instCount+1;
 													backpatch($5->nextlist,$3->ins);
 													backpatch($3->truelist,$5->ins);
-													$5->nextlist = $3->falselist;
+													$$->nextlist = $3->falselist;
 													create_ins(0,"goto",to_string($3->ins),"","");
 												} 
 ;
@@ -876,9 +877,10 @@ WhileStatement:
 WhileStatementNoShortIf:
 	WHILE LPAREN WhileExpression RPAREN StatementNoShortIf	{
 															$$ = create_node ( 6 ,"WhileStatementNoShortIf", $1, $2, $3, $4, $5);
+															$$->ins = instCount+1;
 															backpatch($5->nextlist,$3->ins);
 															backpatch($3->truelist,$5->ins);
-															$5->nextlist = $3->falselist;
+															$$->nextlist = $3->falselist;
 															create_ins(0,"goto",to_string($3->ins),"","");
 														} 
 ;
@@ -917,6 +919,11 @@ ForStatement:
 																			backpatch($8->nextlist,$6->ins);
 																			backpatch($6->truelist,$8->ins);
 																			$$->nextlist = $8->nextlist;
+																			for(auto ins:$8->nextlist){
+																				if(ins<0){
+																						$$->nextlist.push_back(-ins);
+																					}
+																			}
 																			create_ins(0,"goto",to_string($6->ins),"","");
 																			if (forFlag>0){
 																				scopeFlag=0;forFlag--; 
@@ -932,6 +939,11 @@ ForStatement:
 																				backpatch($4->truelist,$8->ins);
 																				backpatch($6->truelist,$4->ins);
 																				$$->nextlist = $4->falselist;
+																				for(auto ins:$8->nextlist){
+																					if(ins<0){
+																							$$->nextlist.push_back(-ins);
+																						}
+																				}
 																				create_ins(0,"goto",to_string($6->ins),"","");
 																				if (forFlag>0){
 																					scopeFlag=0;forFlag--; 
@@ -946,6 +958,11 @@ ForStatement:
 																	backpatch($7->nextlist,$5->ins);
 																	backpatch($5->truelist,$7->ins);
 																	$$->nextlist = $7->nextlist;
+																	for(auto ins:$7->nextlist){
+																		if(ins<0){
+																				$$->nextlist.push_back(-ins);
+																			}
+																	}
 																	create_ins(0,"goto",to_string($5->ins),"","");
 																	if (forFlag>0){
 																		scopeFlag=0;forFlag--; 
@@ -960,6 +977,11 @@ ForStatement:
 																			backpatch($8->nextlist,$5->ins);
 																			backpatch($5->truelist,$8->ins);
 																			$$->nextlist = merge($5->falselist,$8->nextlist);
+																			for(auto ins:$8->nextlist){
+																				if(ins<0){
+																						$$->nextlist.push_back(-ins);
+																					}
+																			}
 																			create_ins(0,"goto",to_string($5->ins),"","");
 																			if (forFlag>0){
 																				scopeFlag=0;forFlag--; 
@@ -973,6 +995,11 @@ ForStatement:
 																$$->ins = instCount+1;
 																backpatch($7->nextlist,$7->ins);
 																$$->nextlist = $7->nextlist;
+																for(auto ins:$7->nextlist){
+																	if(ins<0){
+																			$$->nextlist.push_back(-ins);
+																		}
+																}
 																create_ins(0,"goto",to_string($7->ins),"","");
 																if (forFlag>0){
 																	scopeFlag=0;forFlag--; 
@@ -987,6 +1014,11 @@ ForStatement:
 																	backpatch($7->nextlist,$7->ins);
 																	backpatch($4->truelist,$7->ins);
 																	$$->nextlist = merge($4->falselist,$7->nextlist);
+																	for(auto ins:$7->nextlist){
+																		if(ins<0){
+																				$$->nextlist.push_back(-ins);
+																			}
+																	}
 																	create_ins(0,"goto",to_string($4->ins),"","");
 																	if (forFlag>0){
 																		scopeFlag=0;forFlag--; 
@@ -1000,6 +1032,11 @@ ForStatement:
 														$$->ins = instCount+1;
 														backpatch($6->nextlist,$6->ins);
 														$$->nextlist = $6->nextlist;
+														for(auto ins:$6->nextlist){
+															if(ins<0){
+																	$$->nextlist.push_back(-ins);
+																}
+														}
 														create_ins(0,"goto",to_string($6->ins),"","");
 														if (forFlag>0){
 															scopeFlag=0;forFlag--; 
@@ -1018,6 +1055,11 @@ ForStatementNoShortIf:
 																								backpatch($5->truelist,$9->ins); // expression,statement
 																								backpatch($7->truelist,$5->ins); // forupdate,expression
 																								$$->nextlist = $5->falselist;    // lhs,expression
+																								for(auto ins:$9->nextlist){
+																									if(ins<0){
+																											$$->nextlist.push_back(-ins);
+																										}
+																								}
 																								create_ins(0,"goto",to_string($7->ins),"",""); // forupdate
 																								if (forFlag>0){
 																									scopeFlag=0;forFlag--; 
@@ -1032,6 +1074,11 @@ ForStatementNoShortIf:
 																					backpatch($8->nextlist,$6->ins);
 																					backpatch($6->truelist,$8->ins);
 																					$$->nextlist = $8->nextlist;
+																					for(auto ins:$8->nextlist){
+																						if(ins<0){
+																								$$->nextlist.push_back(-ins);
+																							}
+																					}
 																					create_ins(0,"goto",to_string($6->ins),"","");
 																					if (forFlag>0){
 																						scopeFlag=0;forFlag--; 
@@ -1048,6 +1095,11 @@ ForStatementNoShortIf:
 																						backpatch($4->truelist,$8->ins);
 																						backpatch($6->truelist,$4->ins);
 																						$$->nextlist = $4->falselist;
+																						for(auto ins:$8->nextlist){
+																							if(ins<0){
+																									$$->nextlist.push_back(-ins);
+																								}
+																						}
 																						create_ins(0,"goto",to_string($6->ins),"","");
 																						if (forFlag>0){
 																							scopeFlag=0;forFlag--; 
@@ -1062,6 +1114,11 @@ ForStatementNoShortIf:
 																			backpatch($7->nextlist,$5->ins);
 																			backpatch($5->truelist,$7->ins);
 																			$$->nextlist = $7->nextlist;
+																			for(auto ins:$7->nextlist){
+																				if(ins<0){
+																						$$->nextlist.push_back(-ins);
+																					}
+																			}
 																			create_ins(0,"goto",to_string($5->ins),"","");
 																			if (forFlag>0){
 																				scopeFlag=0;forFlag--; 
@@ -1076,6 +1133,11 @@ ForStatementNoShortIf:
 																					backpatch($8->nextlist,$5->ins);
 																					backpatch($5->truelist,$8->ins);
 																					$$->nextlist = merge($5->falselist,$8->nextlist);
+																					for(auto ins:$8->nextlist){
+																						if(ins<0){
+																								$$->nextlist.push_back(-ins);
+																							}
+																					}
 																					create_ins(0,"goto",to_string($5->ins),"","");
 																					if (forFlag>0){
 																						scopeFlag=0;forFlag--; 
@@ -1089,6 +1151,11 @@ ForStatementNoShortIf:
 																			$$->ins = instCount+1;
 																			backpatch($7->nextlist,$7->ins);
 																			$$->nextlist = $7->nextlist;
+																			for(auto ins:$7->nextlist){
+																				if(ins<0){
+																						$$->nextlist.push_back(-ins);
+																					}
+																			}
 																			create_ins(0,"goto",to_string($7->ins),"","");
 																			if (forFlag>0){
 																				scopeFlag=0;forFlag--; 
@@ -1103,6 +1170,11 @@ ForStatementNoShortIf:
 																			backpatch($7->nextlist,$7->ins);
 																			backpatch($4->truelist,$7->ins);
 																			$$->nextlist = merge($4->falselist,$7->nextlist);
+																			for(auto ins:$7->nextlist){
+																				if(ins<0){
+																						$$->nextlist.push_back(-ins);
+																					}
+																			}
 																			create_ins(0,"goto",to_string($4->ins),"","");
 																			if (forFlag>0){
 																				scopeFlag=0;forFlag--; 
@@ -1116,6 +1188,11 @@ ForStatementNoShortIf:
 																	$$->ins = instCount+1;
 																	backpatch($6->nextlist,$6->ins);
 																	$$->nextlist = $6->nextlist;
+																	for(auto ins:$6->nextlist){
+																		if(ins<0){
+																				$$->nextlist.push_back(-ins);
+																			}
+																	}
 																	create_ins(0,"goto",to_string($6->ins),"","");
 																	if (forFlag>0){
 																		scopeFlag=0;forFlag--; 
