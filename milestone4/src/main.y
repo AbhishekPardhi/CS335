@@ -484,7 +484,6 @@ MethodDeclarator:
 										}
 										funcName+=string($1->addr);
 										create_ins(0,funcName,":","","");
-										create_ins(0,"BeginFunc","","","");
 										string reg1 = newTemp();
 										create_ins(0,"ra","=","PopParam","");
 										create_ins(0,reg1,"=","PopParam","");
@@ -511,7 +510,6 @@ FormalParameterList:
 						if (interfaceFlag==0 && parsenum==2){
 							$$->ins = instCount+1;
 							create_ins(0,funcName+":","","","");
-							create_ins(0,"BeginFunc","","","");
 							create_ins(0,"ra","=","PopParam","");
 							create_ins(0,$1->addr,"=","PopParam","");
 						}
@@ -561,7 +559,6 @@ MethodBody:
 				$$ = $1;
 				$$->ins = instCount+1;
 				create_ins(0,"Goto","ra","","");
-				create_ins(0,"EndFunc","","","");
 				thisTemps.pop();
 				backpatch($1->nextlist,$$->ins);
 			}
@@ -569,7 +566,6 @@ MethodBody:
 					$$ = $1;
 					$$->ins = instCount+1;
 					create_ins(0,"Goto","ra","","");
-					create_ins(0,"EndFunc","","","");
 					thisTemps.pop();
 				}
 ;
@@ -599,7 +595,6 @@ SimpleName LPAREN FormalParameterList RPAREN	{
 |	SimpleName LPAREN RPAREN	{ 
 									$$ = create_node ( 4 ,"ConstructorDeclarator", $1, $2, $3); 
 									$$->ins = instCount+1;
-									create_ins(0,"BeginFunc","","","");
 									string reg1 = newTemp();
 									create_ins(0,reg1,"=","PopParam","");
 									thisTemps.push(reg1);
@@ -612,7 +607,6 @@ ConstructorBody:
 																	$$ = create_node ( 5 ,"ConstructorBody", $1, $2, $3, $4);
 																	$$->ins = instCount+1;
 																	create_ins(0,"Goto","ra","","");
-																	create_ins(0,"EndFunc","","","");
 																	thisTemps.pop();
 																	backpatch($3->nextlist,$$->ins);
 																	if (parsenum==2){current_ste=current_ste->next;}
@@ -621,7 +615,6 @@ ConstructorBody:
 													$$ = create_node ( 4 ,"ConstructorBody", $1, $2, $3);
 													$$->ins = instCount+1;
 													create_ins(0,"Goto","ra","","");
-													create_ins(0,"EndFunc","","","");
 													thisTemps.pop();
 													backpatch($2->nextlist,$$->ins);
 													if (parsenum==2){current_ste=current_ste->next;}
@@ -630,7 +623,6 @@ ConstructorBody:
 										$$ = create_node ( 4 ,"ConstructorBody", $1, $2, $3);
 										$$->ins = instCount+1;
 										create_ins(0,"Goto","ra","","");
-										create_ins(0,"EndFunc","","","");
 										thisTemps.pop();
 										backpatch($2->nextlist,$$->ins);
 										if (parsenum==2){current_ste=current_ste->next;}
@@ -639,7 +631,6 @@ ConstructorBody:
 						$$ = create_node ( 3 ,"ConstructorBody", $1, $2);
 						$$->ins = instCount+1;
 						create_ins(0,"Goto","ra","","");
-						create_ins(0,"EndFunc","","","");
 						thisTemps.pop();
 						if (parsenum==2){current_ste=current_ste->next;}
 					}
@@ -1497,7 +1488,7 @@ MethodInvocation:
 										$$ = create_node ( 5 ,"MethodInvocation", $1, $2, $3, $4);
 										$$->ins = instCount+1;
 										if((string)$1->val=="println"){
-											create_ins(0," call Print",$3->addr,"","");
+											create_ins(0,"call Print",$3->addr,"","");
 											$$->addr = str_to_ch("0");
 											create_ins(0,"PopParam",$3->addr,"","");
 										}

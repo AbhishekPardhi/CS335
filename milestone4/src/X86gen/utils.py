@@ -6,6 +6,8 @@ def getSymTable():
     directories=os.scandir("output/")
 
     for directory in directories:
+        if (directory.name=="x86.txt"):
+            continue
         if (directory.name=="3AC.txt"):
             with open("output/"+"3AC.txt","r") as f:
                 threeAC.extend(f.readlines())
@@ -79,4 +81,60 @@ def makeBB():
     BB= list(BB)
     BB.sort()
     return BB
+
+def split(s):
+    s.rstrip()
+    ans=[]
+    temp=""
+    for i in s:
+        if i==" ":
+            ans.append(temp)
+            temp=""
+        else:
+            temp+=i
+    ans.append(temp)
+    return ans
         
+def addAddrDesc(name,location):
+    if name not in AddrDesc.keys():
+        AddrDesc[name]=[]
+    AddrDesc[name].append(location)
+
+def addRegDesc(reg,name):
+    if reg not in RegDesc.keys():
+        RegDesc[reg]=[]
+    RegDesc[reg].append(name)
+
+def searchAddrDesc(name):
+    if name in AddrDesc.keys():
+        return AddrDesc[name]
+    return None
+
+def removeRegFromAddrDesc(reg,name):
+    for i in AddrDesc.keys():
+        if i!=name:
+            if reg in AddrDesc[i]:
+                AddrDesc[i].remove(reg)
+
+def getReg(name):
+    # case when the variable is already in the register
+    for reg in RegDesc.keys():
+        if name in RegDesc[reg]:
+            return reg
+    
+    # case when the variable is not in the register
+    for reg in RegDesc.keys():
+        if RegDesc[reg]==[]:
+            addRegDesc(reg,name)
+            addAddrDesc(name,reg)
+            out.append("mov "+reg+","+name)
+            return reg
+    
+    # case when all the registers are full
+    print("All registers are full")
+    for reg in RegDesc.keys():
+        removeRegFromAddrDesc(reg,name)
+    addRegDesc(reg,name)
+    return reg
+    
+    
