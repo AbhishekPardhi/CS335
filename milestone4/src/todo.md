@@ -19,6 +19,12 @@
 --------------------------------------- Milestone 4 ---------------------
 
 <!-- -> Register/Address Descriptor -->
+-> x = op y
+-> function calls
+-> function return
+-> push/pop params
+-> Fix temp del
+-> conditional jumps
 -> Variable type declaration in x86
 -> getReg()
 -> Implement Simple Algo

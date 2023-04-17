@@ -10,11 +10,10 @@ class TypeConv {
 		// Declaring and initializing primitive types
 		char c = 'a';
 		int i = 50000;
-		float f = 5.67f;
-		double d = .1234;
+		int j=0;
 
 		// The Expression
-		double result = (f * 1) + (i / c) - (d * 5);
+		double result = (j+i+(j+i+(j+i+(j+i+(i+j+(i+j+(i+j+(i+j+(i+j+(i+j))))))))));
 
 		// Printing the result obtained after
 		// all the promotions are done
