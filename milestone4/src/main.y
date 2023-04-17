@@ -401,6 +401,10 @@ VariableDeclaratorId:
 					$$ = create_node(2,"Variable_Declarator_Id",$1);
 					$1->isvar=1; 
 					$$->addr = $1->addr; 
+					ste* lookup_ste = lookup(current_ste, $1->val);
+					if(lookup_ste!=NULL && parsenum==2){
+						$$->addr = str_to_ch(lookup_ste->lexeme + "{" + to_string(lookup_ste->VarId)  + "}");
+					}
 				}
 |	VariableDeclaratorId LSPAR RSPAR	{
 											$1->children.push_back($2);
@@ -512,8 +516,12 @@ FormalParameterList:
 						if (interfaceFlag==0 && parsenum==2){
 							$$->ins = instCount+1;
 							create_ins(0,funcName+":","","","");
+							ste* lookup_ste = lookup(current_ste, $1->addr);
+							if(lookup_ste!=NULL && parsenum==2){
+								$$->addr = str_to_ch(lookup_ste->lexeme + "{" + to_string(lookup_ste->VarId)  + "}");
+							}
 							create_ins(0,"ra","=","PopParam","");
-							create_ins(0,$1->addr,"=","PopParam","");
+							create_ins(0,$$->addr,"=","PopParam","");
 						}
 					}
 |	FormalParameterList COMMA FormalParameter	{
@@ -1586,7 +1594,13 @@ ArrayAccess:
 
 PostfixExpression:
 	Primary	{ $$ = $1; }
-|	Name	{ $$ = $1; }
+|	Name	{ 
+				$$ = $1; 
+				ste* lookup_ste = lookup(current_ste, $1->val);
+				if(lookup_ste!=NULL && parsenum==2){
+					$$->addr = str_to_ch(lookup_ste->lexeme + "{" + to_string(lookup_ste->VarId)  + "}");
+				}
+			}
 |	PostIncrementExpression	{ $$ = $1; }
 |	PostDecrementExpression	{ $$ = $1; }
 ;
