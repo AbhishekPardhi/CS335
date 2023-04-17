@@ -149,6 +149,7 @@ def getReg(name,currFunc):
             else:
                 if name[0] == "t":
                     addAddrDesc(name,reg)
+                    addRegDesc(reg,name)
                 else:
                     out.append("\t"+"mov "+reg+","+name)
             return reg
