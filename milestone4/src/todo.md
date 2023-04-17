@@ -15,9 +15,11 @@
 <!-- -> pushparam after sp update -->
 <!-- -> SP update before print call -->
 <!-- -> Symbol table id after 3AC -->
+-> multi dim 3AC test case 5
 --------------------------------------- Milestone 4 ---------------------
 
 <!-- -> Register/Address Descriptor -->
+-> Variable type declaration in x86
 -> getReg()
 -> Implement Simple Algo
 -> ~static~ int max_ref; in LIS.java
