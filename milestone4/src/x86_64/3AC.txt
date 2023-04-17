@@ -2,5 +2,9 @@
 2	ra = PopParam 
 3	x = PopParam 
 4	y = PopParam 
-5	t0 = x + y
-6   x = t0
+5   z = PopParam
+6	t0 = x + y
+7   x = t0
+8   z = x
+9   z = x
+10  z = y
