@@ -2263,11 +2263,9 @@ LeftHandSide:
 					$$ = $1;
 					string reg1 = string($1->addr);
 					$$->ins = instCount+1;
-					$$->addr = str_to_ch(newTemp());
-					$$->addr = str_to_ch(string($1->arrayBase)+"[ "+$1->addr+" ]");
 					ste* lookup_ste = lookup(current_ste, $1->arrayBase);
 					if(lookup_ste!=NULL && parsenum==2){
-						$$->addr = str_to_ch(string($1->arrayBase) + "{" + to_string(lookup_ste->VarId)  + "}"+"[ "+$1->addr+" ]");
+						$$->addr = str_to_ch(string($1->arrayBase) + "{" + to_string(lookup_ste->VarId)  + "}"+"[ "+$$->addr+" ]");
 					}
 					// create_ins(0,string($$->addr),"=",string($1->arrayBase)+"[ "+reg1+" ]","");
 				}

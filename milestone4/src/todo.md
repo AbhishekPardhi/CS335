@@ -15,7 +15,7 @@
 <!-- -> pushparam after sp update -->
 <!-- -> SP update before print call -->
 <!-- -> Symbol table id after 3AC -->
--> multi dim 3AC test case 5
+<!-- -> multi dim 3AC test case 5 -->
 --------------------------------------- Milestone 4 ---------------------
 
 <!-- -> Register/Address Descriptor -->
