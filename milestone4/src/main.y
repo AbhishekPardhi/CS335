@@ -1341,8 +1341,8 @@ ClassInstanceCreationExpression:
 													$$->addr=str_to_ch(reg1);
 													create_ins(0,reg1,"=","heap_alloc("+to_string(classTypeMap[classname])+")","");
 													if(parsenum==2 && hasConst[classname]){
+														// create_ins(0,"stackpointer","+"+to_string(funcTypeMap[cur_class+"-"+cur_func]),"","");
 														create_ins(0,"PushParam",reg1,"","");
-														create_ins(0,"stackpointer","+"+to_string(funcTypeMap[cur_class+"-"+cur_func]),"","");
 														create_ins(0,"call",classname+"-"+classname,"","");
 														create_ins(0,"stackpointer","-"+to_string(funcTypeMap[cur_class+"-"+cur_func]),"","");
 													}
@@ -1356,8 +1356,8 @@ ClassInstanceCreationExpression:
 									$$->addr=str_to_ch(reg1);
 									create_ins(0,reg1,"=","heap_alloc("+to_string(classTypeMap[classname])+")","");
 									if(parsenum==2 && hasConst[classname]){
-										create_ins(0,"PushParam",reg1,"","");
 										create_ins(0,"stackpointer","+"+to_string(funcTypeMap[cur_class+"-"+cur_func]),"","");
+										create_ins(0,"PushParam",reg1,"","");
 										create_ins(0,"call",classname+"-"+classname,"","");
 										create_ins(0,"stackpointer","-"+to_string(funcTypeMap[cur_class+"-"+cur_func]),"","");
 									}
@@ -1368,6 +1368,7 @@ ArgumentList:
 	Expression	{
 					$$ = create_node(2,"Argument_List",$1) ;
 					$$->ins = instCount+1;
+					create_ins(0,"stackpointer","+"+to_string(funcTypeMap[cur_class+"-"+cur_func]),"","");
 					if(string($1->addr).back()==']')
 					{
 						string reg1 = newTemp();
@@ -1490,15 +1491,15 @@ MethodInvocation:
 										if((string)$1->val=="println"){
 											create_ins(0,"call Print",$3->addr,"","");
 											$$->addr = str_to_ch("0");
-											create_ins(0,"PopParam",$3->addr,"","");
+											// create_ins(0,"PopParam",$3->addr,"","");
 										}
 										else{
 											$$->addr = str_to_ch(newTemp());
+											// create_ins(0,"stackpointer","+"+to_string(funcTypeMap[cur_class+"-"+cur_func]),"","");
 											create_ins(0,"PushParam",to_string(instCount+3),"","");
-											create_ins(0,"stackpointer","+"+to_string(funcTypeMap[cur_class+"-"+cur_func]),"","");
 											create_ins(0,$$->addr,"=","call",cur_class+"-"+(string)$1->addr);
 											create_ins(0,"stackpointer","-"+to_string(funcTypeMap[cur_class+"-"+cur_func]),"","");
-											create_ins(0,"PopParam",$3->addr,"","");
+											// create_ins(0,"PopParam",$3->addr,"","");
 										}
 									} 
 |	Name LPAREN RPAREN	{
@@ -1515,13 +1516,13 @@ MethodInvocation:
 															$$ = create_node ( 7 ,"MethodInvocation", $1, $2, $3, $4, $5, $6);
 															$$->ins = instCount+1;
 															$$->addr = str_to_ch(newTemp());
-															create_ins(0,"stackpointer","+"+to_string(funcTypeMap[cur_class+"-"+cur_func]),"","");
+															// create_ins(0,"stackpointer","+"+to_string(funcTypeMap[cur_class+"-"+cur_func]),"","");
 															if(parsenum==2) {
 																ste* lookup_ste = lookup(current_ste, $1->val);
 																create_ins(0,$$->addr,"=","call",lookup_ste->type + "-"+ (string) $3->addr);
 															}
 															create_ins(0,"stackpointer","-"+to_string(funcTypeMap[cur_class+"-"+cur_func]),"","");
-															create_ins(0,"PopParam",$3->addr,"","");
+															// create_ins(0,"PopParam",$3->addr,"","");
 														} 
 |	Primary DOT IDENTIFIER LPAREN RPAREN	{
 												$$ = create_node ( 6 ,"MethodInvocation", $1, $2, $3, $4, $5);
@@ -1533,16 +1534,16 @@ MethodInvocation:
 													create_ins(0,$$->addr,"=","call",lookup_ste->type + "-"+ (string) $3->addr);
 												}
 												create_ins(0,"stackpointer","-"+to_string(funcTypeMap[cur_class+"-"+cur_func]),"","");
-												create_ins(0,"PopParam",$3->addr,"","");
+												// create_ins(0,"PopParam",$3->addr,"","");
 											} 
 |	SUPER DOT IDENTIFIER LPAREN ArgumentList RPAREN	{
 														$$ = create_node ( 7 ,"MethodInvocation", $1, $2, $3, $4, $5, $6);
 														$$->ins = instCount+1;
 														$$->addr = str_to_ch(newTemp());
-														create_ins(0,"stackpointer","+"+to_string(funcTypeMap[cur_class+"-"+cur_func]),"","");
+														// create_ins(0,"stackpointer","+"+to_string(funcTypeMap[cur_class+"-"+cur_func]),"","");
 														create_ins(0,$$->addr,"=","call",$3->addr);
 														create_ins(0,"stackpointer","-"+to_string(funcTypeMap[cur_class+"-"+cur_func]),"","");
-														create_ins(0,"PopParam",$3->addr,"","");
+														// create_ins(0,"PopParam",$3->addr,"","");
 													} 
 |	SUPER DOT IDENTIFIER LPAREN RPAREN	{
 											$$ = create_node ( 6 ,"MethodInvocation", $1, $2, $3, $4, $5);
@@ -1551,7 +1552,7 @@ MethodInvocation:
 											create_ins(0,"stackpointer","+"+to_string(funcTypeMap[cur_class+"-"+cur_func]),"","");
 											create_ins(0,$$->addr,"=","call",$3->addr);
 											create_ins(0,"stackpointer","-"+to_string(funcTypeMap[cur_class+"-"+cur_func]),"","");
-											create_ins(0,"PopParam",$3->addr,"","");
+											// create_ins(0,"PopParam",$3->addr,"","");
 										} 
 ;
 
