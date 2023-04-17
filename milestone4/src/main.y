@@ -79,6 +79,8 @@
 
 	stack < int > loopStack;
 
+	int VarId=0;
+
 %}
 
 %union {
@@ -2374,11 +2376,13 @@ string handle_field_access(NODE* node)
 			current_ste->lexeme="this";
 			current_ste->type=cur_class;
 			current_ste->offset=offset;
+			current_ste->VarId = VarId;
 			current_ste->token="IDENTIFIER";
 			current_ste->lineno=lineno;
 			current_ste->next=new_ste;
 			new_ste->prev=current_ste;
 			offset += getOffset(cur_class);
+			VarId++;
 			funcTypeMap[cur_func]=offset;
 			current_ste=new_ste;
 
@@ -2470,6 +2474,7 @@ ste* insert_var_id(NODE * node,string type, bool is_static, bool is_final)
 		current_ste->lexeme=var_name;
 		current_ste->type=type;
 		current_ste->offset=offset;
+		current_ste->VarId = VarId;
 		current_ste->is_static=is_static;
 		current_ste->is_final=is_final;
 		current_ste->token="IDENTIFIER";
@@ -2478,6 +2483,7 @@ ste* insert_var_id(NODE * node,string type, bool is_static, bool is_final)
 		current_ste->next=new_ste;
 		new_ste->prev=current_ste;
 		offset += getOffset(type);
+		VarId++;
 		funcTypeMap[cur_func]=offset;
 
 		current_ste=new_ste;
@@ -2723,7 +2729,7 @@ void searchAST(NODE* node)
 	else if( temp == "MethodDeclaration" || temp =="ConstructorDeclaration")
 	{	
 		offset = 0;
-		
+		VarId = 0;
 		// new node for the new branch and the branch header in the previous branch junction
 		ste * new_ste = new ste;
 		current_ste->type="branch_head";
@@ -3676,9 +3682,9 @@ void printToCSV(){
 			string filename = filePath + "/" + curr->id + ".csv";
 			fout.open(filename);
 			
-			fout<<"Function name:,Return Type, Number of Parameters, IsStatic, Is_Final ,Lexeme,Type,Line Number,Token,Offset,Is_Static,Is_Final"<<endl;
+			fout<<"Function name:,Return Type, Number of Parameters, IsStatic, Is_Final ,Lexeme,Type,Line Number,Token,Offset,Is_Static,Is_Final,Id"<<endl;
 
-			fout<<curr->id<<","<<curr->return_type<<","<<curr->num_params<<","<<curr->is_static<<","<<curr->is_final<<",,,,,"<<endl;
+			fout<<curr->id<<","<<curr->return_type<<","<<curr->num_params<<","<<curr->is_static<<","<<curr->is_final<<",,,,,,"<<endl;
 			ste* current_ste = curr->entry;
 			while(current_ste->next!=NULL || current_ste->next_scope!=NULL || !branch.empty()){
 				if(current_ste->next==NULL && current_ste->next_scope==NULL){
@@ -3692,7 +3698,7 @@ void printToCSV(){
 					continue;
 				}
 
-				fout<<",,,,,"<<current_ste->lexeme<<","<<current_ste->type<<","<<current_ste->lineno<<","<<current_ste->token<<","<<current_ste->offset<<","<<current_ste->is_static<<","<<current_ste->is_final<<endl;
+				fout<<",,,,,"<<current_ste->lexeme<<","<<current_ste->type<<","<<current_ste->lineno<<","<<current_ste->token<<","<<current_ste->offset<<","<<current_ste->is_static<<","<<current_ste->is_final<<","<<current_ste->VarId<<endl;
 				current_ste = current_ste->next;
 			}
 			

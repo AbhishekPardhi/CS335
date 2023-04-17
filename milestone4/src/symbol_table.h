@@ -6,7 +6,7 @@ typedef struct symbol_table_map_entry stme;
 
 typedef struct symbol_table_entry{
     string token, lexeme, type;
-    int lineno,offset;
+    int lineno,offset, VarId;
     bool is_static;
     bool is_final;
     vector < int > dims;
