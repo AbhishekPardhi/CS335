@@ -60,3 +60,5 @@ opMap[">="]="cmp"
 opMap["<"]="cmp"
 opMap["<="]="cmp"
 
+# current fucntion name
+currFunc=""

@@ -36,7 +36,7 @@ def getSymTable():
                 else:
                     # function description
                     funcDesc=f.readline()
-                    entry=func_entry(funcDesc[:-6].split(","))
+                    entry=func_entry(funcDesc[:-7].split(","))
                     func_entries.append(entry)
 
                     for line in f.readlines():
@@ -64,6 +64,22 @@ def markFunctions():
         if line[-1]==":":
             split=line[:-1].split("\t")
             FMap[split[1]]=int(split[0])
+
+def lookup(name,id,currFunc):
+    for i in symTable["Class-"+currFunc.split("-")[0]][currFunc]:
+        if i.name==name and i.id==id :
+            return i
+    return None
+
+def checkVar(name,currFunc):
+    split=name.split("{")
+    if len(split)==1:
+        return None , False
+    varname=split[0]
+    id=int(split[1][:-1])
+    if lookup(varname,id,currFunc) is not None:
+        return lookup(varname,id,currFunc).offset , True
+    return None , False
 
 def makeBB():
     BB=[]
@@ -116,7 +132,7 @@ def removeRegFromAddrDesc(reg,name):
             if reg in AddrDesc[i]:
                 AddrDesc[i].remove(reg)
 
-def getReg(name):
+def getReg(name,currFunc):
     # case when the variable is already in the register
     for reg in RegDesc.keys():
         if name in RegDesc[reg]:
@@ -125,9 +141,13 @@ def getReg(name):
     # case when the variable is not in the register
     for reg in RegDesc.keys():
         if RegDesc[reg]==[]:
-            addRegDesc(reg,name)
-            addAddrDesc(name,reg)
-            out.append("mov "+reg+","+name)
+            offset,isVar = checkVar(name,currFunc)
+            if isVar:
+                out.append("mov "+reg+" %rsp[-"+str(offset)+"]")
+                addRegDesc(reg,name)
+                addAddrDesc(name,reg)
+            else:
+                out.append("mov "+reg+","+name)
             return reg
     
     # case when all the registers are full
