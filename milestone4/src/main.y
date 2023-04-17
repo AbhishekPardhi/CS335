@@ -1337,7 +1337,14 @@ PrimaryNoNewArray:
 					$$->ins = instCount+1;
 					$$->addr = str_to_ch(newTemp());
 					// $$->addr = str_to_ch(string($1->arrayBase)+"[ "+$1->addr+" ]");
-					create_ins(0,string($$->addr),"=",string($1->arrayBase)+"[ "+reg1+" ]","");
+					ste* lookup_ste = lookup(current_ste, $1->arrayBase);
+					if(lookup_ste!=NULL && parsenum==2){
+						create_ins(0,string($$->addr),"=",string($1->arrayBase)+ "{" + to_string(lookup_ste->VarId)  + "}" + "[ "+reg1+" ]","");
+
+					}
+					else{
+						create_ins(0,string($$->addr),"=",string($1->arrayBase)+"[ "+reg1+" ]","");
+					}
 				}
 ;
 
@@ -2257,6 +2264,10 @@ LeftHandSide:
 					$$->ins = instCount+1;
 					$$->addr = str_to_ch(newTemp());
 					$$->addr = str_to_ch(string($1->arrayBase)+"[ "+$1->addr+" ]");
+					ste* lookup_ste = lookup(current_ste, $1->arrayBase);
+					if(lookup_ste!=NULL && parsenum==2){
+						$$->addr = str_to_ch(string($1->arrayBase) + "{" + to_string(lookup_ste->VarId)  + "}"+"[ "+$1->addr+" ]");
+					}
 					// create_ins(0,string($$->addr),"=",string($1->arrayBase)+"[ "+reg1+" ]","");
 				}
 ;
