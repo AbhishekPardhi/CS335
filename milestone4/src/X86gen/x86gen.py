@@ -37,6 +37,7 @@ def main():
             if len(code)==4 and "cast_to_" in code[2]:
                 out.append("\t;"+code[0]+" = "+code[2]+" "+code[3])
                 out.append("\tmov "+getReg(code[0],currFunc)+","+getReg(code[3],currFunc))
+            print(code)
  
     with open("output/x86.s","w") as f:
         for line in out:

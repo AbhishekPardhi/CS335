@@ -18,6 +18,7 @@
 --------------------------------------- Milestone 4 ---------------------
 
 <!-- -> Register/Address Descriptor -->
+-> Variable type declaration in x86
 -> getReg()
 -> Implement Simple Algo
 -> ~static~ int max_ref; in LIS.java

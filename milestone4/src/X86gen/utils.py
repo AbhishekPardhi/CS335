@@ -102,10 +102,21 @@ def split(s):
     s.rstrip()
     ans=[]
     temp=""
+    flag=0
     for i in s:
-        if i==" " and temp !="":
+        if i=="\"" and flag==0:
+            flag=1
+            temp+=i
+        elif i=="\"" and flag==1:
+            flag=0
+            temp+=i
             ans.append(temp)
             temp=""
+        elif i==" " and temp!="" and flag==0:
+            ans.append(temp)
+            temp=""
+        elif i==" " and temp=="" and flag==0:
+            continue
         else:
             temp+=i
     ans.append(temp)
