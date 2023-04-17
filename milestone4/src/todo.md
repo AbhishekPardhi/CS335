@@ -14,10 +14,10 @@
 <!-- -> continue -->
 <!-- -> pushparam after sp update -->
 <!-- -> SP update before print call -->
--> Symbol table id after 3AC
+<!-- -> Symbol table id after 3AC -->
 --------------------------------------- Milestone 4 ---------------------
 
--> Register/Address Descriptor
+<!-- -> Register/Address Descriptor -->
 -> getReg()
 -> Implement Simple Algo
 -> ~static~ int max_ref; in LIS.java
