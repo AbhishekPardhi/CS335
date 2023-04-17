@@ -24,11 +24,21 @@ def main():
             code =split(code)
             if len(code)==5:
                 if len(code[3])==1:
+                    out.append("\t;"+code[0]+" = "+code[2]+" "+code[3]+" "+code[4])
                     out.append("\t"+opMap[code[3]]+" "+getReg(code[2],currFunc)+","+getReg(code[4],currFunc))
                     removeRegFromAddrDesc(getReg(code[2],currFunc),code[2])
                     out.append("\tmov "+getReg(code[0],currFunc)+","+getReg(code[2],currFunc))
-    
-    with open("output/x86.txt","w") as f:
+            
+            # form a = b
+            if len(code)==3 and code[1]=="=" and code[2]!="PopParam":
+                out.append("\t;"+code[0]+" = "+code[2])
+                out.append("\tmov "+getReg(code[0],currFunc)+","+getReg(code[2],currFunc))
+            
+            if len(code)==4 and "cast_to_" in code[2]:
+                out.append("\t;"+code[0]+" = "+code[2]+" "+code[3])
+                out.append("\tmov "+getReg(code[0],currFunc)+","+getReg(code[3],currFunc))
+ 
+    with open("output/x86.s","w") as f:
         for line in out:
             f.write(line+"\n")
     

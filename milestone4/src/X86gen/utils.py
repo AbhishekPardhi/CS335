@@ -6,7 +6,7 @@ def getSymTable():
     directories=os.scandir("output/")
 
     for directory in directories:
-        if (directory.name=="x86.txt"):
+        if (directory.name=="x86.s"):
             continue
         if (directory.name=="3AC.txt"):
             with open("output/"+"3AC.txt","r") as f:
@@ -103,7 +103,7 @@ def split(s):
     ans=[]
     temp=""
     for i in s:
-        if i==" ":
+        if i==" " and temp !="":
             ans.append(temp)
             temp=""
         else:
@@ -147,7 +147,10 @@ def getReg(name,currFunc):
                 addRegDesc(reg,name)
                 addAddrDesc(name,reg)
             else:
-                out.append("\t"+"mov "+reg+","+name)
+                if name[0] == "t":
+                    addAddrDesc(name,reg)
+                else:
+                    out.append("\t"+"mov "+reg+","+name)
             return reg
     
     # case when all the registers are full
