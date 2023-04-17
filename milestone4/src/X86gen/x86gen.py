@@ -24,7 +24,9 @@ def main():
             code =split(code)
             if len(code)==5:
                 if len(code[3])==1:
-                    out.append(str(l[i]+j+1)+" " +opMap[code[3]]+" "+getReg(code[2],currFunc)+","+getReg(code[4],currFunc))
+                    out.append("\t"+opMap[code[3]]+" "+getReg(code[2],currFunc)+","+getReg(code[4],currFunc))
+                    removeRegFromAddrDesc(getReg(code[2],currFunc),code[2])
+                    out.append("\tmov "+getReg(code[0],currFunc)+","+getReg(code[2],currFunc))
     
     with open("output/x86.txt","w") as f:
         for line in out:
@@ -32,6 +34,7 @@ def main():
     
     # print the address descriptor
     print(RegDesc)
+    print(AddrDesc)
 
 
 if __name__ == "__main__":

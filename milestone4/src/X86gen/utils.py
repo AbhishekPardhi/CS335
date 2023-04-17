@@ -143,11 +143,11 @@ def getReg(name,currFunc):
         if RegDesc[reg]==[]:
             offset,isVar = checkVar(name,currFunc)
             if isVar:
-                out.append("mov "+reg+" %rsp[-"+str(offset)+"]")
+                out.append("\t"+"mov "+reg+" %rsp[-"+str(offset)+"]")
                 addRegDesc(reg,name)
                 addAddrDesc(name,reg)
             else:
-                out.append("mov "+reg+","+name)
+                out.append("\t"+"mov "+reg+","+name)
             return reg
     
     # case when all the registers are full
