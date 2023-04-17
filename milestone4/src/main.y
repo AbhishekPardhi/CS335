@@ -1508,6 +1508,7 @@ MethodInvocation:
 										if((string)$1->val=="println"){
 											create_ins(0,"call Print",$3->addr,"","");
 											$$->addr = str_to_ch("0");
+											create_ins(0,"stackpointer","-"+to_string(funcTypeMap[cur_class+"-"+cur_func]),"","");
 											// create_ins(0,"PopParam",$3->addr,"","");
 										}
 										else{
