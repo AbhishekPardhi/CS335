@@ -67,3 +67,6 @@ unaryOpMap["!"]="neg"
 
 # current fucntion name
 currFunc=""
+
+# map to store new offsets of temp variables
+tempOffsetMap={}

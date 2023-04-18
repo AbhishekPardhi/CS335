@@ -22,11 +22,11 @@ def main():
            
             # of the form a = b op c
             code =split(code)
-            print("".join(code))
-            input("")
+            # print("".join(code))
+            # input("")
 
 
-            if len(code)==5:
+            if len(code)==5 and code[1]=="=":
                 if len(code[3])==1:
                     out.append("\t;"+code[0]+" = "+code[4]+" "+code[3]+" "+code[2])
                     out.append("\t"+opMap[code[3]]+" "+getReg(code[4],currFunc)+","+getReg(code[2],currFunc))
@@ -43,20 +43,20 @@ def main():
             # form a = b
             if len(code)==3 and code[1]=="=" and code[2]!="PopParam":
                 out.append("\t;"+code[0]+" = "+code[2])
-                out.append("\tmov "+getReg(code[2],currFunc)+","+getReg(code[0],currFunc))
+                out.append("\tmov "+getReg(code[2],currFunc)+" "+getReg(code[0],currFunc))
                 # remove entry of b from addrDesc of b
                 removeTemp(code[2],currFunc)
             
             # form a = cast_to b
             if len(code)==4 and "cast_to_" in code[2]:
                 out.append("\t;"+code[0]+" = "+code[2]+" "+code[3])
-                out.append("\tmov "+getReg(code[3],currFunc)+","+getReg(code[0],currFunc))
+                out.append("\tmov "+getReg(code[3],currFunc)+" "+getReg(code[0],currFunc))
                 removeTemp(code[3],currFunc)
 
             # form a = op b
             if len(code)==4 and code[1]=="=" and code[2] in unaryOpMap.keys():
                 out.append("\t;"+code[0]+" = "+code[2]+" "+code[3])
-                out.append("\t"+unaryOpMap[code[2]]+" "+getReg(code[3],currFunc)+","+getReg(code[0],currFunc))
+                out.append("\t"+unaryOpMap[code[2]]+" "+getReg(code[3],currFunc)+" "+getReg(code[0],currFunc))
                 removeTemp(code[3],currFunc)
 
             # form a = call funcName

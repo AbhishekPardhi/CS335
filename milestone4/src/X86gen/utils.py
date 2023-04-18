@@ -210,8 +210,38 @@ def getReg(name,currFunc):
             AddrDesc[name].append(reg)
             RegDesc[reg].append(name)
             return reg
+
+    # store some values from RegDesc above the stack and use the reg for new variables
+    for addr in AddrDesc.keys():
+        #check if add is not a variable
+        offset,isVar = checkVar(addr,currFunc)
+        if isVar==False:
+            # check if the variable is stored in a register
+            if AddrDesc[addr][-1][-1]!="]":
+                reg=AddrDesc[addr][-1]
+                # remove the variable from the register
+                RegDesc[reg].remove(addr)
+                # remove the reg from all the AddrDesc
+                removeRegFromAddrDesc(reg)
+                # store the variable above the stack
+                out.append("\t"+"mov "+reg+", %rsp[+"+str(8*len(tempOffsetMap))+"]")
+                # add the new variable to the register
+                AddrDesc[name]=[]
+                AddrDesc[name].append(reg)
+                RegDesc[reg].append(name)
+                # add the variable to the tempOffsetMap
+                tempOffsetMap[addr]=8*len(tempOffsetMap)
+                # get the offset of the variable
+                var_offset,temp= checkVar(name,currFunc)
+                if temp:
+                    out.append("\t"+"mov "+"sp[-"+str(var_offset)+"] "+reg)
+                else:
+                    print("ID is not a variable")
+                return reg
+
+
     print("All registers are full, no variable to spill")
+    
+
     return "NONE"
-    
-    
     
