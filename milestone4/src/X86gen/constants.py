@@ -31,6 +31,15 @@ regMap[11]="%r13"
 regMap[12]="%r14"
 regMap[13]="%r15"
 
+# map from parameter to regester
+paramMap={}
+paramMap[0]="%rdi"
+paramMap[1]="%rsi"
+paramMap[2]="%rdx"
+paramMap[3]="%rcx"
+paramMap[4]="%r8"
+paramMap[5]="%r9"
+
 
 # Register and Adddress Descriptors
 # Register Descriptor
@@ -70,3 +79,6 @@ currFunc=""
 
 # map to store new offsets of temp variables
 tempOffsetMap={}
+
+# map to store BB to instruction number mapping
+BBMap={}
