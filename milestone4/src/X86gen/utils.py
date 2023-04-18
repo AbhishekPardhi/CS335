@@ -93,6 +93,7 @@ def makeBB():
         if "call " in line:
             BB.append(int(line.split("\t")[0]))
             BB.append(BB[-1]+1)
+    BB.append(len(threeAC))
     BB= set(BB)
     BB= list(BB)
     BB.sort()
