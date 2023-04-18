@@ -43,6 +43,9 @@ LC_count = 0
 # Is current function main?
 isMain =False
 
+# Stores new labels
+labels = []
+
 def Initial():
     asm.append('.file\t"test.c"')
     asm.append('.text')
@@ -54,7 +57,7 @@ def Initial():
     asm.append('.type\tmain, @function')
 
 def Parse3AC(input_file):
-    global exp_reg, asm, arg_reg, stk_max, stk, num_func, isMain
+    global exp_reg, asm, arg_reg, stk_max, stk, num_func, isMain, reg_num
 
     num_args = 0
     pass_arg = 0
@@ -70,6 +73,8 @@ def Parse3AC(input_file):
             continue
 
         tokens = line.strip().split()
+        if tokens[0] in labels:
+            asm.append('.L'+tokens[0]+':')
 
         if tokens[1][-1] == ':':
             asm.append(f'{tokens[1]}')
@@ -135,55 +140,50 @@ def Parse3AC(input_file):
             asm.append(f'movq\t%rax, {stk[tokens[1]]}(%rbp)')
             pass_arg = 0
 
+        elif len(tokens)==5 and tokens[1]=="ifFalse":
+            labels.append(tokens[-1])
+            asm.append(f'cmp\t$0, {stk[tokens[2]]}(%rbp)')
+            asm.append(f'je\t.L{tokens[-1]}')
+        
+        elif len(tokens)==3 and tokens[1]=="goto":
+            labels.append(tokens[-1])
+            asm.append(f'jmp\t.L{tokens[-1]}')
+
         elif tokens[2]=="=":
             if len(tokens)>4:
-                isNumber = [False,False]
-                number = [0,0]
+                Rx=Ry=""
                 if '0'>tokens[3][0] or '9'<tokens[3][0]:
                     Rx = Load(tokens[3])
                 else:
-                    Rx = '$'+tokens[3]
-                    isNumber[0]=True
-                    number[0] = int(tokens[3])
+                    reg_num = (reg_num+1)%len(exp_reg)
+                    Rx = exp_reg[reg_num]
+                    asm.append(f'movq\t${tokens[3]}, {exp_reg[reg_num]}')
                 if '0'>tokens[5][0] or '9'<tokens[5][0]:
                     Ry = Load(tokens[5])
                 else:
-                    Ry = '$'+tokens[5]
-                    isNumber[1]=True
-                    number[1] = int(tokens[5])
+                    reg_num = (reg_num+1)%len(exp_reg)
+                    Ry = exp_reg[reg_num]
+                    asm.append(f'movq\t${tokens[5]}, {exp_reg[reg_num]}')
 
-                # Make instructions based on numeral arguments
-                if isNumber[0] and isNumber[1]:
-                    result = 0
-                    if tokens[4]=="+":
-                        result = number[0]+number[1]
-                    elif tokens[4]=="*":
-                        result = number[0]*number[1]
-                    Store(tokens[1],'$'+str(result))
-                elif isNumber[0]:
-                    if tokens[4]=="+":
-                        asm.append(f'addq\t{Rx},{Ry}')
-                    elif tokens[4]=="*":
-                        asm.append(f'imulq\t{Rx},{Ry}')
-                    Store(tokens[1],Ry)
-                elif isNumber[1]:
-                    if tokens[4]=="+":
-                        asm.append(f'addq\t{Ry},{Rx}')
-                    elif tokens[4]=="*":
-                        asm.append(f'imulq\t{Ry},{Rx}')
-                    Store(tokens[1],Rx)
-                else:
-                    if tokens[4]=="+":
-                        asm.append(f'addq\t{Rx},{Ry}')
-                    elif tokens[4]=="*":
-                        asm.append(f'imulq\t{Rx},{Ry}')
-                    Store(tokens[1],Ry)
+                if tokens[4]=="+":
+                    asm.append(f'addq\t{Rx},{Ry}')
+                elif tokens[4]=="*":
+                    asm.append(f'imulq\t{Rx},{Ry}')
+                elif tokens[4]=="==":
+                    asm.append(f'cmp \t{Rx}, {Ry}')
+                    asm.append(f'sete\t%al')
+                    asm.append(f'movzx\t%al, %rax')
+                    Ry='%rax'
+                Store(tokens[1],Ry)
             else:
                 if tokens[1] not in stk:
                     stk_max -= reg_sz
                     stk[tokens[1]]=stk_max
-                Rx = Load(tokens[3])
-                asm.append(f'movq\t{Rx}, {stk[tokens[1]]}(%rbp)')
+                if '0'<=tokens[3][0] and tokens[3][0]<='9':
+                    asm.append(f'movq\t${tokens[3]}, {stk[tokens[1]]}(%rbp)')
+                else:
+                    Rx = Load(tokens[3])
+                    asm.append(f'movq\t{Rx}, {stk[tokens[1]]}(%rbp)')
 
 def Load(var):
     global asm, reg_num, stk, exp_reg
