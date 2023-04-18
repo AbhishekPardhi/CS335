@@ -70,3 +70,6 @@ currFunc=""
 
 # map to store new offsets of temp variables
 tempOffsetMap={}
+
+# map to store BB to instruction number mapping
+BBMap={}

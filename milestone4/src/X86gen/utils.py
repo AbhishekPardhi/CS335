@@ -83,13 +83,15 @@ def checkVar(name,currFunc):
 
 def makeBB():
     BB=[]
-    for i in FMap.values():
-        BB.append(i)
+    for key in FMap.keys():
+        BBMap[key]=FMap[key]
+        BB.append(FMap[key])
     for line in threeAC:
         # check if the line has " goto " as a substring
         if "goto " in line:
             BB.append(int(line.split("\t")[0]))
             BB.append(BB[-1]+1)
+            BB.append(int(line.split(" ")[-1]))
         if "call " in line:
             BB.append(int(line.split("\t")[0]))
             BB.append(BB[-1]+1)
@@ -97,6 +99,8 @@ def makeBB():
     BB= set(BB)
     BB= list(BB)
     BB.sort()
+    for i in range(len(BB)):
+        BBMap["BB_"+str(i)]=BB[i]
     return BB
 
 def split(s):
