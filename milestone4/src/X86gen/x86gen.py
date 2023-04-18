@@ -9,6 +9,7 @@ def main():
     print(FMap)
     l=makeBB()
 
+    operator = ""
     for i in range(len(l)-1):
         for j in range(l[i+1]-l[i]):
             code=threeAC[l[i]+j-1]
@@ -29,6 +30,8 @@ def main():
                 if len(code[3])==1:
                     out.append("\t;"+code[0]+" = "+code[4]+" "+code[3]+" "+code[2])
                     out.append("\t"+opMap[code[3]]+" "+getReg(code[4],currFunc)+","+getReg(code[2],currFunc))
+                    if opMap[code[3]]=="cmp":
+                        operator = code[3]
                     # assign the last reg as reg for a
                     reg=getReg(code[2],currFunc)
                     removeRegFromAddrDesc(reg)
@@ -70,6 +73,23 @@ def main():
                 removeTemp(code[1],currFunc)
                 out.append("\tret")
             
+            # if T goto Label
+            if len(code)==4 and code[2]=="goto" and code[0]=="if":
+                out.append("\t;"+code[0]+" "+code[1]+" "+code[2]+" "+code[3])
+                if operator == ">":
+                    out.append("\tjle "+code[3])
+                elif operator == ">=":
+                    out.append("\tjl "+code[3])
+                elif operator == "<":
+                    out.append("\tjge "+code[3])
+                elif operator == "<=":
+                    out.append("\tjg "+code[3])
+                elif operator == "==":
+                    out.append("\tjne "+code[3])
+                elif operator == "!=":
+                    out.append("\tje "+code[3])
+                removeTemp(code[0],currFunc)
+
             with open("output/reg.csv","w") as f:
                 for k in RegDesc.keys():
                     f.write(k+"".join([","+i for i in RegDesc[k]])+"\n")
