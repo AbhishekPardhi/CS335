@@ -1,27 +1,10 @@
-1	something: 
+1	main: 
 2	ra = PopParam 
-3	a = PopParam 
-4	b = PopParam 
-6	t1 = a + b
-7	Return t1 
-8	Goto ra 
-9	main: 
-10	ra = PopParam 
-11	args = PopParam 
-13	t3 = 3 * 4
-14	x = t3 
-15	t5 = 2 + 3
-16	y = t5 
-17	t7 = y * x
-18	t8 = x + t7
-19	z = t8 
-20	stackpointer +16 
-21	PushParam x
-22	PushParam z
-24	t10 = call something 
-25	stackpointer -16 
-26	stackpointer +16 
-27	PushParam t10 
-28	call Print 1 
-29	stackpointer -16 
-30	Goto ra 
+3	t0 = PopParam 
+4	arr = heap_alloc ( 48 ) 
+5	t2 = 2 * 8
+6	arr[t2] = 3 
+7   t3 = arr[t2]
+8   PushParam t3
+9  call Print 1
+10	Goto ra 

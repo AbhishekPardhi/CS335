@@ -1,21 +1,26 @@
-	.file	"acha.c"
-	.text
-	.section	.rodata
-.LC0:
-	.string	"%d"
-.LC3:
-	.string	"abhishekok"
+	.file	"main.c"
 	.text
 	.globl	main
 	.type	main, @function
 main:
 	pushq	%rbp
 	movq	%rsp, %rbp
-	movq	$2, -4(%rbp)
-	movq	-4(%rbp), %rax
-	movq	%rax, %rsi
+	subq	$32, %rsp
+	movl	$1, -12(%rbp)
+	movl	$2, -8(%rbp)
+	movl	$3, -4(%rbp)
+	movl	$2, %eax
+	cltq
+	movl	-12(%rbp,%rax,4), %eax
+	movl	%eax, %esi
 	leaq	.LC0(%rip), %rdi
-	movq	$0, %rax
+	movl	$0, %eax
 	call	printf@PLT
+	movl	$0, %eax
 	leave
 	ret
+	.size	main, .-main
+	.section	.rodata
+.LC0:
+	.string	"%d\n"
+	
