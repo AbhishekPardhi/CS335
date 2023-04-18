@@ -2,6 +2,7 @@ import os,sys
 from constants import *
 from utils import *
 from classes import *
+from regalloc import *
 
 def main():
     global currFunc
@@ -22,8 +23,8 @@ def main():
            
             # of the form a = b op c
             code =split(code)
-            print("".join(code),end="")
-            input("")
+            print("".join(code),end="\n")
+            # input("")
             if int(linenum) in BBMap.values():
                 for key in BBMap.keys():
                     if BBMap[key]==int(linenum):

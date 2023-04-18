@@ -33,3 +33,4 @@ Todo:
   ✔ Label BB @done(23-04-19 02:49)
   ☐ Heap Alloc @Ankur
   ☐ Ptr access @Ankur @Manas
+  ☐ Field declaration initialation error cause no scope
