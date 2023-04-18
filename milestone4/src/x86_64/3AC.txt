@@ -1,10 +1,27 @@
-1	Function: 
+1	something: 
 2	ra = PopParam 
-3	x = PopParam 
-4	y = PopParam 
-5   z = PopParam
-6	t0 = x + y
-7   x = t0
-8   z = x
-9   z = x
-10  z = y
+3	a = PopParam 
+4	b = PopParam 
+6	t1 = a + b
+7	Return t1 
+8	Goto ra 
+9	main: 
+10	ra = PopParam 
+11	args = PopParam 
+13	t3 = 3 * 4
+14	x = t3 
+15	t5 = 2 + 3
+16	y = t5 
+17	t7 = y * x
+18	t8 = x + t7
+19	z = t8 
+20	stackpointer +16 
+21	PushParam x
+22	PushParam z
+24	t10 = call something 
+25	stackpointer -16 
+26	stackpointer +16 
+27	PushParam t10 
+28	call Print 1 
+29	stackpointer -16 
+30	Goto ra 
