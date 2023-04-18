@@ -50,6 +50,12 @@ def main():
                 out.append("\tmov "+getReg(code[3],currFunc)+","+getReg(code[0],currFunc))
                 removeTemp(code[3],currFunc)
 
+            # form a = op b
+            if len(code)==4 and code[1]=="=" and code[2] in unaryOpMap.keys():
+                out.append("\t;"+code[0]+" = "+code[2]+" "+code[3])
+                out.append("\t"+unaryOpMap[code[2]]+" "+getReg(code[3],currFunc)+","+getReg(code[0],currFunc))
+                removeTemp(code[3],currFunc)
+            
             with open("output/reg.csv","w") as f:
                 for k in RegDesc.keys():
                     f.write(k+"".join([","+i for i in RegDesc[k]])+"\n")

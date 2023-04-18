@@ -2257,7 +2257,13 @@ Assignment:
 ;
 
 LeftHandSide:
-	Name	{ $$ = $1; }
+	Name	{ 
+				$$ = $1; 
+				ste* lookup_ste = lookup(current_ste, $1->val);
+				if(lookup_ste!=NULL && parsenum==2){
+					$$->addr = str_to_ch(string($1->val) + "{" + to_string(lookup_ste->VarId)  + "}");
+				}
+			}
 |	FieldAccess	{ $$ = $1; }
 |	ArrayAccess	{
 					$$ = $1;
