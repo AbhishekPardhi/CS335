@@ -81,6 +81,15 @@ def giveEntry(name,currFunc):
         return lookup(varname,id,currFunc) , True
     return None , False
 
+def parameterList(name):
+    classname="Class-"+name.split("-")[0]
+    funcname=name
+    entry=symTable[classname][funcname]
+    l=[]
+    for i in range(entry[0].numParam) :
+        l.append(entry[i+1].type)
+    return l
+
 def checkVar(name,currFunc):
     split=name.split("{")
     if len(split)==1:

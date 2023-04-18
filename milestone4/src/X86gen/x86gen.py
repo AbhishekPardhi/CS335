@@ -7,7 +7,7 @@ from regalloc import *
 def main():
     global currFunc
     getSymTable()
-    print(FMap)
+    # print(FMap)
     l=makeBB()
 
     operator = ""
@@ -23,7 +23,7 @@ def main():
            
             # of the form a = b op c
             code =split(code)
-            print("".join(code),end="\n")
+            # print("".join(code),end="\n")
             # input("")
             if int(linenum) in BBMap.values():
                 for key in BBMap.keys():
