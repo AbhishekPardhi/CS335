@@ -175,6 +175,8 @@ def getReg(name,currFunc):
         offset,isVar = checkVar(name,currFunc)
         if AddrDesc[name][-1][-1]!="]" and isVar:
             return AddrDesc[name][-1]
+        elif isVar==False:
+            return AddrDesc[name][-1]
     
     # case when the variable is not in the register
     for reg in RegDesc.keys():
@@ -196,7 +198,6 @@ def getReg(name,currFunc):
             return reg
     
     # case when all the registers are full
-    print("All registers are full, trying to spill one")
     for id in AddrDesc.keys():
         # find a variable which is also stored in a reg
         if AddrDesc[id][0][-1]!="]" and len(AddrDesc[id])!=1:
@@ -208,7 +209,6 @@ def getReg(name,currFunc):
             AddrDesc[name]=[]
             AddrDesc[name].append(reg)
             RegDesc[reg].append(name)
-            print("Spilled "+id+" to "+reg)
             return reg
     print("All registers are full, no variable to spill")
     return "NONE"

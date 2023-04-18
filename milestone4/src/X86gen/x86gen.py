@@ -61,7 +61,7 @@ def main():
                     f.write(k+"".join([","+i for i in RegDesc[k]])+"\n")
             with open("output/addr.csv","w") as f:
                 for k in AddrDesc.keys():
-                    f.write(k+"'".join([","+i for i in AddrDesc[k]])+"\n")
+                    f.write(k+"".join([","+i for i in AddrDesc[k]])+"\n")
  
     with open("output/x86.s","w") as f:
         for line in out:
