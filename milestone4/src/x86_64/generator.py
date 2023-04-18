@@ -46,6 +46,11 @@ isMain =False
 # Stores new labels
 labels = []
 
+# Offset of arrays
+off_arr = {}
+
+# "="|">"|"<"|"!"|"~"|"?"|":"|"->"|"=="|">="|"<="|"!="|"&&"|"||"|"++"|"--"|"+"|"-"|"*"|"/"|"&"|"|"|"^"|"%"|"<<"|">>"|">>>"|"+="|"-="|"*="|"/="|"&="|"|="|"^="|"%="|"<<="|">>="|">>>="
+
 def Initial():
     asm.append('.file\t"test.c"')
     asm.append('.text')
@@ -57,7 +62,7 @@ def Initial():
     asm.append('.type\tmain, @function')
 
 def Parse3AC(input_file):
-    global exp_reg, asm, arg_reg, stk_max, stk, num_func, isMain, reg_num
+    global exp_reg, asm, arg_reg, stk_max, stk, num_func, isMain, reg_num, off_arr
 
     num_args = 0
     pass_arg = 0
@@ -148,42 +153,108 @@ def Parse3AC(input_file):
         elif len(tokens)==3 and tokens[1]=="goto":
             labels.append(tokens[-1])
             asm.append(f'jmp\t.L{tokens[-1]}')
+        
+        elif len(tokens)==7 and tokens[3]=="heap_alloc":
+            off_arr[tokens[1]] = str(-int(tokens[5])+stk_max)
+            stk_max = int(off_arr[tokens[1]])
 
         elif tokens[2]=="=":
             if len(tokens)>4:
                 Rx=Ry=""
                 if '0'>tokens[3][0] or '9'<tokens[3][0]:
                     Rx = Load(tokens[3])
-                else:
+                elif tokens[3][-1]!=']':
                     reg_num = (reg_num+1)%len(exp_reg)
                     Rx = exp_reg[reg_num]
-                    asm.append(f'movq\t${tokens[3]}, {exp_reg[reg_num]}')
+                    asm.append(f'movq\t${tokens[3]}, {Rx}')
+                # Array access
+                elif tokens[3][-1]==']':
+                    arr, index = BreakArray(tokens[3])
+                    reg_num = (reg_num+1)%len(exp_reg)
+                    Rx = exp_reg[reg_num]
+                    temp_reg = Load(index)
+                    asm.append(f'movq\t{off_arr[arr]}(%rbp,{temp_reg},1), {Rx}')
                 if '0'>tokens[5][0] or '9'<tokens[5][0]:
                     Ry = Load(tokens[5])
-                else:
+                elif tokens[5][-1]!=']':
                     reg_num = (reg_num+1)%len(exp_reg)
                     Ry = exp_reg[reg_num]
-                    asm.append(f'movq\t${tokens[5]}, {exp_reg[reg_num]}')
+                    asm.append(f'movq\t${tokens[5]}, {Ry}')
+                # Array access
+                elif tokens[5][-1]==']':
+                    arr, index = BreakArray(tokens[5])
+                    reg_num = (reg_num+1)%len(exp_reg)
+                    Ry = exp_reg[reg_num]
+                    temp_reg = Load(index)
+                    asm.append(f'movq\t{off_arr[arr]}(%rbp,{temp_reg},1), {Ry}')
 
                 if tokens[4]=="+":
-                    asm.append(f'addq\t{Rx},{Ry}')
+                    asm.append(f'addq\t{Rx}, {Ry}')
                 elif tokens[4]=="*":
-                    asm.append(f'imulq\t{Rx},{Ry}')
+                    asm.append(f'imulq\t{Rx}, {Ry}')
+                if tokens[4]=="-":
+                    asm.append(f'subq\t{Ry}, {Rx}')
+                    Ry=Rx
+                # Will break if Ry=rax
+                elif tokens[4]=="/":
+                    asm.append(f'idivq\t{Ry}, %rax')
+                    asm.append(f'idivq\t{Rx}')
                 elif tokens[4]=="==":
                     asm.append(f'cmp \t{Rx}, {Ry}')
                     asm.append(f'sete\t%al')
                     asm.append(f'movzx\t%al, %rax')
                     Ry='%rax'
+                elif tokens[4]=="!=":
+                    asm.append(f'cmp \t{Rx}, {Ry}')
+                    asm.append(f'setge\t%al')
+                    asm.append(f'movzx\t%al, %rax')
+                    Ry='%rax'
+                elif tokens[4]=="<":
+                    asm.append(f'cmp \t{Rx}, {Ry}')
+                    asm.append(f'setl\t%al')
+                    asm.append(f'movzx\t%al, %rax')
+                    Ry='%rax'
+                elif tokens[4]=="<=":
+                    asm.append(f'cmp \t{Rx}, {Ry}')
+                    asm.append(f'setle\t%al')
+                    asm.append(f'movzx\t%al, %rax')
+                    Ry='%rax'
+                elif tokens[4]==">":
+                    asm.append(f'cmp \t{Rx}, {Ry}')
+                    asm.append(f'setg\t%al')
+                    asm.append(f'movzx\t%al, %rax')
+                    Ry='%rax'
+                elif tokens[4]==">=":
+                    asm.append(f'cmp \t{Rx}, {Ry}')
+                    asm.append(f'setge\t%al')
+                    asm.append(f'movzx\t%al, %rax')
+                    Ry='%rax'
                 Store(tokens[1],Ry)
-            else:
-                if tokens[1] not in stk:
-                    stk_max -= reg_sz
-                    stk[tokens[1]]=stk_max
+            else:                
+                Rx = ""
                 if '0'<=tokens[3][0] and tokens[3][0]<='9':
-                    asm.append(f'movq\t${tokens[3]}, {stk[tokens[1]]}(%rbp)')
+                    reg_num = (reg_num+1)%len(exp_reg)
+                    Rx = exp_reg[reg_num]
+                    asm.append(f'movq\t${tokens[3]}, {Rx}')
+                elif tokens[3][-1]==']':
+                    reg_num = (reg_num+1)%len(exp_reg)
+                    Rx = exp_reg[reg_num]
+                    arr, index = BreakArray(tokens[3])
+                    temp_reg = Load(index)
+                    asm.append(f'movq\t{off_arr[arr]}(%rbp,{temp_reg},1), {Rx}')
                 else:
                     Rx = Load(tokens[3])
+                
+                if tokens[1][-1]=="]":
+                    arr, index = BreakArray(tokens[1])
+                    temp_reg = Load(index)
+                    asm.append(f'movq\t{Rx}, {off_arr[arr]}(%rbp,{temp_reg},1)')
+                else:
+                    if tokens[1] not in stk:
+                        stk_max -= reg_sz
+                        stk[tokens[1]]=stk_max
                     asm.append(f'movq\t{Rx}, {stk[tokens[1]]}(%rbp)')
+
 
 def Load(var):
     global asm, reg_num, stk, exp_reg
@@ -193,10 +264,16 @@ def Load(var):
 
 def Store(var, reg):
     global asm, stk_max, stk
-    if var not in stk:
-        stk_max -= reg_sz
-        stk[var] = stk_max
-    asm.append(f'movq\t{reg}, {stk[var]}(%rbp)')
+    # Array access
+    if var[-1]==']':
+        arr, index = BreakArray(var)
+        temp_reg = Load(index)
+        asm.append(f'movq\t{reg}, {off_arr[arr]}(%rbp,{temp_reg},1)')
+    else:
+        if var not in stk:
+            stk_max -= reg_sz
+            stk[var] = stk_max
+        asm.append(f'movq\t{reg}, {stk[var]}(%rbp)')
 
 def Printx86(output_file):
     global asm

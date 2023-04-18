@@ -9,27 +9,18 @@
 main:
 	pushq	%rbp
 	movq	%rsp, %rbp
-	movq	$3, -8(%rbp)
-	movq	-8(%rbp), %rbx
-	movq	$2, %rcx
-	addq	%rbx,%rcx
-	movq	%rcx, -16(%rbp)
-	movq	-16(%rbp), %rdx
-	movq	$5, %rsi
-	cmp 	%rdx, %rsi
-	sete	%al
-	movzx	%al, %rax
-	movq	%rax, -24(%rbp)
-	cmp	$0, -24(%rbp)
-	je	.L12
-	movq	$10, -8(%rbp)
-	jmp	.L13
-.L12:
-	movq	$20, -8(%rbp)
-.L13:
-	movq	-8(%rbp), %rdi
-	movq	%rdi, -32(%rbp)
-	movq	-32(%rbp), %rax
+	movq	%rdi, -8(%rbp)
+	movq	$2, %rbx
+	movq	$8, %rcx
+	imulq	%rbx, %rcx
+	movq	%rcx, -64(%rbp)
+	movq	$3, %rdx
+	movq	-64(%rbp), %rsi
+	movq	%rdx, -56(%rbp,%rsi,1)
+	movq	-64(%rbp), %r8
+	movq	-56(%rbp,%r8,1), %rdi
+	movq	%rdi, -72(%rbp)
+	movq	-72(%rbp), %rax
 	movq	%rax, %rsi
 	leaq	.LC0(%rip), %rdi
 	movq	$0, %rax

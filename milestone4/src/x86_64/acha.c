@@ -3,11 +3,7 @@
 
 int main()
 {
-    bool x=true;
-    if(x)
-        x=false;
-    else
-        x=true;
-    printf("%d\n",x);
-    return 0;
+    int a[3]={1,2,3};
+    int x=2;
+    printf("%d\n",a[x]);
 }

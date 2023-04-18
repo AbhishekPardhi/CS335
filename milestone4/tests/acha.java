@@ -33,11 +33,8 @@ public class ExampleExpression {
       // out.println("Hello world!");
       // something(arr[0]);
 
-      int x = 3;
-      if(x+2==5)
-        x = 10;
-      else
-        x = 20;
+      int arr[] = new int[6];
+      arr[2] = 3;
       println();
     }
   }

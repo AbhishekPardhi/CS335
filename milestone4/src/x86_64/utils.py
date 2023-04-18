@@ -28,3 +28,8 @@ def BuildNextUseTable(lines):
     
     tuples = np.array(tuples)
     return tuples[::-1]
+
+# Return arr, index
+def BreakArray(string):
+    breakdown = string.replace('[',' ').replace(']',' ').split()
+    return breakdown[0], breakdown[1]
