@@ -193,6 +193,8 @@ def getReg(name,currFunc):
                 addAddrDesc(name,reg)
             else:
                 if name[0] == "t":
+                    if name in tempOffsetMap.keys():
+                        out.append("\t"+"mov "+" %rsp[+"+str(tempOffsetMap[name])+"] "+reg)
                     addAddrDesc(name,reg)
                     addRegDesc(reg,name)
                 else:
@@ -207,7 +209,7 @@ def getReg(name,currFunc):
         if AddrDesc[id][0][-1]!="]" and len(AddrDesc[id])!=1:
             reg=AddrDesc[id][1]
             # remove reg from all other AddrDesc and RegDesc
-            removeRegFromAddrDesc(reg,)
+            removeRegFromAddrDesc(reg)
             RegDesc[reg].remove(id)
             # add the new variable to the reg
             AddrDesc[name]=[]
@@ -229,15 +231,17 @@ def getReg(name,currFunc):
                 removeRegFromAddrDesc(reg)
                 # store the variable above the stack
                 out.append("\t"+"mov "+reg+", %rsp[+"+str(8*len(tempOffsetMap))+"]")
-                # add the new variable to the register
-                AddrDesc[name]=[]
-                AddrDesc[name].append(reg)
-                RegDesc[reg].append(name)
-                # add the variable to the tempOffsetMap
-                tempOffsetMap[addr]=8*len(tempOffsetMap)
                 # get the offset of the variable
                 var_offset,temp= checkVar(name,currFunc)
+                # add the new variable to the register
+                if name not in AddrDesc.keys():
+                    AddrDesc[name]=[]
+                # AddrDesc[name].append("%rsp[+"+str(var_offset))+"]"
+                AddrDesc[name].append(reg)
+                # add the variable to the tempOffsetMap
+                tempOffsetMap[addr]=8*len(tempOffsetMap)
                 if temp:
+                    RegDesc[reg].append(name)
                     out.append("\t"+"mov "+"sp[-"+str(var_offset)+"] "+reg)
                 else:
                     print("ID is not a variable")

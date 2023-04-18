@@ -22,8 +22,8 @@ def main():
            
             # of the form a = b op c
             code =split(code)
-            # print("".join(code))
-            # input("")
+            print("".join(code),end="")
+            input("")
             if int(linenum) in BBMap.values():
                 for key in BBMap.keys():
                     if BBMap[key]==int(linenum):
@@ -109,10 +109,7 @@ def main():
     with open("output/x86.s","w") as f:
         for line in out:
             f.write(line+"\n")
-    
-    # print the address descriptor
-    print(RegDesc)
-    print(AddrDesc)
+
 
 if __name__ == "__main__":
     main()
