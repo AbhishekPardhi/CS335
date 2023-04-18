@@ -1,0 +1,36 @@
+
+Todo:
+  ✔ Final @done(23-04-19 02:46)
+  ✔ Type casting fix ( boolean ) @done(23-04-19 02:46)
+  ✔ Local Variable Scope Redeclaration @done(23-04-19 02:46)
+  ✔ PushParam and PopParams @done(23-04-19 02:46)
+  ✔ 3AC Offset @done(23-04-19 02:46)
+  ✔ Stack Pointer Manipulation @done(23-04-19 02:46)
+  ✔ No heap, only stack @done(23-04-19 02:46)
+  ✔ Return Address @done(23-04-19 02:46)
+  ✔ Goto fix [ TEST CASE 0 ] @done(23-04-19 02:46)
+  ✔ break @done(23-04-19 02:46)
+  ✔ Constructor type checking @done(23-04-19 02:46)
+  ✔ continue @done(23-04-19 02:46)
+  ☐ pushparam after sp update undo
+  ✔ SP update before print call @done(23-04-19 02:46)
+  ✔ Symbol table id after 3AC @done(23-04-19 02:46)
+  ✔ multi dim 3AC test case 5 @done(23-04-19 02:46)
+  ✔ Register/Address Descriptor @done(23-04-19 02:46)
+  ✔ x = op y @done(23-04-19 02:46)
+  ☐ function calls @Ankur @Manas
+  ✔ function return @done(23-04-19 02:46)
+  ☐ reserved registers ignore @Ankur
+  ☐ push param @Manas @Ankur
+  ☐ println return address (call statement) @Manas
+  ✔ Fix temp del @done(23-04-19 02:46)
+  ☐ conditional jumps @Manas
+  ☐ Variable type declaration in x86 @Ankur
+  ✔ getReg() @done(23-04-19 02:48)
+  ✔ Implement Simple Algo @done(23-04-19 02:46)
+  ☐ ~static~ int max_ref; in LIS.java @Manas
+  ✔ Need to regverse the order of passing function arguments @done(23-04-19 02:46)
+  ✔ Label BB @done(23-04-19 02:49)
+  ☐ Heap Alloc @Ankur
+  ☐ Ptr access @Ankur
+s
