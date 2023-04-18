@@ -9,6 +9,7 @@ def main():
     print(FMap)
     l=makeBB()
 
+    operator = ""
     for i in range(len(l)-1):
         for j in range(l[i+1]-l[i]):
             code=threeAC[l[i]+j-1]
@@ -20,24 +21,81 @@ def main():
                 out.append(code)
            
             # of the form a = b op c
-            # print(code,len(code.split(" ")))
             code =split(code)
-            if len(code)==5:
+            # print("".join(code))
+            # input("")
+
+
+            if len(code)==5 and code[1]=="=":
                 if len(code[3])==1:
-                    out.append("\t;"+code[0]+" = "+code[2]+" "+code[3]+" "+code[4])
-                    out.append("\t"+opMap[code[3]]+" "+getReg(code[2],currFunc)+","+getReg(code[4],currFunc))
-                    removeRegFromAddrDesc(getReg(code[2],currFunc),code[2])
-                    out.append("\tmov "+getReg(code[0],currFunc)+","+getReg(code[2],currFunc))
+                    out.append("\t;"+code[0]+" = "+code[4]+" "+code[3]+" "+code[2])
+                    out.append("\t"+opMap[code[3]]+" "+getReg(code[4],currFunc)+","+getReg(code[2],currFunc))
+                    if opMap[code[3]]=="cmp":
+                        operator = code[3]
+                    # assign the last reg as reg for a
+                    reg=getReg(code[2],currFunc)
+                    removeRegFromAddrDesc(reg)
+                    removeAddrFromRegDesc(reg,code[2])
+                    addRegDesc(reg,code[0])
+                    addAddrDesc(code[0],reg)
+                    removeTemp(code[4],currFunc)
             
             # form a = b
             if len(code)==3 and code[1]=="=" and code[2]!="PopParam":
                 out.append("\t;"+code[0]+" = "+code[2])
-                out.append("\tmov "+getReg(code[0],currFunc)+","+getReg(code[2],currFunc))
+                out.append("\tmov "+getReg(code[2],currFunc)+" "+getReg(code[0],currFunc))
+                # remove entry of b from addrDesc of b
+                removeTemp(code[2],currFunc)
             
+            # form a = cast_to b
             if len(code)==4 and "cast_to_" in code[2]:
                 out.append("\t;"+code[0]+" = "+code[2]+" "+code[3])
-                out.append("\tmov "+getReg(code[0],currFunc)+","+getReg(code[3],currFunc))
-            print(code)
+                out.append("\tmov "+getReg(code[3],currFunc)+" "+getReg(code[0],currFunc))
+                removeTemp(code[3],currFunc)
+
+            # form a = op b
+            if len(code)==4 and code[1]=="=" and code[2] in unaryOpMap.keys():
+                out.append("\t;"+code[0]+" = "+code[2]+" "+code[3])
+                out.append("\t"+unaryOpMap[code[2]]+" "+getReg(code[3],currFunc)+" "+getReg(code[0],currFunc))
+                removeTemp(code[3],currFunc)
+
+            # form a = call funcName
+            if len(code)==4 and code[1]=="=" and code[2]=="call":
+                out.append("\t;"+code[0]+" = "+code[2]+" "+code[3])
+                out.append("\tcall "+code[3])
+                out.append("\tmov %rax,"+getReg(code[0],currFunc))
+                removeTemp(code[3],currFunc)
+            
+            # form Return a
+            if len(code)==2 and code[0]=="Return":
+                out.append("\t;"+code[0]+" "+code[1])
+                out.append("\tmov "+getReg(code[1],currFunc)+",%rax")
+                removeTemp(code[1],currFunc)
+                out.append("\tret")
+            
+            # if T goto Label
+            if len(code)==4 and code[2]=="goto" and code[0]=="if":
+                out.append("\t;"+code[0]+" "+code[1]+" "+code[2]+" "+code[3])
+                if operator == ">":
+                    out.append("\tjle "+code[3])
+                elif operator == ">=":
+                    out.append("\tjl "+code[3])
+                elif operator == "<":
+                    out.append("\tjge "+code[3])
+                elif operator == "<=":
+                    out.append("\tjg "+code[3])
+                elif operator == "==":
+                    out.append("\tjne "+code[3])
+                elif operator == "!=":
+                    out.append("\tje "+code[3])
+                removeTemp(code[0],currFunc)
+
+            with open("output/reg.csv","w") as f:
+                for k in RegDesc.keys():
+                    f.write(k+"".join([","+i for i in RegDesc[k]])+"\n")
+            with open("output/addr.csv","w") as f:
+                for k in AddrDesc.keys():
+                    f.write(k+"".join([","+i for i in AddrDesc[k]])+"\n")
  
     with open("output/x86.s","w") as f:
         for line in out:

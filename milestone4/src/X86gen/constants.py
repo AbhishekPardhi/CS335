@@ -60,5 +60,13 @@ opMap[">="]="cmp"
 opMap["<"]="cmp"
 opMap["<="]="cmp"
 
+#Map for unary operators
+unaryOpMap={}
+unaryOpMap["~"]="not"
+unaryOpMap["!"]="neg"
+
 # current fucntion name
 currFunc=""
+
+# map to store new offsets of temp variables
+tempOffsetMap={}

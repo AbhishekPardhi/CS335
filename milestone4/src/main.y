@@ -1629,7 +1629,7 @@ PostDecrementExpression:
 	PostfixExpression MINUS_MINUS	{
 										$$ = create_node ( 2 ,$2->val, $1);
 										$$->ins = instCount+1;
-										create_ins(0,$$->addr,"=",$1->addr,"");
+										create_ins(0,str_to_ch(newTemp()),"=",$1->addr,"");
 										string reg = str_to_ch(newTemp());
 										create_ins(1,reg,"-",$1->addr,"1");
 										create_ins(0,$1->addr,"=",reg,"");
@@ -1642,11 +1642,13 @@ UnaryExpression:
 |	PLUS UnaryExpression	{
 								$$ = create_node ( 2 ,$1->val, $2);
 								$$->ins = instCount+1;
+								$$->addr = str_to_ch(newTemp());
 								create_ins(0,$$->addr,"=","+",$2->addr);
 							}
 |	MINUS UnaryExpression	{ 
 								$$ = create_node ( 2 ,$1->val, $2);
 								$$->ins = instCount+1;
+								$$->addr = str_to_ch(newTemp());
 								create_ins(0,$$->addr,"=","-",$2->addr);
 							}
 |	UnaryExpressionNotPlusMinus	{ $$ = $1; }
@@ -1657,11 +1659,8 @@ PreIncrementExpression:
 									$$ = create_node ( 2 ,$1->val, $2);
 									$$->ins = instCount+1;
 									$$->addr = str_to_ch(newTemp());
-									string reg = str_to_ch(newTemp());
-									create_ins(1,reg,"+",$2->addr,"1");
-									create_ins(0,$2->addr,"=",reg,"");
-									$2->addr = str_to_ch(reg);
-									create_ins(0,$$->addr,"=",$2->addr,"");
+									create_ins(1,$$->addr,"+",$2->addr,"1");
+									create_ins(0,$2->addr,"=",$$->addr,"");
 								}
 ;
 
@@ -1670,11 +1669,8 @@ PreDecrementExpression:
 									$$ = create_node ( 2 ,$1->val, $2);
 									$$->ins = instCount+1;
 									$$->addr = str_to_ch(newTemp());
-									string reg = str_to_ch(newTemp());
-									create_ins(1,reg,"-",$1->addr,"1");
-									create_ins(0,$2->addr,"=",reg,"");
-									$2->addr = str_to_ch(reg);
-									create_ins(0,$$->addr,"=",$2->addr,"");
+									create_ins(1,$$->addr,"-",$2->addr,"1");
+									create_ins(0,$2->addr,"=",$$->addr,"");
 								}
 ;
 
@@ -2257,17 +2253,21 @@ Assignment:
 ;
 
 LeftHandSide:
-	Name	{ $$ = $1; }
+	Name	{ 
+				$$ = $1; 
+				ste* lookup_ste = lookup(current_ste, $1->val);
+				if(lookup_ste!=NULL && parsenum==2){
+					$$->addr = str_to_ch(string($1->val) + "{" + to_string(lookup_ste->VarId)  + "}");
+				}
+			}
 |	FieldAccess	{ $$ = $1; }
 |	ArrayAccess	{
 					$$ = $1;
 					string reg1 = string($1->addr);
 					$$->ins = instCount+1;
-					$$->addr = str_to_ch(newTemp());
-					$$->addr = str_to_ch(string($1->arrayBase)+"[ "+$1->addr+" ]");
 					ste* lookup_ste = lookup(current_ste, $1->arrayBase);
 					if(lookup_ste!=NULL && parsenum==2){
-						$$->addr = str_to_ch(string($1->arrayBase) + "{" + to_string(lookup_ste->VarId)  + "}"+"[ "+$1->addr+" ]");
+						$$->addr = str_to_ch(string($1->arrayBase) + "{" + to_string(lookup_ste->VarId)  + "}"+"[ "+$$->addr+" ]");
 					}
 					// create_ins(0,string($$->addr),"=",string($1->arrayBase)+"[ "+reg1+" ]","");
 				}
