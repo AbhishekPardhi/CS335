@@ -85,19 +85,31 @@ def main():
             # if T goto Label
             if len(code)==4 and code[2]=="goto" and code[0]=="if":
                 out.append("\t;"+code[0]+" "+code[1]+" "+code[2]+" "+code[3])
+                jmpLabel = ""
+                for key in BBMap.keys():
+                    if BBMap[key]==int(code[3]):
+                        jmpLabel = key
+                        break
                 if operator == ">":
-                    out.append("\tjle "+code[3])
+                    out.append("\tjle "+jmpLabel)
                 elif operator == ">=":
-                    out.append("\tjl "+code[3])
+                    out.append("\tjl "+jmpLabel)
                 elif operator == "<":
-                    out.append("\tjge "+code[3])
+                    out.append("\tjge "+jmpLabel)
                 elif operator == "<=":
-                    out.append("\tjg "+code[3])
+                    out.append("\tjg "+jmpLabel)
                 elif operator == "==":
-                    out.append("\tjne "+code[3])
+                    out.append("\tjne "+jmpLabel)
                 elif operator == "!=":
-                    out.append("\tje "+code[3])
+                    out.append("\tje "+jmpLabel)
                 removeTemp(code[0],currFunc)
+            
+            # form PushParam a
+            if len(code)==2 and code[0]=="PushParam":
+                if "call " not in threeAC[l[i]+j]:
+                    out.append("\t;"+code[0]+" "+code[1])
+                    if(getParamReg(code[1],currFunc)=="NONE"):
+                        out.append("\tpush "+getReg(code[1],currFunc))  
 
             with open("output/reg.csv","w") as f:
                 for k in RegDesc.keys():
