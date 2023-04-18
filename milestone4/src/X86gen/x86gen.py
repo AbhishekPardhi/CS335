@@ -55,6 +55,20 @@ def main():
                 out.append("\t;"+code[0]+" = "+code[2]+" "+code[3])
                 out.append("\t"+unaryOpMap[code[2]]+" "+getReg(code[3],currFunc)+","+getReg(code[0],currFunc))
                 removeTemp(code[3],currFunc)
+
+            # form a = call funcName
+            if len(code)==4 and code[1]=="=" and code[2]=="call":
+                out.append("\t;"+code[0]+" = "+code[2]+" "+code[3])
+                out.append("\tcall "+code[3])
+                out.append("\tmov %rax,"+getReg(code[0],currFunc))
+                removeTemp(code[3],currFunc)
+            
+            # form Return a
+            if len(code)==2 and code[0]=="Return":
+                out.append("\t;"+code[0]+" "+code[1])
+                out.append("\tmov "+getReg(code[1],currFunc)+",%rax")
+                removeTemp(code[1],currFunc)
+                out.append("\tret")
             
             with open("output/reg.csv","w") as f:
                 for k in RegDesc.keys():

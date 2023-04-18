@@ -3,6 +3,10 @@
 // Main class
 class TypeConv {
 
+	public static int sum(int a, int b)
+	{
+		return a+b;
+	}
 	// Main driver method
 	public static void main(String args[])
 	{
@@ -30,6 +34,8 @@ class TypeConv {
 		int d = 0;
 		d= !b;
 		int e = ~b;
+
+		int f = sum(i,j);
 
 	}
 }
