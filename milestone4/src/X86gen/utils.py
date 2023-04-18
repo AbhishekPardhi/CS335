@@ -6,7 +6,7 @@ def getSymTable():
     directories=os.scandir("output/")
 
     for directory in directories:
-        if (directory.name=="x86.s"):
+        if (directory.name in ["x86.s","reg.csv","addr.csv"]):
             continue
         if (directory.name=="3AC.txt"):
             with open("output/"+"3AC.txt","r") as f:
@@ -125,19 +125,21 @@ def split(s):
 def addAddrDesc(name,location):
     if name not in AddrDesc.keys():
         AddrDesc[name]=[]
-    AddrDesc[name].append(location)
+    if location not in AddrDesc[name]:
+        AddrDesc[name].append(location)
 
 def addRegDesc(reg,name):
     if reg not in RegDesc.keys():
         RegDesc[reg]=[]
-    RegDesc[reg].append(name)
+    if name not in RegDesc[reg]:
+        RegDesc[reg].append(name)
 
 def searchAddrDesc(name):
     if name in AddrDesc.keys():
         return AddrDesc[name]
     return None
 
-def removeRegFromRegDesc(reg,name):
+def removeAddrFromRegDesc(reg,name):
     if reg in RegDesc.keys():
         if name in RegDesc[reg]:
             RegDesc[reg].remove(name)
@@ -147,14 +149,13 @@ def removeAddrFromAddrDesc(addr,name):
         if addr in AddrDesc[name]:
             AddrDesc[name].remove(addr)
 
-def removeRegFromAddrDesc(reg,name):
+def removeRegFromAddrDesc(reg):
     todel=[]
     for i in AddrDesc.keys():
-        if i!=name:
-            if reg in AddrDesc[i]:
-                AddrDesc[i].remove(reg)
-            if AddrDesc[i] ==[]:
-                todel.append(i)
+        if reg in AddrDesc[i]:
+            AddrDesc[i].remove(reg)
+        if AddrDesc[i] ==[]:
+            todel.append(i)
     for i in todel:
         del AddrDesc[i]
 
@@ -169,9 +170,10 @@ def removeTemp(name,currFunc):
 def getReg(name,currFunc):
     # case when the variable is already in the register
     if name in AddrDesc.keys():
-        if len(AddrDesc[name])!=0:
-            if AddrDesc[name][0]!="%":
-                return AddrDesc[name][-1]
+        # check if name is a variable
+        offset,isVar = checkVar(name,currFunc)
+        if AddrDesc[name][-1][-1]!="]" and isVar:
+            return AddrDesc[name][-1]
     
     # case when the variable is not in the register
     for reg in RegDesc.keys():
@@ -196,11 +198,10 @@ def getReg(name,currFunc):
     print("All registers are full, trying to spill one")
     for id in AddrDesc.keys():
         # find a variable which is also stored in a reg
-        if AddrDesc[id][0][0]=="%" and len(AddrDesc[id])!=1:
+        if AddrDesc[id][0][-1]!="]" and len(AddrDesc[id])!=1:
             reg=AddrDesc[id][1]
             # remove reg from all other AddrDesc and RegDesc
-            removeRegFromAddrDesc(reg,id)
-            AddrDesc[id].remove(reg)
+            removeRegFromAddrDesc(reg,)
             RegDesc[reg].remove(id)
             # add the new variable to the reg
             AddrDesc[name]=[]

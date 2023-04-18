@@ -21,8 +21,8 @@ def main():
            
             # of the form a = b op c
             code =split(code)
-            # print("".join(code))
-            # input("")
+            print("".join(code))
+            input("")
 
 
             if len(code)==5:
@@ -31,19 +31,17 @@ def main():
                     out.append("\t"+opMap[code[3]]+" "+getReg(code[4],currFunc)+","+getReg(code[2],currFunc))
                     # assign the last reg as reg for a
                     reg=getReg(code[2],currFunc)
-                    removeRegFromAddrDesc(getReg(code[2],currFunc),code[2])
-                    AddrDesc[code[2]].remove(reg)
-                    removeRegFromRegDesc(getReg(code[2],currFunc),code[2])
+                    removeRegFromAddrDesc(reg)
+                    removeAddrFromRegDesc(reg,code[2])
                     addRegDesc(reg,code[0])
                     addAddrDesc(code[0],reg)
-                    # remove the reg from the reg descriptor
-                    # removeTemp(code[2],currFunc)
                     removeTemp(code[4],currFunc)
             
             # form a = b
             if len(code)==3 and code[1]=="=" and code[2]!="PopParam":
                 out.append("\t;"+code[0]+" = "+code[2])
                 out.append("\tmov "+getReg(code[2],currFunc)+","+getReg(code[0],currFunc))
+                # remove entry of b from addrDesc of b
                 removeTemp(code[2],currFunc)
             
             # form a = cast_to b
@@ -51,12 +49,13 @@ def main():
                 out.append("\t;"+code[0]+" = "+code[2]+" "+code[3])
                 out.append("\tmov "+getReg(code[3],currFunc)+","+getReg(code[0],currFunc))
                 removeTemp(code[3],currFunc)
-            with open("reg.csv","w") as f:
+
+            with open("output/reg.csv","w") as f:
                 for k in RegDesc.keys():
-                    f.write(k+"\t"+str(RegDesc[k])+"\n")
-            with open("addr.csv","w") as f:
+                    f.write(k+"".join([","+i for i in RegDesc[k]])+"\n")
+            with open("output/addr.csv","w") as f:
                 for k in AddrDesc.keys():
-                    f.write(k+"\t"+str(AddrDesc[k])+"\n")
+                    f.write(k+"'".join([","+i for i in AddrDesc[k]])+"\n")
  
     with open("output/x86.s","w") as f:
         for line in out:
