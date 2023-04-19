@@ -153,9 +153,9 @@ def main():
             if len(code)==2 and code[0]=="stackpointer":
                 out.append("\t#  "+code[0]+" "+code[1])
                 if code[1][0]=="+":
-                    out.append("\taddq $"+code[1][1:]+",%rsp")
+                    out.append("\tsubq $"+code[1][1:]+",%rsp")
                 elif code[1][0]=="-":
-                    out.append("\tsubq $"+code[1]+",%rsp")
+                    out.append("\taddq $"+code[1]+",%rsp")
 
             with open("output/reg.csv","w") as f:
                 for k in RegDesc.keys():
