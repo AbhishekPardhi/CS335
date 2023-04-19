@@ -1467,12 +1467,7 @@ DimExprs:
 				$$ = create_node(2,"Dim_Expers",$1) ;
 				$$->addr = $1->addr;
 			}
-|	DimExprs DimExpr	{
-							$1->children.push_back($2); $$ =$1 ;
-							$$->ins = instCount+1;
-							$$->addr = str_to_ch(newTemp());
-							create_ins(1,$$->addr,"*",$2->addr,"4");
-						}
+|	DimExprs DimExpr	{ $1->children.push_back($2); $$ =$1 ;}
 ;
 
 DimExpr:

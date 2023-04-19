@@ -67,6 +67,11 @@ def main():
                 # remove entry of b from addrDesc of b
                 removeTemp(code[2],currFunc)
             
+            # form arr[ a ] = b
+            if len(code)==5 and code[3]=="=" and code[2]=="]":
+                out.append("\t#  "+code[0]+"["+code[1]+"] = "+code[4])
+                out.append("\tmovq "+getReg(code[4], currFunc)+" ("+getReg(code[0][:-1],currFunc)+", "+getReg(code[1],currFunc)+", 8)")
+
             # form a = cast_to b
             if len(code)==4 and "cast_to_" in code[2]:
                 out.append("\t#  "+code[0]+" = "+code[2]+" "+code[3])
