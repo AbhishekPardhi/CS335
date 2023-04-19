@@ -16,18 +16,9 @@ out=[]
 
 # map from regester id to regester name
 regMap={}
-regs=["%rbx","%rcx","%rdx","%rsi","%rdi","%r8","%r9","%r10","%r11","%r12","%r13","%r14","%r15"]
+regs=["%rbx","%rcx","%rdx","%rsi","%r8","%r9","%r10","%r11","%r12","%r13","%r14","%r15"]
 for i in range(len(regs)):
     regMap[i]=regs[i]
-
-# map from parameter to regester
-paramMap={}
-paramMap[0]="%rdi"
-paramMap[1]="%rsi"
-paramMap[2]="%rdx"
-paramMap[3]="%rcx"
-paramMap[4]="%r8"
-paramMap[5]="%r9"
 
 
 # Register and Adddress Descriptors

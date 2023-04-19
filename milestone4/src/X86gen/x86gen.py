@@ -92,7 +92,7 @@ def main():
             # form a = call funcName
             if len(code)==4 and code[1]=="=" and code[2]=="call":
                 for i in range(len(params)):
-                    out.append("\tmovq "+getReg(params[i],currFunc)+", -"+str(i*8+16)+"(%rsp)")
+                    out.append("\tmovq "+getReg(params[i],currFunc)+", -"+str(i*8+24)+"(%rsp)")
                     removeTemp(params[i],currFunc)
                 out.append("\t#  "+code[0]+" = "+code[2]+" "+code[3])
                 out.append("\tcall "+code[3])
@@ -103,7 +103,7 @@ def main():
             # for call funcName
             if len(code)==2 and code[0]=="call":
                 for i in range(len(params)):
-                    out.append("\tmovq "+getReg(params[i],currFunc)+", -"+str(i*8+16)+"(%rsp)")
+                    out.append("\tmovq "+getReg(params[i],currFunc)+", -"+str(i*8+24)+"(%rsp)")
                     removeTemp(params[i],currFunc)
                 out.append("\t#  "+code[0]+code[1])
                 out.append("\tcall "+code[1])
