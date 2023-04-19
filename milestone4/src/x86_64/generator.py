@@ -1,4 +1,5 @@
 import numpy as np
+import math
 from utils import *
 
 # Register Usage
@@ -20,7 +21,9 @@ from utils import *
 # r15 Callee Saved
 
 # Expression registers
-exp_reg = ['%rax','%rbx','%rcx','%rdx','%rsi','%rdi','%r8','%r9','%r10','%r11','%r12','%r13','%r14','%r15']
+# exp_reg = ['%rax','%rbx','%rcx','%rdx','%rsi','%rdi','%r8','%r9','%r10','%r11','%r12','%r13','%r14','%r15']
+exp_reg = ['%rax','%rbx','%r10','%r11','%r12','%r13','%r14','%r15']
+callee_saved_reg = ['%rbp','%rbx','%r12','%r13','%r14','%r15']
 reg_num = 0
 num_func = 0
 reg_sz = 8
@@ -47,7 +50,16 @@ isMain =False
 labels = []
 
 # Offset of arrays
-off_arr = {}
+offset = {}
+
+# Fields Dictionary-> field : [obj, var_offset]
+fields = {}
+
+# Current function
+curr_func = ""
+
+# Stackchange
+stk_pos = []
 
 # "="|">"|"<"|"!"|"~"|"?"|":"|"->"|"=="|">="|"<="|"!="|"&&"|"||"|"++"|"--"|"+"|"-"|"*"|"/"|"&"|"|"|"^"|"%"|"<<"|">>"|">>>"|"+="|"-="|"*="|"/="|"&="|"|="|"^="|"%="|"<<="|">>="|">>>="
 
@@ -62,7 +74,7 @@ def Initial():
     asm.append('.type\tmain, @function')
 
 def Parse3AC(input_file):
-    global exp_reg, asm, arg_reg, stk_max, stk, num_func, isMain, reg_num, off_arr
+    global exp_reg, asm, arg_reg, stk_max, stk, num_func, isMain, reg_num, offset, stk_pos
 
     num_args = 0
     pass_arg = 0
@@ -83,14 +95,50 @@ def Parse3AC(input_file):
 
         if tokens[1][-1] == ':':
             asm.append(f'{tokens[1]}')
-            asm.append('pushq\t%rbp')
+            for csreg in callee_saved_reg:
+                asm.append(f'pushq\t{csreg}')
+            # asm.append(f'pushq\t%rbp')
             asm.append('movq\t%rsp, %rbp')
             num_args = 0
             pass_arg = 0
+
+
+            for pos in stk_pos:
+                if pos>0:
+                    asm[pos-1]=f"addq\t${-stk_max}, %rsp"
+                else:
+                    asm[-pos-1]=f"subq\t${-stk_max}, %rsp"
+
+            stk_pos = []
             stk_max = 0
+
+            # # New stack
+            # if len(stk):
+            #     print(stk)
+
+            stk = {}
+
             stk[f'FUNC_{num_func}']=0
             num_func+=1
             isMain = True if tokens[1][:-1]=="main" else False
+            curr_func = tokens[1][:-1]
+            # diff = math.ceil(FuncOffset(curr_func)/16)*16
+            # asm.append(f'subq\t${FuncOffset(curr_func)}, %rsp')
+            asm.append(f'subq\t$16, %rsp')
+            stk_pos.append(-len(asm))
+
+
+        # elif len(tokens)==2 and tokens[1]=="funcOffset":
+            # Find the difference sp should get
+            # diff = math.ceil(FuncOffset(curr_func)/16)*16
+            # asm.append(f'subq\t${FuncOffset(curr_func)}, %rsp')
+
+        # elif len(tokens)==3 and tokens[1]=="stackpointer":
+        #     diff = int(tokens[2])
+        #     if diff<0:
+        #         asm.append(f'subq\t${-diff}, %rsp')
+        #     else:
+        #         asm.append(f'addq\t${diff}, %rsp')
 
         elif tokens[-1]=="PopParam":
             if tokens[1]=="ra":
@@ -106,27 +154,61 @@ def Parse3AC(input_file):
             asm.append(f'movq\t{stk[tokens[2]]}(%rbp), %rax')
 
         elif tokens[1]=="Goto" and tokens[2]=="ra":
+            # asm.append(f'addq\t${FuncOffset(curr_func)}, %rsp')
+            asm.append(f'addq\t$16, %rsp')
+            stk_pos.append(len(asm))
+            temp_lines = []
+            for csreg in callee_saved_reg:
+                temp_lines.append(f'popq\t{csreg}')
+            asm.extend(temp_lines[::-1])
+            # asm.append(f'popq\t%rbp')
             if isMain:
-                asm.append('leave')
-            else:
-                asm.append('popq\t%rbp')
-            asm.append('ret')
+                # asm.append('leave')
+                asm.append('movq\t$60, %rax')
+                asm.append('syscall')
+                for pos in stk_pos:
+                    if pos>0:
+                        asm[pos-1]=f"addq\t${-stk_max}, %rsp"
+                    else:
+                        asm[-pos-1]=f"subq\t${-stk_max}, %rsp"
+
+                # # New stack
+                # print(stk)
+                # stk={}
+
+            asm.append('retq')
 
         elif tokens[1]=="PushParam":
             temp_tokens = lines[i+1].strip().split()
             # Argument for Print statement
             if temp_tokens[1]=="call" and temp_tokens[2]=="Print":
-                asm.append(f'movq\t{stk[tokens[2]]}(%rbp), %rax')
+                if tokens[2] in stk:
+                    asm.append(f'movq\t{stk[tokens[2]]}(%rbp), %rax')
+                elif tokens[2][0]=="*":
+                    Rx = "%rax"
+                    [obj, var_offset] = fields[tokens[2]]
+                    temp_reg = LoadNumber(var_offset)
+                    asm.append(f'movq\t{offset[obj]}(%rbp,{temp_reg},1), {Rx}')
                 asm.append(f'movq\t%rax, %rsi')
             else:
                 temp_lines=[]
-                temp_lines.append(f'movq\t{Load(tokens[2])}, {arg_reg[pass_arg]}')
+                Rx=""
+                if '0'<=tokens[2][0] and tokens[2][0]<='9':
+                    Rx = LoadNumber(tokens[2])
+                else:
+                    Rx = Load(tokens[2])
+                temp_lines.append(f'movq\t{Rx}, {arg_reg[pass_arg]}')
                 pass_arg+=1
 
                 for j in range(i+1, len(lines)):
                     next_line_tokens = lines[j].strip().split()
                     if next_line_tokens[1]=='PushParam':
-                        temp_lines.append(f'movq\t{Load(next_line_tokens[2])}, {arg_reg[pass_arg]}')
+                        Rx=""
+                        if '0'<=next_line_tokens[2][0] and next_line_tokens[2][0]<='9':
+                            Rx = LoadNumber(next_line_tokens[2])
+                        else:
+                            Rx = Load(next_line_tokens[2])
+                        temp_lines.append(f'movq\t{Rx}, {arg_reg[pass_arg]}')
                         pass_arg+=1
                         last_checked_line = j
                     else:
@@ -138,32 +220,38 @@ def Parse3AC(input_file):
             asm.append('movq\t$0, %rax')
             asm.append('call\tprintf@PLT')
 
-        elif len(tokens)>=5 and tokens[3]=="call":
+        elif len(tokens)==5 and tokens[3]=="call":
             asm.append(f'call\t{tokens[4]}')
-            stk[tokens[1]]=stk_max
             stk_max-=reg_sz
+            stk[tokens[1]]=stk_max
             asm.append(f'movq\t%rax, {stk[tokens[1]]}(%rbp)')
             pass_arg = 0
 
         elif len(tokens)==5 and tokens[1]=="ifFalse":
             labels.append(tokens[-1])
-            asm.append(f'cmp\t$0, {stk[tokens[2]]}(%rbp)')
-            asm.append(f'je\t.L{tokens[-1]}')
+            asm.append(f'cmp \t$0, {stk[tokens[2]]}(%rbp)')
+            asm.append(f'je  \t.L{tokens[-1]}')
         
         elif len(tokens)==3 and tokens[1]=="goto":
             labels.append(tokens[-1])
             asm.append(f'jmp\t.L{tokens[-1]}')
         
         elif len(tokens)==7 and tokens[3]=="heap_alloc":
-            off_arr[tokens[1]] = str(-int(tokens[5])+stk_max)
-            stk_max = int(off_arr[tokens[1]])
+            temp_tokens = lines[i+1].strip().split()
+            offset[temp_tokens[1]] = str(-int(tokens[5])+stk_max)
+            stk_max = int(offset[temp_tokens[1]])
+            last_checked_line = i+1
+
+        elif len(tokens)==9 and tokens[3]=="symtable":
+            var_offset = SymTable(tokens[5],tokens[7])
+            temp_tokens = lines[i+1].strip().split()
+            fields['*'+temp_tokens[1]] = [temp_tokens[3], var_offset]
+            last_checked_line = i+1
 
         elif tokens[2]=="=":
             if len(tokens)>4:
                 Rx=Ry=""
-                if '0'>tokens[3][0] or '9'<tokens[3][0]:
-                    Rx = Load(tokens[3])
-                elif tokens[3][-1]!=']':
+                if '0'<=tokens[3][0] and tokens[3][0]<='9':
                     reg_num = (reg_num+1)%len(exp_reg)
                     Rx = exp_reg[reg_num]
                     asm.append(f'movq\t${tokens[3]}, {Rx}')
@@ -173,20 +261,37 @@ def Parse3AC(input_file):
                     reg_num = (reg_num+1)%len(exp_reg)
                     Rx = exp_reg[reg_num]
                     temp_reg = Load(index)
-                    asm.append(f'movq\t{off_arr[arr]}(%rbp,{temp_reg},1), {Rx}')
-                if '0'>tokens[5][0] or '9'<tokens[5][0]:
-                    Ry = Load(tokens[5])
-                elif tokens[5][-1]!=']':
+                    asm.append(f'movq\t{offset[arr]}(%rbp,{temp_reg},1), {Rx}')
+                # Field access
+                elif tokens[3][0]=='*':
+                    reg_num = (reg_num+1)%len(exp_reg)
+                    Rx = exp_reg[reg_num]
+                    [obj, var_offset] = fields[tokens[3]]
+                    temp_reg = LoadNumber(var_offset)
+                    asm.append(f'movq\t{offset[obj]}(%rbp,{temp_reg},1), {Rx}')
+                else:
+                    Rx = Load(tokens[3])
+
+                if '0'<=tokens[5][0] and tokens[5][0]<='9':
                     reg_num = (reg_num+1)%len(exp_reg)
                     Ry = exp_reg[reg_num]
                     asm.append(f'movq\t${tokens[5]}, {Ry}')
                 # Array access
                 elif tokens[5][-1]==']':
-                    arr, index = BreakArray(tokens[5])
                     reg_num = (reg_num+1)%len(exp_reg)
                     Ry = exp_reg[reg_num]
+                    arr, index = BreakArray(tokens[5])
                     temp_reg = Load(index)
-                    asm.append(f'movq\t{off_arr[arr]}(%rbp,{temp_reg},1), {Ry}')
+                    asm.append(f'movq\t{offset[arr]}(%rbp,{temp_reg},1), {Ry}')
+                # Field access
+                elif tokens[5][0]=='*':
+                    reg_num = (reg_num+1)%len(exp_reg)
+                    Ry = exp_reg[reg_num]
+                    [obj, var_offset] = fields[tokens[5]]
+                    temp_reg = LoadNumber(var_offset)
+                    asm.append(f'movq\t{offset[obj]}(%rbp,{temp_reg},1), {Ry}')
+                else:
+                    Ry = Load(tokens[5])
 
                 if tokens[4]=="+":
                     asm.append(f'addq\t{Rx}, {Ry}')
@@ -211,22 +316,22 @@ def Parse3AC(input_file):
                     Ry='%rax'
                 elif tokens[4]=="<":
                     asm.append(f'cmp \t{Rx}, {Ry}')
-                    asm.append(f'setl\t%al')
+                    asm.append(f'setg\t%al')
                     asm.append(f'movzx\t%al, %rax')
                     Ry='%rax'
                 elif tokens[4]=="<=":
                     asm.append(f'cmp \t{Rx}, {Ry}')
-                    asm.append(f'setle\t%al')
+                    asm.append(f'setge\t%al')
                     asm.append(f'movzx\t%al, %rax')
                     Ry='%rax'
                 elif tokens[4]==">":
                     asm.append(f'cmp \t{Rx}, {Ry}')
-                    asm.append(f'setg\t%al')
+                    asm.append(f'setl\t%al')
                     asm.append(f'movzx\t%al, %rax')
                     Ry='%rax'
                 elif tokens[4]==">=":
                     asm.append(f'cmp \t{Rx}, {Ry}')
-                    asm.append(f'setge\t%al')
+                    asm.append(f'setle\t%al')
                     asm.append(f'movzx\t%al, %rax')
                     Ry='%rax'
                 Store(tokens[1],Ry)
@@ -241,14 +346,24 @@ def Parse3AC(input_file):
                     Rx = exp_reg[reg_num]
                     arr, index = BreakArray(tokens[3])
                     temp_reg = Load(index)
-                    asm.append(f'movq\t{off_arr[arr]}(%rbp,{temp_reg},1), {Rx}')
+                    asm.append(f'movq\t{offset[arr]}(%rbp,{temp_reg},1), {Rx}')
+                elif tokens[3][0]=='*':
+                    reg_num = (reg_num+1)%len(exp_reg)
+                    Rx = exp_reg[reg_num]
+                    [obj, var_offset] = fields[tokens[3]]
+                    temp_reg = LoadNumber(var_offset)
+                    asm.append(f'movq\t{offset[obj]}(%rbp,{temp_reg},1), {Rx}')
                 else:
                     Rx = Load(tokens[3])
                 
                 if tokens[1][-1]=="]":
                     arr, index = BreakArray(tokens[1])
                     temp_reg = Load(index)
-                    asm.append(f'movq\t{Rx}, {off_arr[arr]}(%rbp,{temp_reg},1)')
+                    asm.append(f'movq\t{Rx}, {offset[arr]}(%rbp,{temp_reg},1)')
+                elif  tokens[1][0]=="*":
+                    [obj, var_offset] = fields[tokens[1]]
+                    temp_reg = LoadNumber(var_offset)
+                    asm.append(f'movq\t{Rx}, {offset[obj]}(%rbp,{temp_reg},1)')
                 else:
                     if tokens[1] not in stk:
                         stk_max -= reg_sz
@@ -268,7 +383,7 @@ def Store(var, reg):
     if var[-1]==']':
         arr, index = BreakArray(var)
         temp_reg = Load(index)
-        asm.append(f'movq\t{reg}, {off_arr[arr]}(%rbp,{temp_reg},1)')
+        asm.append(f'movq\t{reg}, {offset[arr]}(%rbp,{temp_reg},1)')
     else:
         if var not in stk:
             stk_max -= reg_sz
@@ -284,10 +399,15 @@ def Printx86(output_file):
             f.write(line)
             f.write("\n")
 
+def LoadNumber(number):
+    global reg_num, exp_reg, asm
+    reg_num = (reg_num+1)%len(exp_reg)
+    Rx = exp_reg[reg_num]
+    asm.append(f'movq\t${number}, {Rx}')
+    return Rx
+
 file_path = "/home/scizor/Documents/Github/CS335-Project/milestone4/src/"
 
 Initial()
 Parse3AC(file_path+"x86_64/3AC.txt")
 Printx86(file_path+"x86_64/x86.s")
-
-print(stk)

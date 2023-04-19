@@ -1504,7 +1504,7 @@ FieldAccess:
 MethodInvocation:
 	Name LPAREN ArgumentList RPAREN	{	
 										$$ = create_node ( 5 ,"MethodInvocation", $1, $2, $3, $4);
-										$$->ins = instCount+1;
+										$$->ins = $3->ins;
 										if((string)$1->val=="println"){
 											create_ins(0,"call Print",$3->addr,"","");
 											$$->addr = str_to_ch("0");

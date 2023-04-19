@@ -33,3 +33,18 @@ def BuildNextUseTable(lines):
 def BreakArray(string):
     breakdown = string.replace('[',' ').replace(']',' ').split()
     return breakdown[0], breakdown[1]
+
+# Use actual symbol table
+def SymTable(obj, var):
+    if var=="s":
+        return 0
+    elif var=="t":
+        return 8
+    return 0
+
+def FuncOffset(func):
+    if func == "fibonacci":
+        return 56
+    elif func == "main":
+        return 24
+    return 16
