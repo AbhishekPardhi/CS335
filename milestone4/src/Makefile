@@ -13,7 +13,6 @@ dot:	output.dot
 x86:	
 		python3 X86gen/x86gen.py
 
-test:
-		gcc -S test.cpp -o test.s
-		gcc test.s -o test
+convert:
+		gcc ./output/x86.s -o test
 		./test

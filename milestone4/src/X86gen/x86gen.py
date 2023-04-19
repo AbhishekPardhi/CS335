@@ -69,7 +69,7 @@ def main():
                     removeTemp(code[4],currFunc)
 
             # form a = b
-            if len(code)==3 and code[1]=="=" and code[2]!="PopParam":
+            if len(code)==3 and code[1]=="=" and code[2]!="PopParam" and "heap_alloc" not in code[-1]:
                 out.append("\t#  "+code[0]+" = "+code[2])
                 out.append("\tmovq "+getReg(code[2],currFunc)+" ,"+getReg(code[0],currFunc))
                 # check if a is a variable
@@ -79,10 +79,19 @@ def main():
                 # remove entry of b from addrDesc of b
                 removeTemp(code[2],currFunc)
             
+            #  form a = heap_alloc(b)
+            if "heap_alloc" in code[-1]:
+                size=code[-1].split("(")[1][:-1]
+                out.append("\t# "+" ".join(code) )
+                out.append("\tmovq $"+size+", %rax")
+                out.append("\tmovq $0, %rdi")
+                out.append("\tsyscall")
+                out.append("\tmovq %rax, "+getReg(code[0],currFunc))
+
             # form arr[ a ] = b
             if len(code)==5 and code[3]=="=" and code[2]=="]":
                 out.append("\t#  "+code[0]+"["+code[1]+"] = "+code[4])
-                out.append("\tmovq "+getReg(code[4], currFunc)+" ("+getReg(code[0][:-1],currFunc)+", "+getReg(code[1],currFunc)+", 8)")
+                out.append("\tmovq "+getReg(code[4], currFunc)+", ("+getReg(code[0][:-1],currFunc)+", "+getReg(code[1],currFunc)+", 8)")
 
             # form a = cast_to b
             if len(code)==4 and "cast_to_" in code[2]:
