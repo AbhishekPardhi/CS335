@@ -8,12 +8,13 @@ class TypeConv {
 
 		// Declaring and initializing primitive types
 		// char c = 'a';
-		int i = 50000;
+		int i = 5;
 		int j=0;
+		int k = i+j;
 
 		// The Expression
-		double result = (j+i+(j+i+(j+i+(j+i+(i+j+(i+j+(i+j+(i+j+(i+j+(i+j+(i+j+(i+j+(i+j+(i+j+(i+j)))))))))))))));
-
+		k = (i + j+(i+j+(i+j+(i+j+(i+j+(i+j+(i+j+(i+j+(i+j+(i+j+(i+j+(i+j+(i+j+(i+j))))))))))))));
+		k++;
 		// // Printing the result obtained after
 		// // all the promotions are done
 		// println("result = " + result);

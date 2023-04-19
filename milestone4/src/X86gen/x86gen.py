@@ -21,7 +21,6 @@ def main():
             if code.rstrip()[-1]==":":
                 currFunc=code[:-1]
            
-            # of the form a = b op c
             code =split(code)
             # print("".join(code),end="\n")
             # input("")
@@ -30,16 +29,23 @@ def main():
                     if BBMap[key]==int(linenum):
                         out.append(key+":")
                         break
+        
             if len(code)==2 and code[0]=="goto":
-                out.append("\t;"+code[0]+" "+code[1])
+                out.append("\t# "+code[0]+" "+code[1])
                 for key in BBMap.keys():
                     if BBMap[key]==int(code[1]):
                         out.append("\tjmp "+key)
                         break
+
+            # of the form a = b op c
             if len(code)==5 and code[1]=="=":
                 if len(code[3])==1:
-                    out.append("\t;"+code[0]+" = "+code[4]+" "+code[3]+" "+code[2])
+                    out.append("\t# "+code[0]+" = "+code[4]+" "+code[3]+" "+code[2])
+                    # check if a is a variable
+                    offset,flag=checkVar(code[0],currFunc)
                     out.append("\t"+opMap[code[3]]+" "+getReg(code[4],currFunc)+","+getReg(code[2],currFunc))
+                    if flag:
+                        out.append("\tmovq "+getReg(code[2],currFunc)+", -"+str(offset)+"(%rsp)")
                     if opMap[code[3]]=="cmp":
                         operator = code[3]
                     # assign the last reg as reg for a
@@ -52,40 +58,48 @@ def main():
             
             # form a = b
             if len(code)==3 and code[1]=="=" and code[2]!="PopParam":
-                out.append("\t;"+code[0]+" = "+code[2])
-                out.append("\tmov "+getReg(code[2],currFunc)+" "+getReg(code[0],currFunc))
+                out.append("\t#  "+code[0]+" = "+code[2])
+                out.append("\tmovq "+getReg(code[2],currFunc)+" ,"+getReg(code[0],currFunc))
+                # check if a is a variable
+                offset,flag=checkVar(code[0],currFunc)
+                if flag:
+                    out.append("\tmovq "+getReg(code[2],currFunc)+", -"+str(offset)+"(%rsp)")
                 # remove entry of b from addrDesc of b
                 removeTemp(code[2],currFunc)
             
             # form a = cast_to b
             if len(code)==4 and "cast_to_" in code[2]:
-                out.append("\t;"+code[0]+" = "+code[2]+" "+code[3])
-                out.append("\tmov "+getReg(code[3],currFunc)+" "+getReg(code[0],currFunc))
+                out.append("\t#  "+code[0]+" = "+code[2]+" "+code[3])
+                out.append("\t"+"movq "+getReg(code[3],currFunc)+" ,"+getReg(code[0],currFunc))
+                # check if a is a variable
+                offset,flag=checkVar(code[0],currFunc)
+                if flag:
+                    out.append("\tmovq "+getReg(code[2],currFunc)+", -"+str(offset)+"(%rsp)")
                 removeTemp(code[3],currFunc)
 
             # form a = op b
             if len(code)==4 and code[1]=="=" and code[2] in unaryOpMap.keys():
-                out.append("\t;"+code[0]+" = "+code[2]+" "+code[3])
-                out.append("\t"+unaryOpMap[code[2]]+" "+getReg(code[3],currFunc)+" "+getReg(code[0],currFunc))
+                out.append("\t#  "+code[0]+" = "+code[2]+" "+code[3])
+                out.append("\t"+unaryOpMap[code[2]]+" "+getReg(code[3],currFunc)+" ,"+getReg(code[0],currFunc))
                 removeTemp(code[3],currFunc)
 
             # form a = call funcName
             if len(code)==4 and code[1]=="=" and code[2]=="call":
-                out.append("\t;"+code[0]+" = "+code[2]+" "+code[3])
+                out.append("\t#  "+code[0]+" = "+code[2]+" "+code[3])
                 out.append("\tcall "+code[3])
-                out.append("\tmov %rax,"+getReg(code[0],currFunc))
+                out.append("\tmovq"+" %rax ,"+getReg(code[0],currFunc))
                 removeTemp(code[3],currFunc)
             
             # form Return a
             if len(code)==2 and code[0]=="Return":
-                out.append("\t;"+code[0]+" "+code[1])
-                out.append("\tmov "+getReg(code[1],currFunc)+",%rax")
+                out.append("\t#  "+code[0]+" "+code[1])
+                out.append("\tmovq "+getReg(code[1],currFunc)+",%rax")
                 removeTemp(code[1],currFunc)
                 out.append("\tret")
             
             # if T goto Label
             if len(code)==4 and code[2]=="goto" and code[0]=="if":
-                out.append("\t;"+code[0]+" "+code[1]+" "+code[2]+" "+code[3])
+                out.append("\t#  "+code[0]+" "+code[1]+" "+code[2]+" "+code[3])
                 jmpLabel = ""
                 for key in BBMap.keys():
                     if BBMap[key]==int(code[3]):
@@ -108,7 +122,7 @@ def main():
             # form PushParam a
             if len(code)==2 and code[0]=="PushParam":
                 if "call " not in threeAC[l[i]+j]:
-                    out.append("\t;"+code[0]+" "+code[1])
+                    out.append("\t#  "+code[0]+" "+code[1])
                     if(getParamReg(code[1],currFunc)=="NONE"):
                         out.append("\tpush "+getReg(code[1],currFunc))  
 

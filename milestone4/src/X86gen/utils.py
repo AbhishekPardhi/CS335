@@ -145,3 +145,10 @@ def split(s):
             temp+=i
     ans.append(temp)
     return ans
+
+def mov(name,currFunc):
+    return "movq"
+    entry,isVar = giveEntry(name,currFunc)
+    if isVar:
+        return movMap[typeSize[entry.type]]
+    return movMap[typeSize["long"]]

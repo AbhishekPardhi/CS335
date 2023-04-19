@@ -88,8 +88,8 @@ int getOffset(string type){
     }
 
     if (typeSize.find(type)==typeSize.end())
-        return typeSize["ptr"];
+        return 8;
 
-    return typeSize[type];
+    return 8;
 }
     

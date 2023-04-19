@@ -2401,13 +2401,13 @@ string handle_field_access(NODE* node)
 			string type= lookup_stme->entry->type;
 			current_ste->lexeme="this";
 			current_ste->type=cur_class;
+			offset += getOffset(cur_class);
 			current_ste->offset=offset;
 			current_ste->VarId = VarId;
 			current_ste->token="IDENTIFIER";
 			current_ste->lineno=lineno;
 			current_ste->next=new_ste;
 			new_ste->prev=current_ste;
-			offset += getOffset(cur_class);
 			VarId++;
 			funcTypeMap[cur_func]=offset;
 			current_ste=new_ste;
@@ -2499,6 +2499,7 @@ ste* insert_var_id(NODE * node,string type, bool is_static, bool is_final)
 	if (checkRedeclaration(current_ste,var_name)==NULL || checkRedeclaration(current_ste,var_name)->class_entry!=NULL){
 		current_ste->lexeme=var_name;
 		current_ste->type=type;
+		offset += getOffset(type);
 		current_ste->offset=offset;
 		current_ste->VarId = VarId;
 		current_ste->is_static=is_static;
@@ -2508,7 +2509,6 @@ ste* insert_var_id(NODE * node,string type, bool is_static, bool is_final)
 		return_ste=current_ste;
 		current_ste->next=new_ste;
 		new_ste->prev=current_ste;
-		offset += getOffset(type);
 		VarId++;
 		funcTypeMap[cur_func]=offset;
 
@@ -3457,6 +3457,7 @@ void branchMethodSymtable(NODE* declaration_node)
 						}
 					}
 				}
+				offset+=8;
 			}
 		}
 		return ;
@@ -3543,6 +3544,7 @@ void branchMethodSymtable(NODE* declaration_node)
 					}
 				}
 			}
+			offset+=8;
 		}
 	}
 }
@@ -3586,8 +3588,8 @@ void classoffset(){
 			class_stack.pop();
 			if (class_member->num_params==-1)
 			{
-				class_member->entry->offset=class_offset;
 				class_offset+= getOffset(class_member->entry->type);
+				class_member->entry->offset=class_offset;
 			}
 		}
 		classTypeMap[class_pair.first]=class_offset;

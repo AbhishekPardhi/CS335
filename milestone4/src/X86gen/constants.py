@@ -16,20 +16,9 @@ out=[]
 
 # map from regester id to regester name
 regMap={}
-regMap[0]="%rax"
-regMap[1]="%rbx"
-regMap[2]="%rcx"
-regMap[3]="%rdx"
-regMap[4]="%rsi"
-regMap[5]="%rdi"
-regMap[6]="%r8"
-regMap[7]="%r9"
-regMap[8]="%r10"
-regMap[9]="%r11"
-regMap[10]="%r12"
-regMap[11]="%r13"
-regMap[12]="%r14"
-regMap[13]="%r15"
+regs=["%rbx","%rcx","%rdx","%rsi","%rdi","%r8","%r9","%r10","%r11","%r12","%r13","%r14","%r15"]
+for i in range(len(regs)):
+    regMap[i]=regs[i]
 
 # map from parameter to regester
 paramMap={}
@@ -82,3 +71,23 @@ tempOffsetMap={}
 
 # map to store BB to instruction number mapping
 BBMap={}
+
+# map to store variable type to size
+typeSize={}
+typeSize["byte"] = 1
+typeSize["short"] = 2
+typeSize["int"] = 4
+typeSize["long"] = 8
+typeSize["float"] = 4
+typeSize["double"] = 8
+typeSize["boolean"] = 1
+typeSize["char"] = 2
+typeSize["void"] = 0
+typeSize["ptr"] = 4
+
+# map correseponding mov instruction to size
+movMap={}
+movMap[1]="movb"
+movMap[2]="movw"
+movMap[4]="movl"
+movMap[8]="movq"
