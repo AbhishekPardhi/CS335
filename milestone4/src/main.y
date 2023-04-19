@@ -2235,7 +2235,7 @@ Assignment:
 																		create_ins(1,$3->addr,"cast_to_"+res,"",temp);
 																	}
 																}
-																$$->ins = instCount+1;
+																$$->ins = $3->ins;
 																string prefix = string($2->val);
 																prefix.pop_back();
 																string reg = newTemp();
