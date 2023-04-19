@@ -1,4 +1,4 @@
-1    fibonacci: 
+1    no-fibonacci: 
 2    x = PopParam 
 3    t1 = x <= 1
 4    ifFalse t1 goto 7 
@@ -6,18 +6,18 @@
 6   Goto ra
 7    t2 = x - 1
 8    PushParam t2 
-10    t3 = call fibonacci 
+10    t3 = call no-fibonacci 
 12    t4 = x - 2
 13    PushParam t4 
-15    t5 = call fibonacci 
+15    t5 = call no-fibonacci 
 17    t6 = t3 + t5
 18    Return t6 
 19    Goto ra 
-20    main: 
+20    acha-main: 
 21    args = PopParam 
 22    n = 10
 23    PushParam n
-25    t8 = call fibonacci 
+25    t8 = call no-fibonacci 
 27    PushParam t8 
-29    call Print 1 
+29    call Print
 31    Goto ra 

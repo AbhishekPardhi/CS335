@@ -1,31 +1,23 @@
-1    fibonacci: 
-2    n = PopParam 
-3    t1 = n <= 1
+1    Fibonacci-fibonacci: 
+2    x = PopParam 
+3    t1 = x <= 1
 4    ifFalse t1 goto 7 
-5    Return n
+5    Return x
 6   Goto ra
-7    t2 = n - 1
+7    t2 = x - 1
 8    PushParam t2 
-9   stackpointer -64
-10    t3 = call fibonacci 
-11  stackpointer +64
-12    t4 = n - 2
+10    t3 = call Fibonacci-fibonacci 
+12    t4 = x - 2
 13    PushParam t4 
-14  stackpointer -64
-15    t5 = call fibonacci 
-16  stackpointer +64
+15    t5 = call Fibonacci-fibonacci 
 17    t6 = t3 + t5
 18    Return t6 
 19    Goto ra 
-20    main: 
+20    Fibonacci-main: 
 21    args = PopParam 
-22    n = 2
+22    n = 10
 23    PushParam n
-24  stackpointer -64
-25    t8 = call fibonacci 
-26  stackpointer +64
+25    t8 = call Fibonacci-fibonacci 
 27    PushParam t8 
-28  stackpointer -64
-29    call Print 1 
-30  stackpointer +64
+29    call Print
 31    Goto ra 

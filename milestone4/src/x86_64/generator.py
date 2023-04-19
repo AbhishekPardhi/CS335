@@ -1,6 +1,7 @@
 import numpy as np
 import math
 from utils import *
+import os
 
 # Register Usage
 # rsp Stack Pointer
@@ -94,7 +95,9 @@ def Parse3AC(input_file):
             asm.append('.L'+tokens[0]+':')
 
         if tokens[1][-1] == ':':
-            asm.append(f'{tokens[1]}')
+            function_sep = tokens[1].strip().split('-')
+            func_name = function_sep[1]
+            asm.append(f'{func_name}')
             for csreg in callee_saved_reg:
                 asm.append(f'pushq\t{csreg}')
             # asm.append(f'pushq\t%rbp')
@@ -120,7 +123,7 @@ def Parse3AC(input_file):
 
             stk[f'FUNC_{num_func}']=0
             num_func+=1
-            isMain = True if tokens[1][:-1]=="main" else False
+            isMain = True if func_name[:-1]=="main" else False
             curr_func = tokens[1][:-1]
             # diff = math.ceil(FuncOffset(curr_func)/16)*16
             # asm.append(f'subq\t${FuncOffset(curr_func)}, %rsp')
@@ -215,13 +218,15 @@ def Parse3AC(input_file):
                         asm.extend(temp_lines[::-1])
                         break
 
-        elif len(tokens)==4 and tokens[1]=="call" and tokens[2]=="Print":
+        elif len(tokens)==3 and tokens[1]=="call" and tokens[2]=="Print":
             asm.append('leaq\t.LC0(%rip), %rdi')
             asm.append('movq\t$0, %rax')
             asm.append('call\tprintf@PLT')
 
         elif len(tokens)==5 and tokens[3]=="call":
-            asm.append(f'call\t{tokens[4]}')
+            function_sep = tokens[4].strip().split('-')
+            func_name = function_sep[1]
+            asm.append(f'call\t{func_name}')
             stk_max-=reg_sz
             stk[tokens[1]]=stk_max
             asm.append(f'movq\t%rax, {stk[tokens[1]]}(%rbp)')
@@ -408,6 +413,10 @@ def LoadNumber(number):
 
 file_path = "/home/scizor/Documents/Github/CS335-Project/milestone4/src/"
 
+current_folder = os.path.basename(os.path.dirname(os.path.abspath(__file__)))
+
+file_3ac = current_folder if current_folder=="x86_64" else "output"
+
 Initial()
-Parse3AC(file_path+"x86_64/3AC.txt")
+Parse3AC(file_path+f"{file_3ac}/3AC.txt")
 Printx86(file_path+"x86_64/x86.s")
