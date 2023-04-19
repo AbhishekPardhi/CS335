@@ -1,13 +1,10 @@
 class Classes {
-    // calculate the sum
     public int add(int a, int b) {
   
-      // calculate sum
       int sum = a + b;
       return sum;
     }
   
-    // calculate the square
     public void square(int num) {
       int result = num * num;
       println(result);    // prints 576

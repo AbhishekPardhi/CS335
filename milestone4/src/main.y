@@ -871,7 +871,7 @@ IfThenElseStatementNoShortIf:
 WhileStatement:
 	WHILE LPAREN WhileExpression RPAREN Statement	{	
 													$$ = create_node ( 6 ,"WhileStatement", $1, $2, $3, $4, $5);
-													$$->ins = instCount+1;
+													$$->ins = $3->ins;
 													backpatch($5->nextlist,$3->ins);
 													backpatch($3->truelist,$5->ins);
 													$$->nextlist = $3->falselist;
@@ -882,7 +882,7 @@ WhileStatement:
 WhileStatementNoShortIf:
 	WHILE LPAREN WhileExpression RPAREN StatementNoShortIf	{
 															$$ = create_node ( 6 ,"WhileStatementNoShortIf", $1, $2, $3, $4, $5);
-															$$->ins = instCount+1;
+															$$->ins = $3->ins;
 															backpatch($5->nextlist,$3->ins);
 															backpatch($3->truelist,$5->ins);
 															$$->nextlist = $3->falselist;

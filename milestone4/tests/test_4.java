@@ -5,20 +5,21 @@ class test_4
 		int x = 20;
 		int y = 18;
 		if (x > y) {
-			println(x);
+			println(x); // Prints 20
 		}  
 
 		for (int i = 0; i < 10; i++) {
 			x++;
 		}
 		
-		while (x < 10) {
+		while (x < 30) {
 			x++;
-			if (x == 5) {
+			if (x == 25) {
 				x += 2;
 			}
-			x++;
+			y++;
 		}
-		println(x);
+		println(x); // Prints 30
+		println(y); // Prints 26
 	}
 }
