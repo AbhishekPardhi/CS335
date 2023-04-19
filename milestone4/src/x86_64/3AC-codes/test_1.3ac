@@ -1,0 +1,10 @@
+1    main: 
+2    ra = PopParam 
+3    t0 = PopParam 
+4    arr = heap_alloc ( 48 ) 
+5    t2 = 2 * 8
+6    arr[t2] = 3 
+7   t3 = arr[t2]
+8   PushParam t3
+9  call Print 1
+10    Goto ra 

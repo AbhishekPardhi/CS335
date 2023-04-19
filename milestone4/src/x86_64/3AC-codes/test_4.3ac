@@ -1,0 +1,29 @@
+1    square: 
+2    num = PopParam 
+3    t1 = num * num
+4    result = t1 
+5    PushParam result
+6    call Print 1 
+7    Return result
+8    Goto ra 
+9    main: 
+10    funcOffset 24
+11    args = PopParam 
+12    t3 = heap_alloc ( 8 ) 
+13    obj = t3 
+14    t4 = symtable ( obj , s ) 
+15    t5 = obj + t4
+16    PushParam 15 
+17    t8 = call square
+18    *t5 = t8 
+19    t10 = symtable ( obj , s ) 
+20    t11 = obj + t10
+21    t12 = symtable ( obj , s ) 
+22    t13 = obj + t12
+23    t14 = *t11 + *t13
+24    *t11 = t14 
+25    t15 = symtable ( obj , s ) 
+26    t16 = obj + t15
+27    PushParam *t16 
+28    call Print 1 
+29    Goto ra 

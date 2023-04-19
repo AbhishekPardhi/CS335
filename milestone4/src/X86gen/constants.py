@@ -16,7 +16,7 @@ out=[]
 
 # map from regester id to regester name
 regMap={}
-regs=["%rbx","%rcx","%rdx","%rsi","%r8","%r9","%r10","%r11","%r12","%r13","%r14","%r15"]
+regs=["%rbx","%rcx","%rdx","%r8","%r9","%r10","%r11","%r12","%r13","%r14","%r15"]
 for i in range(len(regs)):
     regMap[i]=regs[i]
 
@@ -35,7 +35,7 @@ opMap={}
 opMap["+"]="add"
 opMap["-"]="sub"
 opMap["*"]="imul"
-opMap["/"]="idiv"
+opMap["/"]="idivq"
 opMap["%"]="mod"
 opMap["&"]="and"
 opMap["|"]="or"

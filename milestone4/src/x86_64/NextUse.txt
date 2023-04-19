@@ -1,5 +1,0 @@
-ra:False,None	x:False,None	y:False,None	t0:False,None	
-ra:False,None	x:True,4	y:False,None	t0:False,None	
-ra:False,None	x:True,4	y:True,4	t0:False,None	
-ra:False,None	x:False,None	y:False,None	t0:False,None	
-ra:False,None	x:False,None	y:False,None	t0:False,None	

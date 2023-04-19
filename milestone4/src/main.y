@@ -1499,7 +1499,7 @@ FieldAccess:
 MethodInvocation:
 	Name LPAREN ArgumentList RPAREN	{	
 										$$ = create_node ( 5 ,"MethodInvocation", $1, $2, $3, $4);
-										$$->ins = instCount+1;
+										$$->ins = $3->ins;
 										if((string)$1->val=="println"){
 											create_ins(0,"PushParam",to_string(instCount+3),"","");
 											create_ins(0,"call Print","","","");
@@ -2235,7 +2235,7 @@ Assignment:
 																		create_ins(1,$3->addr,"cast_to_"+res,"",temp);
 																	}
 																}
-																$$->ins = instCount+1;
+																$$->ins = $3->ins;
 																string prefix = string($2->val);
 																prefix.pop_back();
 																string reg = newTemp();
