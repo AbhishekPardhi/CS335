@@ -23,8 +23,9 @@ class TypeConv {
 		// // Printing the result obtained after
 		// // all the promotions are done
 		// println("result = " + result);
-		int a[][]= new int[5][9];
-		a[4][8]=1;
-		println(a[4][8]);
+		int a[]= new int[5];
+		a[4]=1;
+		// println(9);
+		println(a[4]);
 	}
 }

@@ -91,7 +91,9 @@ def main():
             # form arr[ a ] = b
             if len(code)==5 and code[3]=="=" and code[2]=="]":
                 out.append("\t#  "+code[0]+"["+code[1]+"] = "+code[4])
-                out.append("\tmovq "+getReg(code[4], currFunc)+", ("+getReg(code[0][:-1],currFunc)+", "+getReg(code[1],currFunc)+", 8)")
+                # instruction of the the form reg = arr + a ; reg =b
+                out.append("\taddq "+getReg(code[0][:-1],currFunc)+", "+getReg(code[1],currFunc) )  
+                out.append("\tmovq "+getReg(code[4],currFunc)+", 0("+getReg(code[1],currFunc)+")")
 
             # form a = cast_to b
             if len(code)==4 and "cast_to_" in code[2]:
