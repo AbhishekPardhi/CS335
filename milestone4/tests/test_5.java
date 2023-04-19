@@ -7,7 +7,7 @@ class TypeConv {
 	{
 
 		// Declaring and initializing primitive types
-		// char c = 'a';
+		char c = 'a';
 		int i = 5;
 		int j=0;
 		int k = i+j;

@@ -2,9 +2,10 @@
 
 int main()
 {
+    char c='a';
     int i=0;
-    int j=0;
-    int k=i+j;
+    int j=5;
+    long k=i+j;
     printf("%d",k);
     return 0;
 }
