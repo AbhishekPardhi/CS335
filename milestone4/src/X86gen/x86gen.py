@@ -52,20 +52,25 @@ def main():
             # of the form a = b op c
             if len(code)==5 and code[1]=="=":
                 if len(code[3])==1:
-                    out.append("\t# "+code[0]+" = "+code[4]+" "+code[3]+" "+code[2])
+                    out.append("\t# "+code[0]+" = "+code[2]+" "+code[3]+" "+code[4])
                     # check if a is a variable
                     offset,flag=checkVar(code[0],currFunc)
-                    out.append("\t"+opMap[code[3]]+" "+getReg(code[4],currFunc)+","+getReg(code[2],currFunc))
-                    if flag:
-                        out.append("\tmovq "+getReg(code[2],currFunc)+", -"+str(offset)+"(%rsp)")
-                    if opMap[code[3]]=="cmp":
-                        operator = code[3]
-                    # assign the last reg as reg for a
-                    reg=getReg(code[2],currFunc)
-                    removeRegFromAddrDesc(reg)
-                    removeAddrFromRegDesc(reg,code[2])
-                    addRegDesc(reg,code[0])
-                    addAddrDesc(code[0],reg)
+                    if opMap[code[3]]=="idivq" :
+                        out.append("\tmovq "+getReg(code[2],currFunc)+", %rax")
+                        out.append("\tidivq "+getReg(code[4],currFunc))
+                        out.append("\tmovq %rax, "+getReg(code[0],currFunc))
+                    else:
+                        out.append("\t"+opMap[code[3]]+" "+getReg(code[4],currFunc)+","+getReg(code[2],currFunc))
+                        if flag:
+                            out.append("\tmovq "+getReg(code[2],currFunc)+", -"+str(offset)+"(%rsp)")
+                        if opMap[code[3]]=="cmp":
+                            operator = code[3]
+                        # assign the last reg as reg for a
+                        reg=getReg(code[2],currFunc)
+                        removeRegFromAddrDesc(reg)
+                        removeAddrFromRegDesc(reg,code[2])
+                        addRegDesc(reg,code[0])
+                        addAddrDesc(code[0],reg)
                     removeTemp(code[4],currFunc)
 
             # form a = b
