@@ -20,15 +20,15 @@ Todo:
   ✔ x = op y @done(23-04-19 02:46)
   ☐ function calls @Ankur @Manas
   ✔ function return @done(23-04-19 02:46)
-  ✔ reserved registers ignore @Ankur @done(23-04-19 18:33)
-  ✔ push param @Manas @Ankur @done(23-04-19 18:33)
-  ✔ println return address (call statement) @Manas @done(23-04-19 17:03)
+  ✔ reserved registers ignore @done(23-04-19 18:33)
+  ✔ push param @done(23-04-19 18:33)
+  ✔ println return address (call statement) @done(23-04-19 17:03)
   ✔ Fix temp del @done(23-04-19 02:46)
   ☐ conditional jumps @Manas
-  ✔ Variable type declaration in x86 @Ankur @done(23-04-19 18:33)
+  ✔ Variable type declaration in x86 @done(23-04-19 18:33)
   ✔ getReg() @done(23-04-19 02:48)
   ✔ Implement Simple Algo @done(23-04-19 02:46)
-  ✔ ~static~ int max_ref; in LIS.java @Manas @done(23-04-19 17:38)
+  ✔ ~static~ int max_ref; in LIS.java @done(23-04-19 17:38)
   ✔ Need to regverse the order of passing function arguments @done(23-04-19 02:46)
   ✔ Label BB @done(23-04-19 02:49)
   ☐ Heap Alloc @Ankur
