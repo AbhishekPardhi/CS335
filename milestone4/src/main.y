@@ -1506,6 +1506,7 @@ MethodInvocation:
 										$$ = create_node ( 5 ,"MethodInvocation", $1, $2, $3, $4);
 										$$->ins = instCount+1;
 										if((string)$1->val=="println"){
+											create_ins(0,"PushParam",to_string(instCount+3),"","");
 											create_ins(0,"call Print",$3->addr,"","");
 											$$->addr = str_to_ch("0");
 											create_ins(0,"stackpointer","-"+to_string(funcTypeMap[cur_class+"-"+cur_func]),"","");
@@ -1525,6 +1526,7 @@ MethodInvocation:
 							$$->ins = instCount+1;
 							if((string)$1->val!="println"){
 								$$->addr = str_to_ch(newTemp());
+								create_ins(0,"PushParam",to_string(instCount+3),"","");
 								create_ins(0,"stackpointer","+"+to_string(funcTypeMap[cur_class+"-"+cur_func]),"","");
 								create_ins(0,$$->addr,"=","call",cur_class+"-"+(string)$1->addr);
 								create_ins(0,"stackpointer","-"+to_string(funcTypeMap[cur_class+"-"+cur_func]),"","");
@@ -2440,6 +2442,13 @@ string handle_expression(NODE* node)
 				string e_message= "Error : Variable " + var_name + " not declared before use ";
 				lineno=node->lineno;
 				yerror(e_message);
+			}
+			if(lookup_ste->class_entry && lookup_ste->class_entry->num_params==-1){
+				if(lookup_ste->is_static==0 && curr_static_function){
+					string e_message="Error : Cannot access non-static variable " + (string) node_val + " in static function " + (string) cur_func;
+					lineno=node->lineno;
+					yerror(e_message);
+				}
 			}
 
 			return lookup_ste->type;		
