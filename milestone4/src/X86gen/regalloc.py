@@ -46,27 +46,6 @@ def removeTemp(name,currFunc):
                 RegDesc[reg].remove(name)
             del AddrDesc[name]
 
-def getParamReg(name , currFunc):
-    for reg in paramMap.keys():
-        if RegDesc[paramMap[reg]]==[]:
-            offset,isVar = checkVar(name,currFunc)
-            if isVar:
-                out.append("\t"+mov(name,currFunc)+" "+"%rsp[-"+str(offset)+"], "+paramMap[reg])
-                addRegDesc(paramMap[reg],name)
-                addAddrDesc(name,"%rsp[-"+str(offset)+"]")
-                addAddrDesc(name,paramMap[reg])
-            else:
-                if name[0] == "t":
-                    addAddrDesc(name,paramMap[reg])
-                    addRegDesc(paramMap[reg],name)
-                else:
-                    out.append("\t"+mov(name,currFunc)+" $"+name+","+paramMap[reg])
-                    addAddrDesc(name,paramMap[reg])
-                    addRegDesc(paramMap[reg],name)
-            return paramMap[reg]
-        
-    return "NONE"
-
 def getReg(name,currFunc):
     # case when the variable is already in the register
     if name in AddrDesc.keys():
@@ -93,7 +72,10 @@ def getReg(name,currFunc):
                     addAddrDesc(name,reg)
                     addRegDesc(reg,name)
                 else:
-                    out.append("\t"+mov(name,currFunc)+" $"+name+","+reg)
+                    temp=name
+                    if name[0]=="\'":
+                        temp=str(ord(name[1]))
+                    out.append("\t"+mov(name,currFunc)+" $"+temp+","+reg)
                     addAddrDesc(name,reg)
                     addRegDesc(reg,name)
             return reg

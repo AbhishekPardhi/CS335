@@ -11,6 +11,7 @@ def main():
     l=makeBB()
 
     operator = ""
+    params=[]
     for i in range(len(l)-1):
         for j in range(l[i+1]-l[i]):
             code=threeAC[l[i]+j-1]
@@ -90,10 +91,23 @@ def main():
 
             # form a = call funcName
             if len(code)==4 and code[1]=="=" and code[2]=="call":
+                for i in range(len(params)):
+                    out.append("\tmovq "+getReg(params[i],currFunc)+", -"+str(i*8)+"(%rsp)")
+                    removeTemp(params[i],currFunc)
                 out.append("\t#  "+code[0]+" = "+code[2]+" "+code[3])
                 out.append("\tcall "+code[3])
                 out.append("\tmovq"+" %rax ,"+getReg(code[0],currFunc))
+                params=[]
                 removeTemp(code[3],currFunc)
+
+            # for call funcName
+            if len(code)==2 and code[0]=="call":
+                for i in range(len(params)):
+                    out.append("\tmovq "+getReg(params[i],currFunc)+", -"+str(i*8)+"(%rsp)")
+                    removeTemp(params[i],currFunc)
+                out.append("\t#  "+code[0]+code[1])
+                out.append("\tcall "+code[1])
+                params=[]
             
             # form Return a
             if len(code)==2 and code[0]=="Return":
@@ -128,8 +142,14 @@ def main():
             if len(code)==2 and code[0]=="PushParam":
                 if "call " not in threeAC[l[i]+j]:
                     out.append("\t#  "+code[0]+" "+code[1])
-                    if(getParamReg(code[1],currFunc)=="NONE"):
-                        out.append("\tpush "+getReg(code[1],currFunc))  
+                    params.append(code[1]) 
+            
+            if len(code)==2 and code[0]=="stackpointer":
+                out.append("\t#  "+code[0]+" "+code[1])
+                if code[1][0]=="+":
+                    out.append("\taddq $"+code[1][1:]+",%rsp")
+                elif code[1][0]=="-":
+                    out.append("\tsubq $"+code[1]+",%rsp")
 
             with open("output/reg.csv","w") as f:
                 for k in RegDesc.keys():

@@ -7,10 +7,10 @@ class TypeConv {
 	{
 
 		// Declaring and initializing primitive types
-		// char c = 'a';
-		// int i = 5;
-		// int j=0;
-		// int k = i+j;
+		char c = 'a';
+		int i = 5;
+		int j=0;
+		int k = i+j;
 
 		// The Expression
 		// k = (i + j+(i+j+(i+j+(i+j+(i+j+(i+j+(i+j+(i+j+(i+j+(i+j+(i+j+(i+j+(i+j+(i+j))))))))))))));
