@@ -1467,12 +1467,7 @@ DimExprs:
 				$$ = create_node(2,"Dim_Expers",$1) ;
 				$$->addr = $1->addr;
 			}
-|	DimExprs DimExpr	{
-							$1->children.push_back($2); $$ =$1 ;
-							$$->ins = instCount+1;
-							$$->addr = str_to_ch(newTemp());
-							create_ins(1,$$->addr,"*",$2->addr,"4");
-						}
+|	DimExprs DimExpr	{ $1->children.push_back($2); $$ =$1 ;}
 ;
 
 DimExpr:
@@ -1506,7 +1501,8 @@ MethodInvocation:
 										$$ = create_node ( 5 ,"MethodInvocation", $1, $2, $3, $4);
 										$$->ins = $3->ins;
 										if((string)$1->val=="println"){
-											create_ins(0,"call Print",$3->addr,"","");
+											create_ins(0,"PushParam",to_string(instCount+3),"","");
+											create_ins(0,"call Print","","","");
 											$$->addr = str_to_ch("0");
 											create_ins(0,"stackpointer","-"+to_string(funcTypeMap[cur_class+"-"+cur_func]),"","");
 											// create_ins(0,"PopParam",$3->addr,"","");
@@ -1525,6 +1521,7 @@ MethodInvocation:
 							$$->ins = instCount+1;
 							if((string)$1->val!="println"){
 								$$->addr = str_to_ch(newTemp());
+								create_ins(0,"PushParam",to_string(instCount+3),"","");
 								create_ins(0,"stackpointer","+"+to_string(funcTypeMap[cur_class+"-"+cur_func]),"","");
 								create_ins(0,$$->addr,"=","call",cur_class+"-"+(string)$1->addr);
 								create_ins(0,"stackpointer","-"+to_string(funcTypeMap[cur_class+"-"+cur_func]),"","");
@@ -2401,13 +2398,13 @@ string handle_field_access(NODE* node)
 			string type= lookup_stme->entry->type;
 			current_ste->lexeme="this";
 			current_ste->type=cur_class;
+			offset += getOffset(cur_class);
 			current_ste->offset=offset;
 			current_ste->VarId = VarId;
 			current_ste->token="IDENTIFIER";
 			current_ste->lineno=lineno;
 			current_ste->next=new_ste;
 			new_ste->prev=current_ste;
-			offset += getOffset(cur_class);
 			VarId++;
 			funcTypeMap[cur_func]=offset;
 			current_ste=new_ste;
@@ -2440,6 +2437,13 @@ string handle_expression(NODE* node)
 				string e_message= "Error : Variable " + var_name + " not declared before use ";
 				lineno=node->lineno;
 				yerror(e_message);
+			}
+			if(lookup_ste->class_entry && lookup_ste->class_entry->num_params==-1){
+				if(lookup_ste->is_static==0 && curr_static_function){
+					string e_message="Error : Cannot access non-static variable " + (string) node_val + " in static function " + (string) cur_func;
+					lineno=node->lineno;
+					yerror(e_message);
+				}
 			}
 
 			return lookup_ste->type;		
@@ -2499,6 +2503,7 @@ ste* insert_var_id(NODE * node,string type, bool is_static, bool is_final)
 	if (checkRedeclaration(current_ste,var_name)==NULL || checkRedeclaration(current_ste,var_name)->class_entry!=NULL){
 		current_ste->lexeme=var_name;
 		current_ste->type=type;
+		offset += getOffset(type);
 		current_ste->offset=offset;
 		current_ste->VarId = VarId;
 		current_ste->is_static=is_static;
@@ -2508,7 +2513,6 @@ ste* insert_var_id(NODE * node,string type, bool is_static, bool is_final)
 		return_ste=current_ste;
 		current_ste->next=new_ste;
 		new_ste->prev=current_ste;
-		offset += getOffset(type);
 		VarId++;
 		funcTypeMap[cur_func]=offset;
 
@@ -3457,6 +3461,7 @@ void branchMethodSymtable(NODE* declaration_node)
 						}
 					}
 				}
+				offset+=8;
 			}
 		}
 		return ;
@@ -3543,6 +3548,7 @@ void branchMethodSymtable(NODE* declaration_node)
 					}
 				}
 			}
+			offset+=8;
 		}
 	}
 }
@@ -3586,8 +3592,8 @@ void classoffset(){
 			class_stack.pop();
 			if (class_member->num_params==-1)
 			{
-				class_member->entry->offset=class_offset;
 				class_offset+= getOffset(class_member->entry->type);
+				class_member->entry->offset=class_offset;
 			}
 		}
 		classTypeMap[class_pair.first]=class_offset;

@@ -5,7 +5,7 @@ import java.util.*;
 class LIS {
 
 	// Stores the LIS
-	int max_ref;
+	static int max_ref;
 
 	// To make use of recursive calls, this function must
 	// return two things: 1) Length of LIS ending with

@@ -2,21 +2,29 @@
 
 // Main class
 class TypeConv {
+
+
+	public static int sum(int a, int b){
+		int c = a+b;
+		return c;
+	}
 	// Main driver method
 	public static void main(String args[])
 	{
 
 		// Declaring and initializing primitive types
-		// char c = 'a';
-		int i = 50000;
+		char c = 'a';
+		int i = 5;
 		int j=0;
-
+		int k = sum(i,j);
 		// The Expression
-		double result = (j+i+(j+i+(j+i+(j+i+(i+j+(i+j+(i+j+(i+j+(i+j+(i+j+(i+j+(i+j+(i+j+(i+j+(i+j)))))))))))))));
-
+		// k = (i + j+(i+j+(i+j+(i+j+(i+j+(i+j+(i+j+(i+j+(i+j+(i+j+(i+j+(i+j+(i+j+(i+j))))))))))))));
+		// k++;
 		// // Printing the result obtained after
 		// // all the promotions are done
 		// println("result = " + result);
-		// int a[][]= new int[5][9];
+		int a[][]= new int[5][9];
+		a[4][8]=1;
+		println(a[4][8]);
 	}
 }
