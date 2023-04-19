@@ -56,7 +56,7 @@ def main():
                     addRegDesc(reg,code[0])
                     addAddrDesc(code[0],reg)
                     removeTemp(code[4],currFunc)
-            
+
             # form a = b
             if len(code)==3 and code[1]=="=" and code[2]!="PopParam":
                 out.append("\t#  "+code[0]+" = "+code[2])
@@ -138,6 +138,12 @@ def main():
                     out.append("\tje "+jmpLabel)
                 removeTemp(code[0],currFunc)
             
+            # form ra = PopParam
+            if len(code)==3 and code[0]=="ra" and code[2]=="PopParam":
+                out.append("\t# "+code[0]+" = "+code[2])
+                out.append("\tpushq %rbp")
+                out.append("\tmovq %rsp, %rbp")
+
             # form PushParam a
             if len(code)==2 and code[0]=="PushParam":
                 if "call " not in threeAC[l[i]+j]:
