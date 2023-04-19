@@ -11,6 +11,12 @@ def main():
     l=makeBB()
 
     operator = ""
+    out.append("\t.globl main")
+    out.append("")
+
+    out.append(".LCO:")
+    out.append("\t.string \"%lld\\n\"")
+
     params=[]
     for i in range(len(l)-1):
         for j in range(l[i+1]-l[i]):
@@ -28,7 +34,12 @@ def main():
             if int(linenum) in BBMap.values():
                 for key in BBMap.keys():
                     if BBMap[key]==int(linenum):
-                        out.append(key+":")
+                        funcName="_".join(key.split("-"))
+                        out.append("")
+                        if funcName.split("_")[-1]=="main":
+                            out.append("main:")
+                            break
+                        out.append(funcName+":")
                         break
         
             if len(code)==2 and code[0]=="goto":
@@ -95,18 +106,26 @@ def main():
                     out.append("\tmovq "+getReg(params[i],currFunc)+", -"+str(i*8+16)+"(%rsp)")
                     removeTemp(params[i],currFunc)
                 out.append("\t#  "+code[0]+" = "+code[2]+" "+code[3])
-                out.append("\tcall "+code[3])
+                out.append("\tcall "+"_".join(code[3].split("-")))
                 out.append("\tmovq"+" %rax ,"+getReg(code[0],currFunc))
                 params=[]
                 removeTemp(code[3],currFunc)
 
-            # for call funcName
+            # form call funcName
             if len(code)==2 and code[0]=="call":
                 for i in range(len(params)):
                     out.append("\tmovq "+getReg(params[i],currFunc)+", -"+str(i*8+16)+"(%rsp)")
                     removeTemp(params[i],currFunc)
-                out.append("\t#  "+code[0]+code[1])
-                out.append("\tcall "+code[1])
+                out.append("\t#  "+code[0]+" "+code[1])
+                if code[1]=="Print":
+                    out.append("\tmovq "+getReg(params[-1],currFunc)+", %rsi")
+                    out.append("\tleaq .LCO(%rip), %rax")
+                    out.append("\tmovq %rax, %rdi")
+                    out.append("\tmovq $0, %rax")
+                    out.append("\tcall printf@PLT")
+                else:
+                    out.append("\tcall "+"_".join(code[1].split("-")))    
+                
                 params=[]
             
             # form Return a
@@ -150,13 +169,15 @@ def main():
                 if "call " not in threeAC[l[i]+j]:
                     out.append("\t#  "+code[0]+" "+code[1])
                     params.append(code[1]) 
-            
+
+            # form stackpointer +/- a
             if len(code)==2 and code[0]=="stackpointer":
                 out.append("\t#  "+code[0]+" "+code[1])
                 if code[1][0]=="+":
                     out.append("\tsubq $"+code[1][1:]+",%rsp")
                 elif code[1][0]=="-":
                     out.append("\taddq $"+code[1]+",%rsp")
+    
 
             with open("output/reg.csv","w") as f:
                 for k in RegDesc.keys():
@@ -164,7 +185,12 @@ def main():
             with open("output/addr.csv","w") as f:
                 for k in AddrDesc.keys():
                     f.write(k+"".join([","+i for i in AddrDesc[k]])+"\n")
- 
+    
+    out.append("\t#  Exit")
+    out.append("\tpopq %rbp")
+    out.append("\tmovq $60, %rax")
+    out.append("\tsyscall")
+    
     with open("output/x86.s","w") as f:
         for line in out:
             f.write(line+"\n")
