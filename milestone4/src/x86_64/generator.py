@@ -413,10 +413,6 @@ def LoadNumber(number):
 
 file_path = "/home/scizor/Documents/Github/CS335-Project/milestone4/src/"
 
-current_folder = os.path.basename(os.path.dirname(os.path.abspath(__file__)))
-
-file_3ac = current_folder if current_folder=="x86_64" else "output"
-
 Initial()
-Parse3AC(file_path+f"{file_3ac}/3AC.txt")
-Printx86(file_path+"x86_64/x86.s")
+Parse3AC(file_path+"output/3AC.txt")
+Printx86(file_path+"output/x86.s")

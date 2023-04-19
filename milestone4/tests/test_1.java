@@ -1,29 +1,15 @@
-/* Java Program to Pass Method as Argument */
+public class Fibonacci {
 
-class Main {
+    public static int fibonacci(int x) {
+        if (x <= 1) {
+            return x;
+        }
+        return fibonacci(x-1) + fibonacci(x-2);
+    }
 
-  // calculate the sum
-  public int add(int a, int b) {
+    public static void main(String[] args) {
+        int n = 10;
+        println(fibonacci(n)); // Prints 55
+    }
 
-    // calculate sum
-    int sum = a + b;
-    return sum;
-  }
-
-  // calculate the square
-  public void square(int num) {
-    int result = num * num;
-    println(result);    // prints 576
-  }
-  public static void main(String[] args) {
-
-    Main obj = new Main();
-
-    // call the square() method
-    // passing add() as an argument
-    obj.square(obj.add(15, 9));
-
-  }
-  int s;
-  int t;
 }

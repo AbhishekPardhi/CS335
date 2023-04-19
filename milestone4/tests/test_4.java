@@ -1,21 +1,24 @@
-/* Type coercion (casting) */
-public class TypeCoercion {
-    int a;
-    int b;
-    int c;
-    public static void main(String[] args) {
-        int intVar = 100;
-        long longVar = intVar;
-        float floatVar = longVar;
-        double doubleVar = longVar;
+class test_4
+{  
+    public static void main(String args[])
+    {  
+		int x = 20;
+		int y = 18;
+		if (x > y) {
+			println(x);
+		}  
 
-        double dVar = 3.141596;
-        long lVar = (long) dVar;
-        int iVar = (int) dVar;
-
-        println("Dummy print: " + (short) 3.14F);
-
-        double exp = intVar + longVar + dVar * floatVar + lVar + doubleVar + iVar;
-        println("Exp: " + exp);
-    }
+		for (int i = 0; i < 10; i++) {
+			x++;
+		}
+		
+		while (x < 10) {
+			x++;
+			if (x == 5) {
+				x += 2;
+			}
+			x++;
+		}
+		println(x);
+	}
 }

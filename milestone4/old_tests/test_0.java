@@ -1,8 +1,6 @@
 /* MERGE SORT */
-import static java.lang.System.out;
 
 class MergeSort {
-	final int MAX = 1000000;
 	void merge(int arr[], int l, int m, int r)
 	{
 		int n1 = m - l + 1;
@@ -72,8 +70,8 @@ class MergeSort {
 	{
 		int n = 6;
 		for (int i = 0; i < n; ++i)
-			out.println(arr[i] + " ");
-		out.println(6);
+			println(arr[i] + " ");
+		println(6);
 	}
 
 	// Driver code
@@ -87,12 +85,12 @@ class MergeSort {
 		arr[4] = 6;
 		arr[5] = 7;
 
-		out.println("Given Array");
+		println("Given Array");
 		printArray(arr);
 
 		MergeSort ob = new MergeSort();
 		ob.sort(arr, 0, 6 - 1);
-		out.println("\nSorted array");
+		println("\nSorted array");
 		printArray(arr);
 	}
 }

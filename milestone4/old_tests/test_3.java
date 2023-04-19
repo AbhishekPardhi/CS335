@@ -1,5 +1,3 @@
-import static java.lang.System.out;
-
 class test_25
 {  
     public static void main(String args[])
@@ -7,13 +5,13 @@ class test_25
 		int x = 20;
 		float y = 18;
 		if (x > y) {
-			out.println("x is greater than y");
+			println("x is greater than y");
 		}  
 
 		for (int i = 0; i < 10; i++) {
 			x++;
 			continue;
-			// x++;
+			x++;
 		}
 		
 		while(x < 10) {

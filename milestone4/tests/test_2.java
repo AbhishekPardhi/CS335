@@ -1,30 +1,15 @@
-/* Using interface */
-
-interface Polygon {
-  int dim;
-  void getArea(int length, int breadth);
-}
-
-// implement the Polygon interface
-class Rectangle implements Polygon {
-
-  int no;
-  // implementation of abstract method
-  public void getArea(int length, int breadth) {
-    println("The area of the rectangle is " + (length * breadth));
-  }  
-  int dim;
-  Rectangle(int s){
-    this.dim = 3;
-    int x = 20;
-  }
-}
-
-class Main {
-  public static void main(String[] args) {
-    Rectangle r1 = new Rectangle(0);
-    r1.getArea(5, 6);
-    r1.dim = 1;
-    println(r1.dim);
-  }
+public class SumArray {
+    public static void main(String[] args) {
+        int[] arr = new int[5];
+        arr[0] = 1;
+        arr[1] = 2;
+        arr[2] = 3;
+        arr[3] = 4;
+        arr[4] = 5;
+        int sum = 0;
+        for (int i = 0; i < 5; i++) {
+            sum += arr[i];
+        }
+        println(sum);
+    }
 }

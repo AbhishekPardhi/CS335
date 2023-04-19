@@ -185,14 +185,8 @@ SimpleName:
 QualifiedName:
 	Name DOT IDENTIFIER	{
 							$$ = create_node ( 4 ,"Qualified_Name", $1, $2, $3);							
-							$$->ins = instCount+1;
-							string reg1 = newTemp();
-							
-							create_ins(0,reg1,"=","symtable("+string($1->addr)+","+string($3->addr)+")","");
-							// find offset
-							string reg2 = newTemp();
-							create_ins(1,reg2,"+",string($1->addr),reg1);
-							$$->addr = str_to_ch("* "+reg2);
+							$$->ins = $1->ins;
+							$$->addr = str_to_ch(string($3->addr));
 						} 
 ;
 
@@ -373,6 +367,7 @@ FieldDeclaration:
 VariableDeclarators:
 	VariableDeclarator	{ 
 							$$ = create_node(2,"Variable_declarators",$1); 
+							$$->ins = $1->ins;
 							if(parsenum==2){ 
 								current_ste=current_ste->next;
 							}
@@ -388,7 +383,7 @@ VariableDeclarators:
 ;
 
 VariableDeclarator:
-	VariableDeclaratorId	{ $$ = $1; }
+	VariableDeclaratorId	{ $$ = $1; $$->ins=instCount+1; }
 |	VariableDeclaratorId EQUALS VariableInitializer	{
 														$$ = create_node ( 3 ,$2->val, $1, $3);
 														if (interfaceFlag==0){
@@ -508,10 +503,10 @@ MethodDeclarator:
 FormalParameterList:
 	FormalParameter	{
 						$$ = create_node(2,"Formal_Parameter_List",$1) ;
-						$$->addr = str_to_ch(string(""+*string($1->addr).begin()));
-						string str="";
-						str.push_back(*string($1->addr).begin());
-						$$->addr = str_to_ch(str);
+						// string str="";
+						// str.push_back(*string($1->addr).begin());
+						// $$->addr = str_to_ch(str);
+						$$->addr = str_to_ch(string($1->addr));
 						string funcName="";
 						if (parsenum==2){
 							scopeFlag=1;
@@ -785,8 +780,8 @@ LocalVariableDeclarationStatement:
 ;
 
 LocalVariableDeclaration:
-	Type VariableDeclarators	{ $$ = create_node ( 3 ,"LocalVariableDeclaration", $1, $2); } 
-|	FINAL Type VariableDeclarators	{ $$ = create_node ( 4 ,"LocalVariableDeclaration", $1, $2, $3); }
+	Type VariableDeclarators	{ $$ = create_node ( 3 ,"LocalVariableDeclaration", $1, $2); $$->ins = $2->ins; } 
+|	FINAL Type VariableDeclarators	{ $$ = create_node ( 4 ,"LocalVariableDeclaration", $1, $2, $3); $$->ins = $3->ins; }
 ;
 
 Statement:
@@ -905,7 +900,7 @@ WhileExpression:
 ForStatement:
 	for LPAREN ForInit SEMICOLON Expression SEMICOLON ForUpdate RPAREN Statement	{
 																						$$ = create_node ( 10 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7, $8, $9);
-																						$$->ins = instCount+1;
+																						$$->ins = $3->ins;
 																						backpatch($9->nextlist,$7->ins); // statement,forupdate
 																						backpatch($5->truelist,$9->ins); // expression,statement
 																						backpatch($7->truelist,$5->ins); // forupdate,expression
@@ -925,7 +920,7 @@ ForStatement:
 																					} 
 |	for LPAREN ForInit SEMICOLON SEMICOLON ForUpdate RPAREN Statement	{
 																			$$ = create_node ( 9 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7, $8);
-																			$$->ins = instCount+1;																																								$$->ins = instCount+1;
+																			$$->ins = $3->ins;																																								$$->ins = instCount+1;
 																			backpatch($8->nextlist,$6->ins);
 																			backpatch($6->truelist,$8->ins);
 																			$$->nextlist = $8->nextlist;
@@ -944,7 +939,7 @@ ForStatement:
 																		} 
 |	for LPAREN SEMICOLON Expression SEMICOLON ForUpdate RPAREN Statement	{
 																				$$ = create_node ( 9 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7, $8);
-																				$$->ins = instCount+1;
+																				$$->ins = $4->ins;
 																				backpatch($8->nextlist,$6->ins);
 																				backpatch($4->truelist,$8->ins);
 																				backpatch($6->truelist,$4->ins);
@@ -964,7 +959,7 @@ ForStatement:
 																			} 
 |	for LPAREN SEMICOLON SEMICOLON ForUpdate RPAREN Statement	{
 																	$$ = create_node ( 8 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7);
-																	$$->ins = instCount+1;																																						$$->ins = instCount+1;
+																	$$->ins = $5->ins;																																					$$->ins = instCount+1;
 																	backpatch($7->nextlist,$5->ins);
 																	backpatch($5->truelist,$7->ins);
 																	$$->nextlist = $7->nextlist;
@@ -983,7 +978,7 @@ ForStatement:
 																} 
 |	for LPAREN ForInit SEMICOLON Expression SEMICOLON RPAREN Statement	{
 																			$$ = create_node ( 9 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7, $8);
-																			$$->ins = instCount+1;
+																			$$->ins = $3->ins;
 																			backpatch($8->nextlist,$5->ins);
 																			backpatch($5->truelist,$8->ins);
 																			$$->nextlist = merge($5->falselist,$8->nextlist);
@@ -1002,7 +997,7 @@ ForStatement:
 																		} 
 |	for LPAREN ForInit SEMICOLON SEMICOLON RPAREN Statement	{
 																$$ = create_node ( 8 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7);
-																$$->ins = instCount+1;
+												$$->ins = instCount+1;				$$->ins = $3->ins;
 																backpatch($7->nextlist,$7->ins);
 																$$->nextlist = $7->nextlist;
 																for(auto ins:$7->nextlist){
@@ -1020,7 +1015,7 @@ ForStatement:
 															} 
 |	for LPAREN SEMICOLON Expression SEMICOLON RPAREN Statement	{
 																	$$ = create_node ( 8 ,"ForStatement", $1, $2, $3, $4, $5, $6, $7);
-																	$$->ins = instCount+1;
+																	$$->ins = $4->ins;
 																	backpatch($7->nextlist,$7->ins);
 																	backpatch($4->truelist,$7->ins);
 																	$$->nextlist = merge($4->falselist,$7->nextlist);
@@ -1039,7 +1034,7 @@ ForStatement:
 																} 
 |	for LPAREN SEMICOLON SEMICOLON RPAREN Statement	{
 														$$ = create_node ( 7 ,"ForStatement", $1, $2, $3, $4, $5, $6);
-														$$->ins = instCount+1;
+														$$->ins = $6->ins;
 														backpatch($6->nextlist,$6->ins);
 														$$->nextlist = $6->nextlist;
 														for(auto ins:$6->nextlist){
@@ -1060,7 +1055,7 @@ ForStatement:
 ForStatementNoShortIf:
 	for LPAREN ForInit SEMICOLON Expression SEMICOLON ForUpdate RPAREN StatementNoShortIf	{
 																								$$ = create_node ( 10 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6, $7, $8, $9);
-																								$$->ins = instCount+1;
+																								$$->ins = $3->ins;
 																								backpatch($9->nextlist,$7->ins); // statement,forupdate
 																								backpatch($5->truelist,$9->ins); // expression,statement
 																								backpatch($7->truelist,$5->ins); // forupdate,expression
@@ -1080,7 +1075,7 @@ ForStatementNoShortIf:
 																							} 
 |	for LPAREN ForInit SEMICOLON SEMICOLON ForUpdate RPAREN StatementNoShortIf	{
 																					$$ = create_node ( 9 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6, $7, $8);
-																					$$->ins = instCount+1;																																								$$->ins = instCount+1;
+																					$$->ins = $3->ins;																																								$$->ins = instCount+1;
 																					backpatch($8->nextlist,$6->ins);
 																					backpatch($6->truelist,$8->ins);
 																					$$->nextlist = $8->nextlist;
@@ -1100,7 +1095,7 @@ ForStatementNoShortIf:
 
 |	for LPAREN SEMICOLON Expression SEMICOLON ForUpdate RPAREN StatementNoShortIf	{
 																						$$ = create_node ( 9 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6, $7, $8);
-																						$$->ins = instCount+1;
+																						$$->ins = $4->ins;
 																						backpatch($8->nextlist,$6->ins);
 																						backpatch($4->truelist,$8->ins);
 																						backpatch($6->truelist,$4->ins);
@@ -1120,7 +1115,7 @@ ForStatementNoShortIf:
 																					} 
 |	for LPAREN SEMICOLON SEMICOLON ForUpdate RPAREN StatementNoShortIf	{
 																			$$ = create_node ( 8 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6, $7);
-																			$$->ins = instCount+1;																																						$$->ins = instCount+1;
+																			$$->ins = $5->ins;																																						$$->ins = instCount+1;
 																			backpatch($7->nextlist,$5->ins);
 																			backpatch($5->truelist,$7->ins);
 																			$$->nextlist = $7->nextlist;
@@ -1139,7 +1134,7 @@ ForStatementNoShortIf:
 																		} 
 |	for LPAREN ForInit SEMICOLON Expression SEMICOLON RPAREN StatementNoShortIf	{
 																					$$ = create_node ( 9 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6, $7, $8);
-																					$$->ins = instCount+1;
+																					$$->ins = $3->ins;
 																					backpatch($8->nextlist,$5->ins);
 																					backpatch($5->truelist,$8->ins);
 																					$$->nextlist = merge($5->falselist,$8->nextlist);
@@ -1158,7 +1153,7 @@ ForStatementNoShortIf:
 																				} 
 |	for LPAREN ForInit SEMICOLON SEMICOLON RPAREN StatementNoShortIf	{
 																			$$ = create_node ( 8 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6, $7);
-																			$$->ins = instCount+1;
+																			$$->ins = $3->ins;
 																			backpatch($7->nextlist,$7->ins);
 																			$$->nextlist = $7->nextlist;
 																			for(auto ins:$7->nextlist){
@@ -1176,7 +1171,7 @@ ForStatementNoShortIf:
 																		} 
 |	for LPAREN SEMICOLON Expression SEMICOLON RPAREN StatementNoShortIf	{
 																			$$ = create_node ( 8 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6, $7);
-																			$$->ins = instCount+1;
+																			$$->ins = $4->ins;
 																			backpatch($7->nextlist,$7->ins);
 																			backpatch($4->truelist,$7->ins);
 																			$$->nextlist = merge($4->falselist,$7->nextlist);
@@ -1195,7 +1190,7 @@ ForStatementNoShortIf:
 																		} 
 |	for LPAREN SEMICOLON SEMICOLON RPAREN StatementNoShortIf	{
 																	$$ = create_node ( 7 ,"ForStatementNoShortIf", $1, $2, $3, $4, $5, $6);
-																	$$->ins = instCount+1;
+																	$$->ins = $6->ins;
 																	backpatch($6->nextlist,$6->ins);
 																	$$->nextlist = $6->nextlist;
 																	for(auto ins:$6->nextlist){

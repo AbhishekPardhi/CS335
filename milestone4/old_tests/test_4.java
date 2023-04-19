@@ -1,6 +1,4 @@
 /* Type coercion (casting) */
-import static java.lang.System.out;
-
 public class TypeCoercion {
     int a;
     int b;
@@ -15,9 +13,9 @@ public class TypeCoercion {
         long lVar = (long) dVar;
         int iVar = (int) dVar;
 
-        out.println("Dummy print: " + (short) 3.14F);
+        println("Dummy print: " + (short) 3.14F);
 
         double exp = intVar + longVar + dVar * floatVar + lVar + doubleVar + iVar;
-        out.println("Exp: " + exp);
+        println("Exp: " + exp);
     }
 }
