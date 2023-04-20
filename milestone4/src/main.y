@@ -186,7 +186,24 @@ QualifiedName:
 	Name DOT IDENTIFIER	{
 							$$ = create_node ( 4 ,"Qualified_Name", $1, $2, $3);							
 							$$->ins = $1->ins;
-							$$->addr = str_to_ch(string($3->addr));
+							if(parsenum>1){
+								ste* look1 = lookup(current_ste,$1->addr);
+
+								stme* look = lookupFunction(classMap[look1->type],look1->type+"-"+(string)$3->val);
+								if(look && look->num_params!=-1){
+
+									$$->addr = str_to_ch(string($3->addr));
+								}
+								else{
+									string reg1 = newTemp();
+									
+									create_ins(0,reg1,"=","symtable ( "+string($1->addr)+" , "+string($3->addr)+" )","");
+									// find offset
+									string reg2 = newTemp();
+									create_ins(1,reg2,"+",string($1->addr),reg1);
+									$$->addr = str_to_ch("*"+reg2);
+								}
+							}
 						} 
 ;
 

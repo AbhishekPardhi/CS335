@@ -1,5 +1,8 @@
 import numpy as np
 
+# Field declarations
+field_decl = {}
+
 def BuildNextUseTable(lines):
     vars = {} # Dictionary of vars with var -> [live, next_use]
     tuples = []
@@ -34,17 +37,23 @@ def BreakArray(string):
     breakdown = string.replace('[',' ').replace(']',' ').split()
     return breakdown[0], breakdown[1]
 
+# Fetch field declarations table
+def FetchFieldDecl(path, class_name):
+    global field_decl
+    with open(f'{path}output/Class-{class_name}/FieldDeclarations.csv','r') as f:
+        lines = f.readlines()
+    for i,line in enumerate(lines):
+        if(i==0):
+            continue
+        tokens = line.strip().split(',')
+        sep_tokens = tokens[0].split('-')
+        field_decl[sep_tokens[1]] = int(tokens[2])
+
 # Use actual symbol table
 def SymTable(obj, var):
-    if var=="s":
+    global field_decl
+    if var in field_decl:
+        return field_decl[var]
+    else:
+        print('Variable not found in field declarations table')
         return 0
-    elif var=="t":
-        return 8
-    return 0
-
-def FuncOffset(func):
-    if func == "fibonacci":
-        return 56
-    elif func == "main":
-        return 24
-    return 16

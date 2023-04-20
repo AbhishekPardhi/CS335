@@ -71,6 +71,9 @@ func_str_map = {}
 # String to print
 print_str = ""
 
+# Class name
+class_name = ""
+
 # "="|">"|"<"|"!"|"~"|"?"|":"|"->"|"=="|">="|"<="|"!="|"&&"|"||"|"++"|"--"|"+"|"-"|"*"|"/"|"&"|"|"|"^"|"%"|"<<"|">>"|">>>"|"+="|"-="|"*="|"/="|"&="|"|="|"^="|"%="|"<<="|">>="|">>>="
 
 def Initial():
@@ -79,9 +82,6 @@ def Initial():
     # asm.append('.section\t.rodata')
     asm.append('.LC0:')
     asm.append('.string\t"%d\\n"')
-    # asm.append('.text')
-    # asm.append('.globl\tmain')
-    # asm.append('.type\tmain, @function')
 
 def Parse3AC(input_file):
     global exp_reg, asm, arg_reg, stk_max, stk, num_func, isMain, reg_num, offset, stk_pos, print_str, func_str_map, str_map
@@ -210,6 +210,12 @@ def Parse3AC(input_file):
                 Rx=""
                 if '0'<=tokens[2][0] and tokens[2][0]<='9':
                     Rx = LoadNumber(tokens[2])
+                elif tokens[2][0]=="*":
+                    reg_num = (reg_num+1)%len(exp_reg)
+                    Rx = exp_reg[reg_num]
+                    [obj, var_offset] = fields[tokens[2]]
+                    temp_reg = LoadNumber(var_offset)
+                    asm.append(f'movq\t{offset[obj]}(%rbp,{temp_reg},1), {Rx}')
                 else:
                     Rx = Load(tokens[2])
                 temp_lines.append(f'movq\t{Rx}, {arg_reg[pass_arg]}')
@@ -426,7 +432,7 @@ def LoadNumber(number):
     return Rx
 
 def FindLabels(input_file):
-    global labels, str_map, func_str_map
+    global labels, str_map, func_str_map, class_name
 
     with open(input_file, 'r') as f:
         lines = f.readlines()
@@ -439,6 +445,7 @@ def FindLabels(input_file):
         if tokens[1][-1] == ':':
             function_sep = tokens[1].strip().split('-')
             func_name = function_sep[1][:-1]
+            class_name = function_sep[0]
             strs = 0
             func_str_map[func_name]=[]
         if len(tokens)==3 and tokens[1]=="goto":
@@ -459,5 +466,6 @@ output_path = file_path+"output/x86.s"
 
 Initial()
 FindLabels(input_path)
+FetchFieldDecl(file_path, class_name)
 Parse3AC(input_path)
 Printx86(output_path)
