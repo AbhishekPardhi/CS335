@@ -2,7 +2,7 @@ interface test {
     public static int sum(int a, int b);
 }
 
-class Stress implements test {
+class InterfaceTest implements test {
     public static int sum(int a , int b)
     {
         return a + b;
