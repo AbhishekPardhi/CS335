@@ -18,7 +18,6 @@ typedef struct node
     vector<int> falselist;
     vector<int> nextlist;
     vector<struct node *> children;
-    vector<char*> codes;
     char *arrayBase;
 } NODE;
 
