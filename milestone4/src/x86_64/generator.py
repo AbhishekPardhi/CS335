@@ -131,18 +131,6 @@ def Parse3AC(input_file):
             stk_pos.append(-len(asm))
 
 
-        # elif len(tokens)==2 and tokens[1]=="funcOffset":
-            # Find the difference sp should get
-            # diff = math.ceil(FuncOffset(curr_func)/16)*16
-            # asm.append(f'subq\t${FuncOffset(curr_func)}, %rsp')
-
-        # elif len(tokens)==3 and tokens[1]=="stackpointer":
-        #     diff = int(tokens[2])
-        #     if diff<0:
-        #         asm.append(f'subq\t${-diff}, %rsp')
-        #     else:
-        #         asm.append(f'addq\t${diff}, %rsp')
-
         elif tokens[-1]=="PopParam":
             if tokens[1]=="ra":
                 pass
@@ -232,13 +220,11 @@ def Parse3AC(input_file):
             asm.append(f'movq\t%rax, {stk[tokens[1]]}(%rbp)')
             pass_arg = 0
 
-        elif len(tokens)==5 and tokens[1]=="ifFalse":
-            labels.append(tokens[-1])
+        elif len(tokens)==5 and tokens[1]=="if":
             asm.append(f'cmp \t$0, {stk[tokens[2]]}(%rbp)')
-            asm.append(f'je  \t.L{tokens[-1]}')
+            asm.append(f'jne  \t.L{tokens[-1]}')
         
         elif len(tokens)==3 and tokens[1]=="goto":
-            labels.append(tokens[-1])
             asm.append(f'jmp\t.L{tokens[-1]}')
         
         elif len(tokens)==7 and tokens[3]=="heap_alloc":
@@ -411,8 +397,25 @@ def LoadNumber(number):
     asm.append(f'movq\t${number}, {Rx}')
     return Rx
 
+def FindLabels(input_file):
+    global labels
+
+    with open(input_file, 'r') as f:
+        lines = f.readlines()
+
+    for line in lines:
+        tokens = line.strip().split()
+        if len(tokens)==3 and tokens[1]=="goto":
+            labels.append(tokens[-1])
+        elif len(tokens)==5 and tokens[1]=="if":
+            labels.append(tokens[-1])
+    
+
 file_path = "/home/scizor/Documents/Github/CS335-Project/milestone4/src/"
+input_path = file_path+"output/3AC.txt"
+output_path = file_path+"output/x86.s"
 
 Initial()
-Parse3AC(file_path+"output/3AC.txt")
-Printx86(file_path+"output/x86.s")
+FindLabels(input_path)
+Parse3AC(input_path)
+Printx86(output_path)

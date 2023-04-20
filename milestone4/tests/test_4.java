@@ -12,14 +12,13 @@ class test_4
 			x++;
 		}
 		
-		while (x < 30) {
+		while (x < 40) {
 			x++;
-			if (x == 25) {
-				x += 2;
+			if (x == 35) {
+				println(y); // Prints 22
 			}
 			y++;
 		}
-		println(x); // Prints 30
-		println(y); // Prints 26
+		println(x); // Prints 40
 	}
 }

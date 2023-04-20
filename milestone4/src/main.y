@@ -1881,8 +1881,10 @@ RelationalExpression:
 												$$->ins = instCount+1;
 												$$->addr = str_to_ch(newTemp());
 												create_ins(1,$$->addr,$2->val,$1->addr,$3->addr);
-												$$->falselist = makelist(instCount+1);
-												create_ins(0,"ifFalse",$$->addr,"goto","");
+												$$->truelist = makelist(instCount+1);
+												$$->falselist = makelist(instCount+2);
+												create_ins(0,"if",$$->addr,"goto","");
+												create_ins(0,"goto","","","");
 											} 
 |	RelationalExpression GT ShiftExpression	{
 												$$ = create_node ( 3 ,$2->val, $1, $3); 
@@ -1906,8 +1908,10 @@ RelationalExpression:
 												$$->ins = instCount+1;
 												$$->addr = str_to_ch(newTemp());
 												create_ins(1,$$->addr,$2->val,$1->addr,$3->addr);
-												$$->falselist = makelist(instCount+1);
-												create_ins(0,"ifFalse",$$->addr,"goto","");
+												$$->truelist = makelist(instCount+1);
+												$$->falselist = makelist(instCount+2);
+												create_ins(0,"if",$$->addr,"goto","");
+												create_ins(0,"goto","","","");
 											} 
 |	RelationalExpression LE ShiftExpression	{
 												$$ = create_node ( 3 ,$2->val, $1, $3); 
@@ -1931,8 +1935,10 @@ RelationalExpression:
 												$$->ins = instCount+1;
 												$$->addr = str_to_ch(newTemp());
 												create_ins(1,$$->addr,$2->val,$1->addr,$3->addr);
-												$$->falselist = makelist(instCount+1);
-												create_ins(0,"ifFalse",$$->addr,"goto","");
+												$$->truelist = makelist(instCount+1);
+												$$->falselist = makelist(instCount+2);
+												create_ins(0,"if",$$->addr,"goto","");
+												create_ins(0,"goto","","","");
 											} 
 |	RelationalExpression GE ShiftExpression	{
 												$$ = create_node ( 3 ,$2->val, $1, $3); 
@@ -1956,8 +1962,10 @@ RelationalExpression:
 												$$->ins = instCount+1;
 												$$->addr = str_to_ch(newTemp());
 												create_ins(1,$$->addr,$2->val,$1->addr,$3->addr);
-												$$->falselist = makelist(instCount+1);
-												create_ins(0,"ifFalse",$$->addr,"goto","");
+												$$->truelist = makelist(instCount+1);
+												$$->falselist = makelist(instCount+2);
+												create_ins(0,"if",$$->addr,"goto","");
+												create_ins(0,"goto","","","");
 											} 
 |	RelationalExpression INSTANCEOF ReferenceType	{ $$ = create_node ( 3 ,$2->val, $1, $3); } 
 ;
@@ -1986,8 +1994,10 @@ EqualityExpression:
 																$$->ins = instCount+1;
 																$$->addr = str_to_ch(newTemp());
 																create_ins(1,$$->addr,$2->val,$1->addr,$3->addr);
-																$$->falselist = makelist(instCount+1);
-																create_ins(0,"ifFalse",$$->addr,"goto","");
+																$$->truelist = makelist(instCount+1);
+																$$->falselist = makelist(instCount+2);
+																create_ins(0,"if",$$->addr,"goto","");
+																create_ins(0,"goto","","","");
 															} 
 |	EqualityExpression NOT_EQUALS RelationalExpression	{
 															$$ = create_node ( 3 ,$2->val, $1, $3);
@@ -2010,8 +2020,10 @@ EqualityExpression:
 															}
 															$$->ins = instCount+1;
 															create_ins(1,$$->addr,$2->val,$1->addr,$3->addr);
-															$$->falselist = makelist(instCount+1);
-															create_ins(0,"ifFalse",$$->addr,"goto","");
+															$$->truelist = makelist(instCount+1);
+															$$->falselist = makelist(instCount+2);
+															create_ins(0,"if",$$->addr,"goto","");
+															create_ins(0,"goto","","","");
 														} 
 ;
 AndExpression:
