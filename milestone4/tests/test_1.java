@@ -9,6 +9,7 @@ public class Fibonacci {
 
     public static void main(String[] args) {
         int n = 10;
+        println("Value of fibonacci(n) = ");
         println(fibonacci(n)); // Prints 55
     }
 

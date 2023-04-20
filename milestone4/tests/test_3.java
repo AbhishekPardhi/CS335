@@ -7,6 +7,7 @@ class Classes {
   
     public void square(int num) {
       int result = num * num;
+      println("Value of result = ");
       println(result);    // prints 576
     }
     public static void main(String[] args) {

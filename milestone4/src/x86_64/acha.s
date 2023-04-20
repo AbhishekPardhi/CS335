@@ -1,4 +1,4 @@
-	.file	"test.java"
+	.file	"acha.c"
 	.text
 	.section	.rodata
 .LC0:
@@ -9,14 +9,9 @@
 main:
 	pushq	%rbp
 	movq	%rsp, %rbp
-	subq	$16, %rsp
-	movq	%rdi, -8(%rbp)
-	movq	%rsi, -16(%rbp)
 	leaq	.LC0(%rip), %rdi
-	movq	$0, %rax
+	movl	$0, %eax
 	call	printf@PLT
-	addq	$16, %rsp
+	movl	$0, %eax
 	popq	%rbp
-	movq	$0, %rax
-	syscall
-	retq
+	ret

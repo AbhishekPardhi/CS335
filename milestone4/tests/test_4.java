@@ -5,6 +5,7 @@ class test_4
 		int x = 20;
 		int y = 18;
 		if (x > y) {
+			println("Initial value of x = ");
 			println(x); // Prints 20
 		}  
 
@@ -15,10 +16,12 @@ class test_4
 		while (x < 40) {
 			x++;
 			if (x == 35) {
+				println("Value of y = ");
 				println(y); // Prints 22
 			}
 			y++;
 		}
+		println("Final Value of x = ");
 		println(x); // Prints 40
 	}
 }

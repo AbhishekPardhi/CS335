@@ -5,6 +5,7 @@ public class ArrayExample {
       arr[2] = 3;
       arr[4] = 5;
       arr[5] = arr[4] + arr[2];
+      println("Value of arr[5] = ");
       println(arr[5]); // Prints 8
     }
   }

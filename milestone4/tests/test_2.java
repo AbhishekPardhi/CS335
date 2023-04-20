@@ -10,6 +10,7 @@ public class SumArray {
         for (int i = 0; i < 5; i++) {
             sum += arr[i];
         }
+        println("Value of sum = ");
         println(sum); // Prints 15
     }
 }

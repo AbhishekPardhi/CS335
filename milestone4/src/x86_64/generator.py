@@ -62,20 +62,29 @@ curr_func = ""
 # Stackchange
 stk_pos = []
 
+# Strings Mapping
+str_map = {}
+
+# Function-strings mapping
+func_str_map = {}
+
+# String to print
+print_str = ""
+
 # "="|">"|"<"|"!"|"~"|"?"|":"|"->"|"=="|">="|"<="|"!="|"&&"|"||"|"++"|"--"|"+"|"-"|"*"|"/"|"&"|"|"|"^"|"%"|"<<"|">>"|">>>"|"+="|"-="|"*="|"/="|"&="|"|="|"^="|"%="|"<<="|">>="|">>>="
 
 def Initial():
-    asm.append('.file\t"test.c"')
+    asm.append('.file\t"test.java"')
     asm.append('.text')
-    asm.append('.section\t.rodata')
+    # asm.append('.section\t.rodata')
     asm.append('.LC0:')
     asm.append('.string\t"%d\\n"')
-    asm.append('.text')
-    asm.append('.globl\tmain')
-    asm.append('.type\tmain, @function')
+    # asm.append('.text')
+    # asm.append('.globl\tmain')
+    # asm.append('.type\tmain, @function')
 
 def Parse3AC(input_file):
-    global exp_reg, asm, arg_reg, stk_max, stk, num_func, isMain, reg_num, offset, stk_pos
+    global exp_reg, asm, arg_reg, stk_max, stk, num_func, isMain, reg_num, offset, stk_pos, print_str, func_str_map, str_map
 
     num_args = 0
     pass_arg = 0
@@ -97,6 +106,15 @@ def Parse3AC(input_file):
         if tokens[1][-1] == ':':
             function_sep = tokens[1].strip().split('-')
             func_name = function_sep[1]
+
+            for func_str in func_str_map[func_name[:-1]]:
+                asm.append(f'.STR{str_map[func_str]}:')
+                asm.append(f'.string\t{func_str}')
+
+            asm.append('.text')
+            asm.append(f'.globl\t{func_name[:-1]}')
+            asm.append(f'.type\t{func_name[:-1]}, @function')
+
             asm.append(f'{func_name}')
             for csreg in callee_saved_reg:
                 asm.append(f'pushq\t{csreg}')
@@ -155,7 +173,8 @@ def Parse3AC(input_file):
             # asm.append(f'popq\t%rbp')
             if isMain:
                 # asm.append('leave')
-                asm.append('movq\t$60, %rax')
+                # asm.append('movq\t$60, %rax')
+                asm.append('movq\t$0, %rax')
                 asm.append('syscall')
                 for pos in stk_pos:
                     if pos>0:
@@ -173,13 +192,18 @@ def Parse3AC(input_file):
             temp_tokens = lines[i+1].strip().split()
             # Argument for Print statement
             if temp_tokens[1]=="call" and temp_tokens[2]=="Print":
-                if tokens[2] in stk:
+                if tokens[2][0]=='"':
+                    for k in range(2,len(tokens)):
+                        print_str += tokens[k]+' '
+                elif tokens[2] in stk:
                     asm.append(f'movq\t{stk[tokens[2]]}(%rbp), %rax')
                 elif tokens[2][0]=="*":
                     Rx = "%rax"
                     [obj, var_offset] = fields[tokens[2]]
                     temp_reg = LoadNumber(var_offset)
                     asm.append(f'movq\t{offset[obj]}(%rbp,{temp_reg},1), {Rx}')
+                elif '0'<=tokens[2][0] and tokens[2][0]<='9':
+                    asm.append(f'movq\t${tokens[2]}, %rax')
                 asm.append(f'movq\t%rax, %rsi')
             else:
                 temp_lines=[]
@@ -207,7 +231,11 @@ def Parse3AC(input_file):
                         break
 
         elif len(tokens)==3 and tokens[1]=="call" and tokens[2]=="Print":
-            asm.append('leaq\t.LC0(%rip), %rdi')
+            if print_str == "":
+                asm.append('leaq\t.LC0(%rip), %rdi')
+            else:
+                asm.append(f'leaq\t.STR{str_map[print_str]}(%rip), %rdi')
+                print_str=""
             asm.append('movq\t$0, %rax')
             asm.append('call\tprintf@PLT')
 
@@ -398,18 +426,32 @@ def LoadNumber(number):
     return Rx
 
 def FindLabels(input_file):
-    global labels
+    global labels, str_map, func_str_map
 
     with open(input_file, 'r') as f:
         lines = f.readlines()
 
+    func_name=""
+    strs = 0
+
     for line in lines:
         tokens = line.strip().split()
+        if tokens[1][-1] == ':':
+            function_sep = tokens[1].strip().split('-')
+            func_name = function_sep[1][:-1]
+            strs = 0
+            func_str_map[func_name]=[]
         if len(tokens)==3 and tokens[1]=="goto":
             labels.append(tokens[-1])
         elif len(tokens)==5 and tokens[1]=="if":
             labels.append(tokens[-1])
-    
+        elif tokens[1]=="PushParam" and tokens[2][0]=='"':
+            print_str = ""
+            for k in range(2,len(tokens)):
+                print_str += tokens[k]+' '
+            str_map[print_str] = f'{func_name}'+str(strs)
+            strs += 1
+            func_str_map[func_name].append(print_str)
 
 file_path = "/home/scizor/Documents/Github/CS335-Project/milestone4/src/"
 input_path = file_path+"output/3AC.txt"
