@@ -9,6 +9,6 @@ class InterfaceTest implements test {
     }
     
     public static void main(String[] args) {
-        println(sum(6, 9));
+        println(sum(6, 9)); // Prints 15
     }
   }

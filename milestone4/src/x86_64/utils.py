@@ -40,8 +40,11 @@ def BreakArray(string):
 # Fetch field declarations table
 def FetchFieldDecl(path, class_name):
     global field_decl
-    with open(f'{path}output/Class-{class_name}/FieldDeclarations.csv','r') as f:
-        lines = f.readlines()
+    try:
+        with open(f'{path}/output/Class-{class_name}/FieldDeclarations.csv','r') as f:
+            lines = f.readlines()
+    except FileNotFoundError:
+        return
     for i,line in enumerate(lines):
         if(i==0):
             continue

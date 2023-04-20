@@ -8,6 +8,6 @@ public class Factorial {
         }
         
         println("Factorial of num is = ");
-        println(fact);
+        println(fact); // Prints 120
     }
 }

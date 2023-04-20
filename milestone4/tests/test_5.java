@@ -5,6 +5,6 @@ class Stress {
         int i = 1, j = 2;
         int k = i + j + (i + j + (i + j + (i + j + (i + j + (i + j + (i + j))))));
         println("Value of k = ");
-        println(k);
+        println(k); // Prints 21
     }
   }

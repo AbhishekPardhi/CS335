@@ -327,8 +327,10 @@ def Parse3AC(input_file):
                     Ry=Rx
                 # Will break if Ry=rax
                 elif tokens[4]=="/":
-                    asm.append(f'idivq\t{Ry}, %rax')
+                    asm.append(f'movq\t{Ry}, %rax')
+                    asm.append(f'xor \t%rdx, %rdx')
                     asm.append(f'idivq\t{Rx}')
+                    Ry='%rax'
                 elif tokens[4]=="==":
                     asm.append(f'cmp \t{Rx}, {Ry}')
                     asm.append(f'sete\t%al')
@@ -460,9 +462,11 @@ def FindLabels(input_file):
             strs += 1
             func_str_map[func_name].append(print_str)
 
-file_path = "/home/scizor/Documents/Github/CS335-Project/milestone4/src/"
-input_path = file_path+"output/3AC.txt"
-output_path = file_path+"output/x86.s"
+cwd = os.getcwd()
+file_path = cwd
+# file_path = "/home/scizor/Documents/Github/CS335-Project/milestone4/src/"
+input_path = file_path+"/output/3AC.txt"
+output_path = file_path+"/output/x86.s"
 
 Initial()
 FindLabels(input_path)
